@@ -1,0 +1,3044 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WealthPulse — Personal Finance, Net Worth & Wealth Projection</title>
+
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* Custom scrollbar & range slider enhancements */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    input[type="range"] {
+      accent-color: #4f46e5;
+    }
+    .dark input[type="range"] {
+      accent-color: #818cf8;
+    }
+    /* Smooth custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.6);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased transition-colors duration-200">
+
+  <!-- ========================================================= -->
+  <!-- AUTHENTICATION GATE (MULTI-USER SIGN IN / SIGN UP)        -->
+  <!-- ========================================================= -->
+  <div id="auth-screen" class="fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-md my-auto">
+      <!-- Brand Header -->
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 mx-auto mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">WealthPulse</h1>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Zero-Knowledge Encrypted Personal Finance OS</p>
+        <div class="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/70 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+          End-to-End AES-256-GCM Encrypted
+        </div>
+      </div>
+
+      <!-- Auth Card -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl p-6">
+        <!-- Sign In / Sign Up Switcher -->
+        <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-5">
+          <button type="button" id="auth-tab-signin" class="py-2 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm transition-all">Sign In</button>
+          <button type="button" id="auth-tab-signup" class="py-2 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-400 transition-all">Create Account</button>
+        </div>
+
+        <!-- Inline Error Banner -->
+        <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs font-medium text-rose-700 dark:text-rose-300"></div>
+
+        <form id="auth-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Email Address</label>
+            <input type="email" id="auth-email" required autocomplete="email" placeholder="you@example.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Account Password</label>
+            <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="Minimum 6 characters" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <!-- Vault Encryption Passphrase -->
+          <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200">Vault Encryption Passphrase</label>
+              <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">Client-Side Key</span>
+            </div>
+            <input type="password" id="auth-passphrase" required minlength="6" autocomplete="off" placeholder="Secret passphrase to encrypt/decrypt vault" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Derived locally via PBKDF2 (150k iterations). Never leaves your browser.</p>
+          </div>
+
+          <!-- Sign-Up Only Fields -->
+          <div id="signup-extra-fields" class="hidden space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Confirm Vault Passphrase</label>
+              <input type="password" id="auth-passphrase-confirm" autocomplete="off" placeholder="Re-enter vault passphrase" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            </div>
+
+            <!-- Starter Data Choice -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">Initial Vault Setup</label>
+              <div class="grid grid-cols-1 gap-2">
+                <label class="flex items-start gap-2.5 p-3 rounded-xl border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/50 dark:bg-indigo-950/30 cursor-pointer">
+                  <input type="radio" name="vault-init-mode" value="demo" checked class="mt-0.5 text-indigo-600 focus:ring-indigo-500" />
+                  <div>
+                    <div class="text-xs font-bold text-slate-900 dark:text-white">Load Indian Rupee (₹) Starter Demo Data</div>
+                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Pre-filled salary, SIPs, mutual funds, and net worth to explore immediately.</div>
+                  </div>
+                </label>
+                <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 cursor-pointer">
+                  <input type="radio" name="vault-init-mode" value="empty" class="mt-0.5 text-indigo-600 focus:ring-indigo-500" />
+                  <div>
+                    <div class="text-xs font-bold text-slate-900 dark:text-white">Start with Clean Empty Vault</div>
+                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Begin from scratch with your own private income, expenses, and assets.</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" id="auth-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+            <span id="auth-submit-text">Sign In &amp; Decrypt Vault</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- VAULT LOCK SCREEN (AUTHENTICATED BUT KEY CLEARED)         -->
+  <!-- ========================================================= -->
+  <div id="lock-screen" class="fixed inset-0 z-50 hidden bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5">
+      <div class="text-center">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 border border-emerald-200 dark:border-emerald-800">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Vault Locked</h2>
+        <p id="lock-user-email" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 mt-1">—</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Your encryption key was cleared from memory. Enter your vault passphrase to decrypt your data.</p>
+      </div>
+
+      <div id="lock-error" class="hidden p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs font-medium text-rose-700 dark:text-rose-300"></div>
+
+      <form id="lock-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Vault Passphrase</label>
+          <input type="password" id="lock-passphrase" required autocomplete="off" placeholder="Enter your vault encryption passphrase" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <button type="submit" id="lock-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition-all">
+          Unlock &amp; Decrypt Vault
+        </button>
+      </form>
+
+      <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">Want to use another account?</span>
+        <button type="button" id="btn-lock-signout" class="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline">Sign Out / Switch User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Shell (Hidden until authenticated & decrypted) -->
+  <div id="app-shell" class="hidden min-h-screen flex-col lg:flex-row">
+
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30">
+      <!-- Logo -->
+      <div class="flex items-center gap-3 px-6 h-16 border-b border-slate-200 dark:border-slate-800">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base font-bold tracking-tight text-slate-900 dark:text-white leading-none">WealthPulse</h1>
+          <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Personal Finance OS</p>
+        </div>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto" id="desktop-nav">
+        <button data-tab="dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+          </svg>
+          <span>Dashboard</span>
+        </button>
+        <button data-tab="transactions" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+          </svg>
+          <span>Expenses & Income</span>
+        </button>
+        <button data-tab="networth" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+          </svg>
+          <span>Net Worth</span>
+        </button>
+        <button data-tab="projection" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+          </svg>
+          <span>Wealth Projection</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer Data Controls -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <!-- Active User Pill -->
+        <div class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span id="sidebar-user-email" class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">Not signed in</span>
+          </div>
+          <div id="sidebar-sync-status" class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">Encrypted Cloud Vault</div>
+        </div>
+        <button id="btn-export-sidebar" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Export Encrypted Backup
+        </button>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="btn-reset-sidebar" class="flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            Data Tools
+          </button>
+          <button id="btn-signout-sidebar" class="flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors">
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 lg:pl-64 flex flex-col min-h-screen pb-20 lg:pb-0">
+
+      <!-- Top Header Bar -->
+      <header class="sticky top-0 z-20 h-16 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+        <!-- Left: Mobile Logo / Current Page Title -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="lg:hidden w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <!-- Right: Vault Security Badge, Currency Switcher, Quick Add, Theme Toggle -->
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          <!-- AES-256-GCM Vault Security Badge -->
+          <button id="btn-vault-security" title="Vault Security & Encryption Inspector" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800/70 text-emerald-700 dark:text-emerald-300 text-[11px] sm:text-xs font-semibold transition-colors">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <span class="hidden md:inline">AES-256-GCM Encrypted</span>
+            <span class="md:hidden">Encrypted</span>
+          </button>
+
+          <!-- Currency Switcher -->
+          <div class="relative">
+            <select id="currency-select" aria-label="Select Currency" class="appearance-none bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs sm:text-sm font-semibold rounded-xl pl-3 pr-7 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+              <option value="INR">₹ INR</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+              <option value="GBP">£ GBP</option>
+            </select>
+            <svg class="w-3.5 h-3.5 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+
+          <!-- Quick Add Button -->
+          <button id="btn-quick-add" class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20 transition-all active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span class="hidden sm:inline">Add Transaction</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button id="btn-theme-toggle" aria-label="Toggle Dark Mode" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors">
+            <!-- Sun Icon (shown in dark mode) -->
+            <svg id="icon-sun" class="w-4 h-4 sm:w-5 sm:h-5 hidden dark:block" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+            </svg>
+            <!-- Moon Icon (shown in light mode) -->
+            <svg id="icon-moon" class="w-4 h-4 sm:w-5 sm:h-5 block dark:hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+          </button>
+
+          <!-- Mobile Export/Reset trigger -->
+          <button id="btn-mobile-settings" aria-label="Data Options" class="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Views Container -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: DASHBOARD OVERVIEW                                 -->
+        <!-- ========================================================= -->
+        <section id="tab-dashboard" class="tab-view space-y-6">
+          <!-- KPI Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <!-- Current Net Worth -->
+            <div class="bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 text-white rounded-2xl p-5 shadow-lg shadow-indigo-500/15 relative overflow-hidden">
+              <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-indigo-100">Current Net Worth</span>
+                <span class="p-1.5 rounded-lg bg-white/15">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+              </div>
+              <div class="mt-3">
+                <div id="dash-net-worth" class="text-2xl sm:text-3xl font-extrabold tracking-tight">—</div>
+                <div id="dash-net-worth-sub" class="text-xs text-indigo-100/90 mt-1">Assets − Liabilities</div>
+              </div>
+            </div>
+
+            <!-- Monthly Income -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Monthly Income</span>
+                <span class="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                  </svg>
+                </span>
+              </div>
+              <div class="mt-3">
+                <div id="dash-monthly-income" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">—</div>
+                <div id="dash-income-sub" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">Active inflows</div>
+              </div>
+            </div>
+
+            <!-- Monthly Expenses -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Monthly Expenses</span>
+                <span class="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6L9 12.75l4.286-4.286a11.948 11.948 0 014.306 6.43l.776 2.898m0 0l3.182-5.511m-3.182 5.51l-5.511-3.181" />
+                  </svg>
+                </span>
+              </div>
+              <div class="mt-3">
+                <div id="dash-monthly-expense" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">—</div>
+                <div id="dash-expense-sub" class="text-xs text-rose-600 dark:text-rose-400 font-medium mt-1">Outflows & SIPs tracked</div>
+              </div>
+            </div>
+
+            <!-- Monthly Net Savings & Rate -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Monthly Savings</span>
+                <span id="dash-savings-rate-badge" class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">0%</span>
+              </div>
+              <div class="mt-3">
+                <div id="dash-monthly-savings" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">—</div>
+                <div id="dash-savings-sub" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Surplus + Investments/SIP</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row 1: Expense Donut + Assets vs Liabilities -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Expense Breakdown Donut -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Expense Breakdown</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Distribution by spending category</p>
+                </div>
+                <button onclick="switchTab('transactions')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">View all →</button>
+              </div>
+              <div class="relative h-64 w-full flex-1">
+                <canvas id="chart-dash-expense"></canvas>
+              </div>
+            </div>
+
+            <!-- Assets vs Liabilities Bar Chart -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Assets vs. Liabilities</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Balance sheet health overview</p>
+                </div>
+                <button onclick="switchTab('networth')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Manage →</button>
+              </div>
+              <div class="relative h-64 w-full flex-1">
+                <canvas id="chart-dash-assets-liab"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Mini 10-Year Projection + Recent Transactions -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Mini 10-Year Projection Preview -->
+            <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">10-Year Net Worth Preview</h3>
+                  <p id="dash-proj-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Projected trajectory at 12% p.a. expected return</p>
+                </div>
+                <button onclick="switchTab('projection')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors">
+                  Open Simulator →
+                </button>
+              </div>
+              <div class="relative h-64 w-full flex-1">
+                <canvas id="chart-dash-projection"></canvas>
+              </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Latest income & expense entries</p>
+                </div>
+                <button onclick="openQuickAddModal()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">+ Quick Add</button>
+              </div>
+              <div id="dash-recent-list" class="space-y-2.5 overflow-y-auto max-h-64 pr-1">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+            <!-- Left Column: Add/Edit Transaction Form -->
+            <div class="lg:col-span-4 space-y-6">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 id="tx-form-title" class="text-base font-bold text-slate-900 dark:text-white">Add New Entry</h3>
+                  <button type="button" id="btn-tx-cancel-edit" class="hidden text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Cancel Edit</button>
+                </div>
+                <form id="tx-form" class="space-y-4">
+                  <input type="hidden" id="tx-edit-id" value="" />
+                  <!-- Type Toggle -->
+                  <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                    <button type="button" data-tx-type="expense" class="tx-type-btn py-2 text-xs font-bold rounded-lg transition-all bg-white dark:bg-slate-700 text-rose-600 dark:text-rose-400 shadow-sm">Expense</button>
+                    <button type="button" data-tx-type="income" class="tx-type-btn py-2 text-xs font-bold rounded-lg transition-all text-slate-600 dark:text-slate-400">Income</button>
+                  </div>
+                  <input type="hidden" id="tx-type" value="expense" />
+
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Title / Description</label>
+                    <input type="text" id="tx-title" required placeholder="e.g., Monthly Rent, Salary, SIP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Amount (<span class="currency-symbol">₹</span>)</label>
+                      <input type="number" id="tx-amount" required min="1" step="any" placeholder="0" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Date</label>
+                      <input type="date" id="tx-date" required class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Category</label>
+                    <select id="tx-category" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                      <option value="Housing/Rent">Housing / Rent</option>
+                      <option value="Food & Dining">Food & Dining</option>
+                      <option value="Transport & Fuel">Transport & Fuel</option>
+                      <option value="Utilities">Utilities</option>
+                      <option value="Shopping">Shopping</option>
+                      <option value="Entertainment">Entertainment</option>
+                      <option value="Health">Health</option>
+                      <option value="EMI/Debt Payment">EMI / Debt Payment</option>
+                      <option value="Investments/SIP">Investments / SIP</option>
+                      <option value="Salary">Salary</option>
+                      <option value="Freelance">Freelance</option>
+                      <option value="Dividends">Dividends</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Frequency</label>
+                    <select id="tx-frequency" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                      <option value="recurring">Monthly Recurring</option>
+                      <option value="onetime">One-time</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" id="tx-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm shadow-indigo-500/20 transition-all active:scale-[0.98]">
+                    Save Entry
+                  </button>
+                </form>
+              </div>
+
+              <!-- Category Spending Progress Bars -->
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Category Spending Share</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Percentage of total monthly expenses</p>
+                <div id="category-progress-list" class="space-y-3.5">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Searchable & Filterable Transactions Table -->
+            <div class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">All Transactions</h3>
+                  <p id="tx-count-label" class="text-xs text-slate-500 dark:text-slate-400">0 entries</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                  <div class="relative flex-1 sm:flex-initial">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <input type="text" id="tx-search" placeholder="Search..." class="w-full sm:w-44 pl-9 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  </div>
+                  <select id="tx-filter-type" class="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">All Types</option>
+                    <option value="income">Income Only</option>
+                    <option value="expense">Expenses Only</option>
+                  </select>
+                  <select id="tx-filter-category" class="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">All Categories</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th class="py-3 px-3">Date</th>
+                      <th class="py-3 px-3">Description</th>
+                      <th class="py-3 px-3">Category</th>
+                      <th class="py-3 px-3">Frequency</th>
+                      <th class="py-3 px-3 text-right">Amount</th>
+                      <th class="py-3 px-2 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tx-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/70 text-sm">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 3: NET WORTH CALCULATOR                               -->
+        <!-- ========================================================= -->
+        <section id="tab-networth" class="tab-view hidden space-y-6">
+          <!-- Top Summary Banner -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Assets</div>
+              <div id="nw-total-assets" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1.5">—</div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Liabilities</div>
+              <div id="nw-total-liabilities" class="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1.5">—</div>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-2xl p-5 shadow-md">
+              <div class="text-xs font-semibold uppercase tracking-wider text-indigo-100">Net Worth</div>
+              <div id="nw-net-worth" class="text-2xl font-extrabold mt-1.5">—</div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Debt-to-Asset Ratio</div>
+              <div id="nw-debt-ratio" class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">—</div>
+              <div id="nw-debt-status" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Healthy &lt; 30%</div>
+            </div>
+          </div>
+
+          <!-- Assets & Liabilities Two-Column Editor -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Assets Column -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Assets</h3>
+                </div>
+                <button onclick="openAssetLiabModal('asset')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors">
+                  + Add Asset
+                </button>
+              </div>
+              <div id="assets-list" class="space-y-2.5 flex-1">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Liabilities Column -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Liabilities</h3>
+                </div>
+                <button onclick="openAssetLiabModal('liability')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors">
+                  + Add Liability
+                </button>
+              </div>
+              <div id="liabilities-list" class="space-y-2.5 flex-1">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Asset Allocation Chart -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="mb-4">
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Asset Allocation</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Diversification across asset classes</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              <div class="md:col-span-6 relative h-64">
+                <canvas id="chart-asset-allocation"></canvas>
+              </div>
+              <div id="asset-allocation-legend" class="md:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 4: WEALTH ESTIMATION & FUTURE PROJECTION SIMULATOR    -->
+        <!-- ========================================================= -->
+        <section id="tab-projection" class="tab-view hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left Controls Panel -->
+            <div class="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5 h-fit">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Projection Inputs</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Model your future wealth trajectory</p>
+                </div>
+              </div>
+
+              <!-- Synced Starting Net Worth -->
+              <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-200">Starting Net Worth</label>
+                  <label class="inline-flex items-center gap-1.5 text-[11px] font-medium text-indigo-600 dark:text-indigo-400 cursor-pointer">
+                    <input type="checkbox" id="proj-override-nw" class="rounded text-indigo-600 focus:ring-indigo-500" />
+                    Override
+                  </label>
+                </div>
+                <input type="number" id="proj-start-nw" disabled class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-semibold disabled:opacity-65 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+
+              <!-- Synced Monthly Savings/Investment -->
+              <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-200">Monthly Investment / Savings</label>
+                  <label class="inline-flex items-center gap-1.5 text-[11px] font-medium text-indigo-600 dark:text-indigo-400 cursor-pointer">
+                    <input type="checkbox" id="proj-override-savings" class="rounded text-indigo-600 focus:ring-indigo-500" />
+                    Override
+                  </label>
+                </div>
+                <input type="number" id="proj-monthly-savings" disabled class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-semibold disabled:opacity-65 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+
+              <!-- Time Horizon Slider -->
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-200">Time Horizon (Years)</label>
+                  <input type="number" id="proj-years-num" min="1" max="35" value="15" class="w-16 text-right px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <input type="range" id="proj-years" min="1" max="35" value="15" class="w-full cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-400"><span>1 Yr</span><span>15 Yrs</span><span>35 Yrs</span></div>
+              </div>
+
+              <!-- Expected Annual Return Slider -->
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-200">Expected Annual Return (%)</label>
+                  <input type="number" id="proj-return-num" min="1" max="25" step="0.5" value="12" class="w-16 text-right px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <input type="range" id="proj-return" min="1" max="25" step="0.5" value="12" class="w-full cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-400"><span>1%</span><span>12%</span><span>25%</span></div>
+              </div>
+
+              <!-- Annual Savings Step-Up Slider -->
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-200">Annual Savings Step-Up (%)</label>
+                  <input type="number" id="proj-stepup-num" min="0" max="25" step="1" value="5" class="w-16 text-right px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <input type="range" id="proj-stepup" min="0" max="25" step="1" value="5" class="w-full cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-400"><span>0%</span><span>10%</span><span>25%</span></div>
+              </div>
+
+              <!-- Expected Inflation Slider -->
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-semibold text-slate-700 dark:text-slate-200">Expected Inflation Rate (%)</label>
+                  <input type="number" id="proj-inflation-num" min="0" max="12" step="0.5" value="6" class="w-16 text-right px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <input type="range" id="proj-inflation" min="0" max="12" step="0.5" value="6" class="w-full cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-400"><span>0%</span><span>6%</span><span>12%</span></div>
+              </div>
+
+              <!-- Nominal vs Inflation-Adjusted Toggle -->
+              <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">Display Mode</label>
+                <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                  <button type="button" id="btn-mode-nominal" class="proj-mode-btn py-2 px-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm transition-all">Nominal Value</button>
+                  <button type="button" id="btn-mode-real" class="proj-mode-btn py-2 px-2 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 transition-all">Today's Money</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Visualizations & Output Panel -->
+            <div class="lg:col-span-8 space-y-6">
+              <!-- Highlight KPI Cards -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div class="bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-2xl p-4 shadow-md">
+                  <div class="text-[11px] font-semibold uppercase tracking-wider text-indigo-100">Projected Net Worth</div>
+                  <div id="proj-kpi-future" class="text-xl sm:text-2xl font-extrabold mt-1.5">—</div>
+                  <div id="proj-kpi-future-sub" class="text-[11px] text-indigo-100/90 mt-1">In 15 years</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Principal</div>
+                  <div id="proj-kpi-principal" class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1.5">—</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Start + Contributions</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Wealth Gained</div>
+                  <div id="proj-kpi-gains" class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1.5">—</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Compounding returns</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Wealth Multiplier</div>
+                  <div id="proj-kpi-multiplier" class="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1.5">—</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Final ÷ Principal</div>
+                </div>
+              </div>
+
+              <!-- Interactive Projection Chart Card (3 Scenarios + Principal vs Returns Toggle) -->
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Wealth Growth Trajectory</h3>
+                    <p id="proj-chart-desc" class="text-xs text-slate-500 dark:text-slate-400">Comparing Conservative, Expected, and Optimistic scenarios</p>
+                  </div>
+                  <div class="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl self-start">
+                    <button type="button" id="btn-chart-scenarios" class="proj-chart-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm">3 Scenarios</button>
+                    <button type="button" id="btn-chart-stacked" class="proj-chart-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400">Principal vs Returns</button>
+                  </div>
+                </div>
+                <div class="relative h-72 sm:h-80 w-full">
+                  <canvas id="chart-wealth-projection"></canvas>
+                </div>
+              </div>
+
+              <!-- Milestone Estimator -->
+              <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="mb-4">
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">Milestone Estimator</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Estimated timeline to cross key net worth milestones (Expected scenario)</p>
+                </div>
+                <div id="milestones-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+
+              <!-- Expandable Year-by-Year Projection Table -->
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <button id="btn-toggle-proj-table" class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <div class="text-left">
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Year-by-Year Projection Schedule</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Detailed breakdown of contributions, compounding, and inflation-adjusted value</p>
+                  </div>
+                  <svg id="proj-table-chevron" class="w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </button>
+                <div id="proj-table-container" class="hidden border-t border-slate-200 dark:border-slate-800 overflow-x-auto">
+                  <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                      <tr class="bg-slate-50 dark:bg-slate-800/60 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                        <th class="py-3 px-4">Year</th>
+                        <th class="py-3 px-4 text-right">Starting Balance</th>
+                        <th class="py-3 px-4 text-right">Annual Contribution</th>
+                        <th class="py-3 px-4 text-right">Est. Returns</th>
+                        <th class="py-3 px-4 text-right">Ending Net Worth</th>
+                        <th class="py-3 px-4 text-right">Real (Today's Money)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="proj-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/70">
+                      <!-- Populated dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-30 px-2 py-1.5 grid grid-cols-4 gap-1" id="mobile-nav">
+      <button data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-medium transition-colors">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+        </svg>
+        <span>Overview</span>
+      </button>
+      <button data-tab="transactions" class="mobile-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-medium transition-colors">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+        </svg>
+        <span>Cashflow</span>
+      </button>
+      <button data-tab="networth" class="mobile-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-medium transition-colors">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+        </svg>
+        <span>Net Worth</span>
+      </button>
+      <button data-tab="projection" class="mobile-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-medium transition-colors">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+        <span>Projection</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODALS (Asset/Liability Edit, Quick Add, Reset/Data)      -->
+  <!-- ========================================================= -->
+
+  <!-- Modal Backdrop & Container -->
+  <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+
+    <!-- 1. Add/Edit Asset or Liability Modal -->
+    <div id="modal-asset-liab" class="modal-box hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-md p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="al-modal-title" class="text-lg font-bold text-slate-900 dark:text-white">Add Asset</h3>
+        <button onclick="closeModals()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+      </div>
+      <form id="al-form" class="space-y-4">
+        <input type="hidden" id="al-kind" value="asset" />
+        <input type="hidden" id="al-edit-id" value="" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Name</label>
+          <input type="text" id="al-name" required placeholder="e.g., Nifty 50 Index Fund" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Category</label>
+          <select id="al-category" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Current Value (<span class="currency-symbol">₹</span>)</label>
+          <input type="number" id="al-value" required min="0" step="any" placeholder="0" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModals()" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">Save</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 2. Reset / Data Management Modal -->
+    <div id="modal-data" class="modal-box hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-md p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Data Management</h3>
+        <button onclick="closeModals()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Your financial data is end-to-end encrypted with AES-256-GCM and isolated to your account in cloud storage.</p>
+      <div class="space-y-2.5">
+        <button id="btn-modal-export" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm font-semibold transition-colors">
+          Export Encrypted Backup (.json)
+        </button>
+        <button id="btn-modal-restore-sample" class="w-full py-2.5 px-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-sm font-semibold transition-colors">
+          Load INR Starter Demo Data
+        </button>
+        <button id="btn-modal-clear-all" class="w-full py-2.5 px-4 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 text-sm font-semibold transition-colors">
+          Clear All Financial Data
+        </button>
+        <button id="btn-modal-signout-mobile" class="lg:hidden w-full py-2.5 px-4 rounded-xl border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-sm font-semibold transition-colors">
+          Sign Out / Switch Account
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. Vault Security & End-to-End Encryption Modal -->
+    <div id="modal-vault-security" class="modal-box hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Vault Security &amp; Encryption</h3>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Zero-Knowledge • PBKDF2-SHA256 (150k) + AES-256-GCM</p>
+          </div>
+        </div>
+        <button onclick="closeModals()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+      </div>
+
+      <div class="p-6 space-y-6 overflow-y-auto">
+        <!-- Account & Quick Actions -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-xs font-bold text-slate-900 dark:text-white truncate" id="sec-user-email">—</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono break-all mt-0.5">UID: <span id="sec-user-uid">—</span></div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="btn-sec-lock-now" class="px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs font-bold transition-colors">
+              Lock Vault Now
+            </button>
+            <button id="btn-sec-signout" class="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-xs font-bold transition-colors">
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- A. Live Encrypted Ciphertext Inspector -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Live Encrypted Database Payload</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">Exact ciphertext stored in Firestore — unreadable without your passphrase</p>
+            </div>
+            <button id="btn-copy-ciphertext" class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors">
+              Copy JSON
+            </button>
+          </div>
+          <pre id="sec-ciphertext-view" class="p-3.5 rounded-xl bg-slate-950 text-emerald-400 text-[11px] font-mono overflow-x-auto max-h-44 leading-relaxed border border-slate-800">Waiting for encrypted payload...</pre>
+        </div>
+
+        <!-- B. Rotate Vault Passphrase -->
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Rotate Vault Encryption Passphrase</h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Generates a new random salt &amp; AES-256-GCM key and re-encrypts your vault seamlessly.</p>
+          </div>
+          <form id="rotate-passphrase-form" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <input type="password" id="rotate-new-pass" required minlength="6" placeholder="New passphrase" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <input type="password" id="rotate-confirm-pass" required minlength="6" placeholder="Confirm new passphrase" class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <button type="submit" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors">
+              Re-Encrypt Vault
+            </button>
+          </form>
+        </div>
+
+        <!-- C. Encrypted Backup Export / Import -->
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Encrypted Backup &amp; Restore</h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Export or import a zero-knowledge encrypted JSON backup file.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <button id="btn-sec-export-enc" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold transition-colors">
+              Export Encrypted JSON
+            </button>
+            <button id="btn-sec-import-trigger" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition-colors">
+              Import Encrypted JSON
+            </button>
+            <input type="file" id="sec-import-file" accept=".json,application/json" class="hidden" />
+          </div>
+          <!-- Inline Import Passphrase Prompt (shown when a file is selected) -->
+          <div id="sec-import-box" class="hidden p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-2.5">
+            <div class="text-xs font-semibold text-indigo-900 dark:text-indigo-200">Decrypt Backup: <span id="sec-import-filename" class="font-mono"></span></div>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input type="password" id="sec-import-passphrase" placeholder="Passphrase used when backup was created" class="flex-1 px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-700 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <button type="button" id="btn-sec-import-confirm" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">Decrypt &amp; Restore</button>
+              <button type="button" id="btn-sec-import-cancel" class="px-3 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ========================================================= -->
+  <!-- APPLICATION JAVASCRIPT (FIREBASE + WEB CRYPTO E2EE)       -->
+  <!-- ========================================================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      signInWithCustomToken,
+      signInAnonymously
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /*************************************************************************
+     * 1. FIREBASE INITIALIZATION & CONSTANTS
+     *************************************************************************/
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'wealthpulse-default';
+ 
+ const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+  apiKey: "AIzaSyA_RjSDOTJVcI-7nwnFIF9Pb0U12dCUqJ4",
+  authDomain: "wealth-pulse-73d76.firebaseapp.com",
+  projectId: "wealth-pulse-73d76",
+  storageBucket: "wealth-pulse-73d76.firebasestorage.app",
+  messagingSenderId: "570513792496",
+  appId: "1:570513792496:web:58b57172c921befb429135"
+};
+
+    let app = null;
+    let auth = null;
+    let db = null;
+
+    if (firebaseConfig) {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+    }
+
+    const PBKDF2_ITERATIONS = 150000;
+
+    const CURRENCIES = {
+      INR: { code: 'INR', symbol: '₹', locale: 'en-IN', isIndian: true },
+      USD: { code: 'USD', symbol: '$', locale: 'en-US', isIndian: false },
+      EUR: { code: 'EUR', symbol: '€', locale: 'de-DE', isIndian: false },
+      GBP: { code: 'GBP', symbol: '£', locale: 'en-GB', isIndian: false }
+    };
+
+    const ASSET_CATEGORIES = [
+      'Cash & Bank', 'Fixed Deposits', 'Mutual Funds / SIP', 'Stocks / Equity',
+      'PPF / EPF', 'Gold', 'Real Estate', 'Vehicle', 'Other'
+    ];
+
+    const LIABILITY_CATEGORIES = [
+      'Home Loan', 'Vehicle Loan', 'Personal Loan', 'Credit Card Dues', 'Education Loan', 'Other'
+    ];
+
+    const CHART_PALETTE = [
+      '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4',
+      '#8b5cf6', '#f97316', '#14b8a6', '#ef4444', '#64748b'
+    ];
+
+    function getTodayISO() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function getEmptyState() {
+      return {
+        currency: 'INR',
+        theme: 'light',
+        transactions: [],
+        assets: [],
+        liabilities: [],
+        projection: {
+          overrideNW: false,
+          customNW: 0,
+          overrideSavings: false,
+          customSavings: 0,
+          years: 15,
+          returnRate: 12,
+          stepUp: 5,
+          inflation: 6,
+          displayMode: 'nominal',
+          chartType: 'scenarios'
+        }
+      };
+    }
+
+    function getSampleState() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const d = (day) => `${yyyy}-${mm}-${String(day).padStart(2, '0')}`;
+
+      return {
+        ...getEmptyState(),
+        transactions: [
+          { id: 't1', type: 'income', title: 'Monthly Tech Salary', amount: 145000, category: 'Salary', date: d(1), frequency: 'recurring' },
+          { id: 't2', type: 'income', title: 'UI/UX Freelance Retainer', amount: 25000, category: 'Freelance', date: d(5), frequency: 'recurring' },
+          { id: 't3', type: 'income', title: 'Quarterly Equity Dividends', amount: 4500, category: 'Dividends', date: d(10), frequency: 'onetime' },
+          { id: 't4', type: 'expense', title: 'Apartment Rent', amount: 28000, category: 'Housing/Rent', date: d(2), frequency: 'recurring' },
+          { id: 't5', type: 'expense', title: 'Nifty 50 & Flexi Cap SIP', amount: 35000, category: 'Investments/SIP', date: d(5), frequency: 'recurring' },
+          { id: 't6', type: 'expense', title: 'Groceries & Dining Out', amount: 14500, category: 'Food & Dining', date: d(8), frequency: 'recurring' },
+          { id: 't7', type: 'expense', title: 'Car Loan EMI', amount: 16500, category: 'EMI/Debt Payment', date: d(7), frequency: 'recurring' },
+          { id: 't8', type: 'expense', title: 'Electricity, Fiber & Mobile', amount: 5200, category: 'Utilities', date: d(11), frequency: 'recurring' },
+          { id: 't9', type: 'expense', title: 'Fuel & Metro Commute', amount: 6400, category: 'Transport & Fuel', date: d(12), frequency: 'recurring' },
+          { id: 't10', type: 'expense', title: 'Health Insurance & Gym', amount: 4200, category: 'Health', date: d(14), frequency: 'recurring' },
+          { id: 't11', type: 'expense', title: 'Weekend Movies & Streaming', amount: 3800, category: 'Entertainment', date: d(16), frequency: 'onetime' },
+          { id: 't12', type: 'expense', title: 'Apparel & Home Essentials', amount: 7500, category: 'Shopping', date: d(18), frequency: 'onetime' }
+        ],
+        assets: [
+          { id: 'a1', name: 'HDFC Savings & Emergency Fund', category: 'Cash & Bank', value: 420000 },
+          { id: 'a2', name: 'Bank Fixed Deposit (7.2%)', category: 'Fixed Deposits', value: 350000 },
+          { id: 'a3', name: 'Nifty 50 & Midcap Mutual Funds', category: 'Mutual Funds / SIP', value: 1450000 },
+          { id: 'a4', name: 'Direct Indian Equity Portfolio', category: 'Stocks / Equity', value: 680000 },
+          { id: 'a5', name: 'EPF & PPF Retirement Corpus', category: 'PPF / EPF', value: 820000 },
+          { id: 'a6', name: 'Sovereign Gold Bonds (SGB)', category: 'Gold', value: 240000 },
+          { id: 'a7', name: 'Compact SUV (Resale Value)', category: 'Vehicle', value: 650000 }
+        ],
+        liabilities: [
+          { id: 'l1', name: 'Car Loan Outstanding', category: 'Vehicle Loan', value: 480000 },
+          { id: 'l2', name: 'Credit Card Current Bill', category: 'Credit Card Dues', value: 32000 }
+        ]
+      };
+    }
+
+    /*************************************************************************
+     * 2. WEB CRYPTO API: CLIENT-SIDE END-TO-END ENCRYPTION (PBKDF2 + AES-GCM)
+     *************************************************************************/
+    const textEncoder = new TextEncoder();
+    const textDecoder = new TextDecoder();
+
+    function bytesToBase64(bytes) {
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+      }
+      return btoa(binary);
+    }
+
+    function base64ToBytes(b64) {
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    /** Derive non-extractable 256-bit AES-GCM key from passphrase + per-user salt */
+    async function deriveAesKey(passphrase, saltBytes, iterations = PBKDF2_ITERATIONS) {
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        textEncoder.encode(passphrase),
+        'PBKDF2',
+        false,
+        ['deriveKey']
+      );
+      return crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: saltBytes,
+          iterations,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false, // Non-extractable: key stays strictly in Web Crypto memory
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    /** Encrypt full state JSON using AES-256-GCM with a fresh random 12-byte IV */
+    async function encryptVaultState(plainState, cryptoKey, saltBytes, iterations = PBKDF2_ITERATIONS) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const encoded = textEncoder.encode(JSON.stringify(plainState));
+      const cipherBuffer = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        encoded
+      );
+      return {
+        version: 1,
+        algorithm: 'AES-256-GCM',
+        kdf: 'PBKDF2-SHA256',
+        iterations,
+        salt: bytesToBase64(saltBytes),
+        iv: bytesToBase64(iv),
+        ciphertext: bytesToBase64(new Uint8Array(cipherBuffer)),
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    /** Decrypt an encrypted envelope using a passphrase (returns { state, key, saltBytes }) */
+    async function decryptVaultWithPassphrase(envelope, passphrase) {
+      if (!envelope || !envelope.salt || !envelope.iv || !envelope.ciphertext) {
+        throw new Error('Malformed encrypted vault payload.');
+      }
+      const saltBytes = base64ToBytes(envelope.salt);
+      const ivBytes = base64ToBytes(envelope.iv);
+      const cipherBytes = base64ToBytes(envelope.ciphertext);
+      const iterations = envelope.iterations || PBKDF2_ITERATIONS;
+
+      const key = await deriveAesKey(passphrase, saltBytes, iterations);
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: ivBytes },
+        key,
+        cipherBytes
+      );
+      const parsed = JSON.parse(textDecoder.decode(decryptedBuffer));
+      return { state: parsed, key, saltBytes, iterations };
+    }
+
+    /** Decrypt an encrypted envelope using an already-derived in-memory CryptoKey */
+    async function decryptVaultWithKey(envelope, cryptoKey) {
+      const ivBytes = base64ToBytes(envelope.iv);
+      const cipherBytes = base64ToBytes(envelope.ciphertext);
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: ivBytes },
+        cryptoKey,
+        cipherBytes
+      );
+      return JSON.parse(textDecoder.decode(decryptedBuffer));
+    }
+
+    /*************************************************************************
+     * 3. ISOLATED MULTI-USER STATE & FIRESTORE SYNC (ZERO PLAINTEXT STORAGE)
+     *************************************************************************/
+    let currentUser = null;
+    let vaultKey = null;       // Strictly in memory (never saved anywhere)
+    let vaultSalt = null;      // Uint8Array(16)
+    let lastEncryptedEnvelope = null;
+    let vaultUnsubscribe = null;
+    let isWritingVault = false;
+    let pendingImportEnvelope = null;
+    let authMode = 'signin';   // 'signin' | 'signup'
+
+    let state = getEmptyState();
+    let activeTab = 'dashboard';
+    let charts = {
+      dashExpense: null,
+      dashAssetsLiab: null,
+      dashProjection: null,
+      assetAllocation: null,
+      wealthProjection: null
+    };
+
+    /** Strictly isolated Firestore path: /artifacts/{appId}/users/{userId}/vault/encryptedState */
+    function getUserVaultDocRef(uid) {
+      return doc(db, 'artifacts', appId, 'users', uid, 'vault', 'encryptedState');
+    }
+
+    function normalizeState(raw) {
+      const base = getEmptyState();
+      return {
+        ...base,
+        ...(raw || {}),
+        transactions: Array.isArray(raw?.transactions) ? raw.transactions : [],
+        assets: Array.isArray(raw?.assets) ? raw.assets : [],
+        liabilities: Array.isArray(raw?.liabilities) ? raw.liabilities : [],
+        projection: { ...base.projection, ...(raw?.projection || {}) }
+      };
+    }
+
+    /** Encrypt in-memory state with a fresh 12-byte IV and write to Firestore */
+    async function saveState() {
+      if (!currentUser || !vaultKey || !vaultSalt || !db) return;
+      try {
+        isWritingVault = true;
+        const syncEl = document.getElementById('sidebar-sync-status');
+        if (syncEl) syncEl.textContent = 'Encrypting & syncing...';
+
+        const envelope = await encryptVaultState(state, vaultKey, vaultSalt, PBKDF2_ITERATIONS);
+        await setDoc(getUserVaultDocRef(currentUser.uid), envelope);
+        lastEncryptedEnvelope = envelope;
+
+        if (syncEl) syncEl.textContent = `Synced • ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        updateSecurityInspectorUI();
+      } catch (err) {
+        console.error('Encrypted vault save failed:', err);
+        showToast('Failed to sync encrypted vault', 'error');
+      } finally {
+        isWritingVault = false;
+      }
+    }
+
+    function stopVaultListener() {
+      if (vaultUnsubscribe) {
+        vaultUnsubscribe();
+        vaultUnsubscribe = null;
+      }
+    }
+
+    function startVaultListener() {
+      stopVaultListener();
+      if (!currentUser || !vaultKey || !db) return;
+
+      const vaultRef = getUserVaultDocRef(currentUser.uid);
+      vaultUnsubscribe = onSnapshot(
+        vaultRef,
+        async (snap) => {
+          if (!snap.exists() || isWritingVault || !vaultKey) return;
+          const envelope = snap.data();
+          if (lastEncryptedEnvelope && envelope.iv === lastEncryptedEnvelope.iv && envelope.ciphertext === lastEncryptedEnvelope.ciphertext) {
+            return;
+          }
+          try {
+            const decrypted = await decryptVaultWithKey(envelope, vaultKey);
+            lastEncryptedEnvelope = envelope;
+            state = normalizeState(decrypted);
+            applyThemeDOM(state.theme || 'light');
+            renderAll();
+            updateSecurityInspectorUI();
+          } catch (err) {
+            // If another session rotated the passphrase, lock vault to re-authenticate key
+            console.warn('Remote vault key changed; locking local session.');
+            lockVault(false);
+            showToast('Vault passphrase was updated elsewhere. Please unlock again.', 'info');
+          }
+        },
+        (error) => {
+          console.error('Firestore vault listener error:', error);
+        }
+      );
+    }
+
+    /*************************************************************************
+     * 4. AUTHENTICATION & VAULT LOCK / UNLOCK WORKFLOW
+     *************************************************************************/
+    function showAuthError(msg) {
+      const el = document.getElementById('auth-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function clearAuthError() {
+      document.getElementById('auth-error').classList.add('hidden');
+    }
+
+    function showLockError(msg) {
+      const el = document.getElementById('lock-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function clearLockError() {
+      document.getElementById('lock-error').classList.add('hidden');
+    }
+
+    function mapFirebaseAuthError(err) {
+      const code = err?.code || '';
+      if (code === 'auth/email-already-in-use') return 'An account with this email already exists. Switch to Sign In.';
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        return 'Invalid email or account password.';
+      }
+      if (code === 'auth/weak-password') return 'Account password must be at least 6 characters.';
+      if (code === 'auth/invalid-email') return 'Please enter a valid email address.';
+      if (code === 'auth/too-many-requests') return 'Too many attempts. Please wait a moment and try again.';
+      return err?.message || 'Authentication failed. Please try again.';
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      clearAuthError();
+      const isSignup = mode === 'signup';
+      document.getElementById('signup-extra-fields').classList.toggle('hidden', !isSignup);
+      document.getElementById('auth-submit-text').textContent = isSignup
+        ? 'Create Encrypted Account'
+        : 'Sign In & Decrypt Vault';
+
+      document.getElementById('auth-tab-signin').className = `py-2 text-xs font-bold rounded-lg transition-all ${
+        !isSignup ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400'
+      }`;
+      document.getElementById('auth-tab-signup').className = `py-2 text-xs font-bold rounded-lg transition-all ${
+        isSignup ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400'
+      }`;
+    }
+
+    function showUnlockedApp() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('lock-screen').classList.add('hidden');
+      const shell = document.getElementById('app-shell');
+      shell.classList.remove('hidden');
+      shell.classList.add('flex');
+
+      const email = currentUser?.email || 'Authenticated User';
+      document.getElementById('sidebar-user-email').textContent = email;
+      document.getElementById('sec-user-email').textContent = email;
+      document.getElementById('sec-user-uid').textContent = currentUser?.uid || '—';
+
+      applyThemeDOM(state.theme || 'light');
+      updateSecurityInspectorUI();
+      switchTab(activeTab || 'dashboard');
+      startVaultListener();
+    }
+
+    function lockVault(notify = true) {
+      stopVaultListener();
+      vaultKey = null;
+      vaultSalt = null;
+      state = getEmptyState();
+      closeModals();
+
+      const shell = document.getElementById('app-shell');
+      shell.classList.add('hidden');
+      shell.classList.remove('flex');
+
+      if (currentUser) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('lock-user-email').textContent = currentUser.email || currentUser.uid;
+        document.getElementById('lock-passphrase').value = '';
+        clearLockError();
+        document.getElementById('lock-screen').classList.remove('hidden');
+      } else {
+        document.getElementById('lock-screen').classList.add('hidden');
+        document.getElementById('auth-screen').classList.remove('hidden');
+      }
+      if (notify) showToast('Vault locked & encryption key cleared from memory', 'info');
+    }
+
+    async function handleSignOut() {
+      stopVaultListener();
+      vaultKey = null;
+      vaultSalt = null;
+      lastEncryptedEnvelope = null;
+      state = getEmptyState();
+      closeModals();
+
+      if (auth) {
+        try {
+          await signOut(auth);
+        } catch (err) {
+          console.error('Sign out error:', err);
+        }
+      }
+      currentUser = null;
+
+      const shell = document.getElementById('app-shell');
+      shell.classList.add('hidden');
+      shell.classList.remove('flex');
+      document.getElementById('lock-screen').classList.add('hidden');
+      document.getElementById('auth-screen').classList.remove('hidden');
+      document.getElementById('auth-password').value = '';
+      document.getElementById('auth-passphrase').value = '';
+      document.getElementById('auth-passphrase-confirm').value = '';
+      clearAuthError();
+      showToast('Signed out securely', 'info');
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      clearAuthError();
+      if (!auth || !db) {
+        showAuthError('Cloud authentication is not configured in this environment.');
+        return;
+      }
+
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const passphrase = document.getElementById('auth-passphrase').value;
+      const submitBtn = document.getElementById('auth-submit-btn');
+      const submitText = document.getElementById('auth-submit-text');
+
+      if (passphrase.length < 6) {
+        showAuthError('Vault passphrase must be at least 6 characters.');
+        return;
+      }
+
+      if (authMode === 'signup') {
+        const confirmPass = document.getElementById('auth-passphrase-confirm').value;
+        if (passphrase !== confirmPass) {
+          showAuthError('Vault passphrases do not match.');
+          return;
+        }
+      }
+
+      submitBtn.disabled = true;
+      const originalLabel = submitText.textContent;
+      submitText.textContent = authMode === 'signup' ? 'Creating & Encrypting Vault...' : 'Authenticating & Decrypting...';
+
+      try {
+        if (authMode === 'signup') {
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          currentUser = cred.user;
+
+          const initChoice = document.querySelector('input[name="vault-init-mode"]:checked')?.value || 'demo';
+          state = initChoice === 'demo' ? getSampleState() : getEmptyState();
+
+          // Generate per-user 16-byte random salt & derive AES-256-GCM key
+          vaultSalt = crypto.getRandomValues(new Uint8Array(16));
+          vaultKey = await deriveAesKey(passphrase, vaultSalt, PBKDF2_ITERATIONS);
+
+          await saveState();
+          showUnlockedApp();
+          showToast('Encrypted vault created successfully!');
+        } else {
+          const cred = await signInWithEmailAndPassword(auth, email, password);
+          currentUser = cred.user;
+
+          const snap = await getDoc(getUserVaultDocRef(currentUser.uid));
+          if (!snap.exists()) {
+            // Existing auth user with no vault yet -> initialize fresh encrypted vault
+            state = getSampleState();
+            vaultSalt = crypto.getRandomValues(new Uint8Array(16));
+            vaultKey = await deriveAesKey(passphrase, vaultSalt, PBKDF2_ITERATIONS);
+            await saveState();
+            showUnlockedApp();
+            showToast('New encrypted vault initialized for your account!');
+          } else {
+            const envelope = snap.data();
+            try {
+              const res = await decryptVaultWithPassphrase(envelope, passphrase);
+              vaultKey = res.key;
+              vaultSalt = res.saltBytes;
+              lastEncryptedEnvelope = envelope;
+              state = normalizeState(res.state);
+              showUnlockedApp();
+              showToast('Vault decrypted & unlocked!');
+            } catch (cryptoErr) {
+              showAuthError('Signed in, but the Vault Passphrase is incorrect. Please check your passphrase.');
+              // Keep user on auth screen or move to lock screen
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        showAuthError(mapFirebaseAuthError(err));
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = originalLabel;
+      }
+    }
+
+    async function handleUnlockSubmit(e) {
+      e.preventDefault();
+      clearLockError();
+      if (!currentUser || !db) return;
+
+      const passphrase = document.getElementById('lock-passphrase').value;
+      const btn = document.getElementById('lock-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Decrypting...';
+
+      try {
+        const snap = await getDoc(getUserVaultDocRef(currentUser.uid));
+        if (!snap.exists()) {
+          state = getEmptyState();
+          vaultSalt = crypto.getRandomValues(new Uint8Array(16));
+          vaultKey = await deriveAesKey(passphrase, vaultSalt, PBKDF2_ITERATIONS);
+          await saveState();
+          showUnlockedApp();
+          showToast('Vault initialized & unlocked');
+          return;
+        }
+        const envelope = snap.data();
+        const res = await decryptVaultWithPassphrase(envelope, passphrase);
+        vaultKey = res.key;
+        vaultSalt = res.saltBytes;
+        lastEncryptedEnvelope = envelope;
+        state = normalizeState(res.state);
+        showUnlockedApp();
+        showToast('Vault unlocked!');
+      } catch (err) {
+        showLockError('Incorrect vault passphrase. Unable to decrypt AES-256-GCM payload.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Unlock & Decrypt Vault';
+      }
+    }
+
+    /*************************************************************************
+     * 5. VAULT SECURITY MODAL ACTIONS (INSPECT, ROTATE, ENCRYPTED BACKUP)
+     *************************************************************************/
+    function updateSecurityInspectorUI() {
+      const pre = document.getElementById('sec-ciphertext-view');
+      if (!pre) return;
+      if (lastEncryptedEnvelope) {
+        pre.textContent = JSON.stringify(lastEncryptedEnvelope, null, 2);
+      } else {
+        pre.textContent = 'No encrypted payload synced yet.';
+      }
+    }
+
+    async function handleRotatePassphrase(e) {
+      e.preventDefault();
+      if (!currentUser || !vaultKey) return;
+
+      const newPass = document.getElementById('rotate-new-pass').value;
+      const confirmPass = document.getElementById('rotate-confirm-pass').value;
+      if (newPass.length < 6) {
+        showToast('New passphrase must be at least 6 characters', 'error');
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showToast('New passphrases do not match', 'error');
+        return;
+      }
+
+      try {
+        const nextSalt = crypto.getRandomValues(new Uint8Array(16));
+        const nextKey = await deriveAesKey(newPass, nextSalt, PBKDF2_ITERATIONS);
+        vaultSalt = nextSalt;
+        vaultKey = nextKey;
+        await saveState();
+        document.getElementById('rotate-new-pass').value = '';
+        document.getElementById('rotate-confirm-pass').value = '';
+        showToast('Vault passphrase rotated & data re-encrypted!');
+      } catch (err) {
+        console.error('Passphrase rotation error:', err);
+        showToast('Failed to rotate passphrase', 'error');
+      }
+    }
+
+    function exportEncryptedBackup() {
+      if (!lastEncryptedEnvelope) {
+        showToast('No encrypted vault data available to export', 'error');
+        return;
+      }
+      const backupPayload = {
+        app: 'WealthPulse',
+        backupType: 'E2EE-AES-256-GCM',
+        exportedAt: new Date().toISOString(),
+        vault: lastEncryptedEnvelope
+      };
+      const blob = new Blob([JSON.stringify(backupPayload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `wealthpulse-encrypted-backup-${getTodayISO()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Encrypted backup exported (.json)');
+    }
+
+    function copyCiphertextToClipboard() {
+      if (!lastEncryptedEnvelope) return;
+      const text = JSON.stringify(lastEncryptedEnvelope, null, 2);
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('Encrypted JSON copied to clipboard');
+      } catch (err) {
+        showToast('Unable to copy ciphertext', 'error');
+      } finally {
+        ta.remove();
+      }
+    }
+
+    /*************************************************************************
+     * 6. FORMATTING UTILITIES (INR Lakhs/Crores & Multi-Currency)
+     *************************************************************************/
+    function getCurr() {
+      return CURRENCIES[state.currency] || CURRENCIES.INR;
+    }
+
+    function formatCurrency(value, decimals = 0) {
+      const curr = getCurr();
+      const num = Number(value) || 0;
+      const sign = num < 0 ? '-' : '';
+      const absVal = Math.abs(num);
+      const formatted = absVal.toLocaleString(curr.locale, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+      return `${sign}${curr.symbol}${formatted}`;
+    }
+
+    function formatCompact(value) {
+      const curr = getCurr();
+      const num = Number(value) || 0;
+      const sign = num < 0 ? '-' : '';
+      const abs = Math.abs(num);
+
+      if (curr.isIndian) {
+        if (abs >= 1e7) return `${sign}${curr.symbol}${(abs / 1e7).toFixed(2)} Cr`;
+        if (abs >= 1e5) return `${sign}${curr.symbol}${(abs / 1e5).toFixed(2)} L`;
+        if (abs >= 1e3) return `${sign}${curr.symbol}${(abs / 1e3).toFixed(1)}K`;
+        return `${sign}${curr.symbol}${Math.round(abs)}`;
+      } else {
+        if (abs >= 1e9) return `${sign}${curr.symbol}${(abs / 1e9).toFixed(2)}B`;
+        if (abs >= 1e6) return `${sign}${curr.symbol}${(abs / 1e6).toFixed(2)}M`;
+        if (abs >= 1e3) return `${sign}${curr.symbol}${(abs / 1e3).toFixed(1)}K`;
+        return `${sign}${curr.symbol}${Math.round(abs)}`;
+      }
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    /*************************************************************************
+     * 7. FINANCIAL CALCULATIONS ENGINE
+     *************************************************************************/
+    function computeMetrics() {
+      const totalAssets = state.assets.reduce((sum, a) => sum + (Number(a.value) || 0), 0);
+      const totalLiabilities = state.liabilities.reduce((sum, l) => sum + (Number(l.value) || 0), 0);
+      const netWorth = totalAssets - totalLiabilities;
+      const debtToAssetRatio = totalAssets > 0 ? (totalLiabilities / totalAssets) * 100 : 0;
+
+      let monthlyIncome = 0;
+      let monthlyExpenses = 0;
+      let monthlySIPs = 0;
+
+      state.transactions.forEach((tx) => {
+        const amt = Number(tx.amount) || 0;
+        if (tx.type === 'income') {
+          monthlyIncome += amt;
+        } else {
+          monthlyExpenses += amt;
+          if (tx.category === 'Investments/SIP') {
+            monthlySIPs += amt;
+          }
+        }
+      });
+
+      const cashSurplus = monthlyIncome - monthlyExpenses;
+      const totalMonthlySavings = Math.max(0, cashSurplus + monthlySIPs);
+      const savingsRate = monthlyIncome > 0 ? (totalMonthlySavings / monthlyIncome) * 100 : 0;
+
+      return {
+        totalAssets,
+        totalLiabilities,
+        netWorth,
+        debtToAssetRatio,
+        monthlyIncome,
+        monthlyExpenses,
+        monthlySIPs,
+        cashSurplus,
+        totalMonthlySavings,
+        savingsRate
+      };
+    }
+
+    function runProjection(startNW, monthlySavings, years, annualReturnPct, stepUpPct, inflationPct) {
+      const currentYear = new Date().getFullYear();
+      const rows = [];
+
+      let balance = Number(startNW) || 0;
+      let currentMonthlyContribution = Math.max(0, Number(monthlySavings) || 0);
+      let cumulativeContributions = 0;
+      const monthlyRate = (Number(annualReturnPct) || 0) / 100 / 12;
+      const stepUpFactor = 1 + (Number(stepUpPct) || 0) / 100;
+      const inflFactor = 1 + (Number(inflationPct) || 0) / 100;
+
+      rows.push({
+        yearIndex: 0,
+        calendarYear: currentYear,
+        startBalance: balance,
+        annualContribution: 0,
+        annualReturns: 0,
+        endBalance: balance,
+        realBalance: balance,
+        totalPrincipal: balance,
+        totalGains: 0
+      });
+
+      for (let y = 1; y <= years; y++) {
+        const startBalance = balance;
+        let annualContribution = 0;
+
+        for (let m = 1; m <= 12; m++) {
+          balance = (balance + currentMonthlyContribution) * (1 + monthlyRate);
+          annualContribution += currentMonthlyContribution;
+        }
+
+        cumulativeContributions += annualContribution;
+        const annualReturns = balance - startBalance - annualContribution;
+        const realBalance = balance / Math.pow(inflFactor, y);
+        const totalPrincipal = (Number(startNW) || 0) + cumulativeContributions;
+        const totalGains = balance - totalPrincipal;
+
+        rows.push({
+          yearIndex: y,
+          calendarYear: currentYear + y,
+          startBalance,
+          annualContribution,
+          annualReturns,
+          endBalance: balance,
+          realBalance,
+          totalPrincipal,
+          totalGains
+        });
+
+        currentMonthlyContribution *= stepUpFactor;
+      }
+
+      return rows;
+    }
+
+    /*************************************************************************
+     * 8. NAVIGATION, THEME & TOAST UI HELPERS
+     *************************************************************************/
+    const TAB_TITLES = {
+      dashboard: 'Dashboard Overview',
+      transactions: 'Expenses & Income Tracker',
+      networth: 'Net Worth Calculator',
+      projection: 'Wealth Projection Simulator'
+    };
+
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.getElementById('header-page-title').textContent = TAB_TITLES[tabId] || 'WealthPulse';
+
+      document.querySelectorAll('.tab-view').forEach((el) => {
+        el.classList.toggle('hidden', el.id !== `tab-${tabId}`);
+      });
+
+      document.querySelectorAll('.nav-btn').forEach((btn) => {
+        const isActive = btn.dataset.tab === tabId;
+        btn.className = `nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+          isActive
+            ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300'
+            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100'
+        }`;
+      });
+
+      document.querySelectorAll('.mobile-nav-btn').forEach((btn) => {
+        const isActive = btn.dataset.tab === tabId;
+        btn.className = `mobile-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-semibold transition-colors ${
+          isActive
+            ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/40'
+            : 'text-slate-500 dark:text-slate-400'
+        }`;
+      });
+
+      renderAll();
+    }
+
+    function applyThemeDOM(theme) {
+      const html = document.documentElement;
+      if (theme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+      } else {
+        html.classList.remove('dark');
+        html.classList.add('light');
+      }
+    }
+
+    function applyTheme(theme) {
+      state.theme = theme;
+      applyThemeDOM(theme);
+      saveState();
+      renderAll();
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = type === 'error'
+        ? 'bg-rose-600 text-white'
+        : type === 'info'
+        ? 'bg-slate-800 dark:bg-slate-700 text-white'
+        : 'bg-emerald-600 text-white';
+
+      toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-semibold flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0 ${colors}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    function getChartColors() {
+      const isDark = state.theme === 'dark';
+      return {
+        text: isDark ? '#94a3b8' : '#64748b',
+        grid: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(148, 163, 184, 0.18)',
+        tooltipBg: isDark ? '#0f172a' : '#1e293b'
+      };
+    }
+
+    /*************************************************************************
+     * 9. RENDER: DASHBOARD OVERVIEW
+     *************************************************************************/
+    function renderDashboard(metrics) {
+      document.getElementById('dash-net-worth').textContent = formatCurrency(metrics.netWorth);
+      document.getElementById('dash-net-worth-sub').textContent =
+        `${formatCompact(metrics.totalAssets)} Assets − ${formatCompact(metrics.totalLiabilities)} Debt`;
+
+      document.getElementById('dash-monthly-income').textContent = formatCurrency(metrics.monthlyIncome);
+      document.getElementById('dash-monthly-expense').textContent = formatCurrency(metrics.monthlyExpenses);
+      document.getElementById('dash-monthly-savings').textContent = formatCurrency(metrics.totalMonthlySavings);
+
+      const rateBadge = document.getElementById('dash-savings-rate-badge');
+      rateBadge.textContent = `${metrics.savingsRate.toFixed(1)}%`;
+      rateBadge.className = `px-2 py-0.5 rounded-full text-xs font-bold ${
+        metrics.savingsRate >= 25
+          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+          : metrics.savingsRate >= 10
+          ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+          : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+      }`;
+
+      const recentEl = document.getElementById('dash-recent-list');
+      const sortedTx = [...state.transactions].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 6);
+
+      if (sortedTx.length === 0) {
+        recentEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">No transactions yet. Click "+ Quick Add" to get started.</div>`;
+      } else {
+        recentEl.innerHTML = sortedTx.map((tx) => {
+          const isInc = tx.type === 'income';
+          return `
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                  isInc ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'
+                }">
+                  ${isInc ? '↓' : '↑'}
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">${escapeHTML(tx.title)}</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">${escapeHTML(tx.category)} • ${tx.date}</div>
+                </div>
+              </div>
+              <div class="text-xs sm:text-sm font-bold shrink-0 ml-2 ${isInc ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}">
+                ${isInc ? '+' : '-'}${formatCurrency(tx.amount)}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (activeTab === 'dashboard') {
+        renderDashboardCharts(metrics);
+      }
+    }
+
+    function renderDashboardCharts(metrics) {
+      const cc = getChartColors();
+
+      const expMap = {};
+      state.transactions.filter((t) => t.type === 'expense').forEach((t) => {
+        expMap[t.category] = (expMap[t.category] || 0) + (Number(t.amount) || 0);
+      });
+      const expLabels = Object.keys(expMap);
+      const expData = Object.values(expMap);
+
+      if (charts.dashExpense) charts.dashExpense.destroy();
+      const ctxExp = document.getElementById('chart-dash-expense').getContext('2d');
+      charts.dashExpense = new Chart(ctxExp, {
+        type: 'doughnut',
+        data: {
+          labels: expLabels.length ? expLabels : ['No Expenses'],
+          datasets: [{
+            data: expData.length ? expData : [1],
+            backgroundColor: expData.length ? CHART_PALETTE : ['#cbd5e1'],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '66%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: cc.text, boxWidth: 10, padding: 12, font: { size: 11, family: 'Inter' } }
+            },
+            tooltip: {
+              backgroundColor: cc.tooltipBg,
+              callbacks: {
+                label: (ctx) => expData.length ? ` ${ctx.label}: ${formatCurrency(ctx.raw)}` : ' No data'
+              }
+            }
+          }
+        }
+      });
+
+      if (charts.dashAssetsLiab) charts.dashAssetsLiab.destroy();
+      const ctxAL = document.getElementById('chart-dash-assets-liab').getContext('2d');
+      charts.dashAssetsLiab = new Chart(ctxAL, {
+        type: 'bar',
+        data: {
+          labels: ['Total Assets', 'Total Liabilities', 'Net Worth'],
+          datasets: [{
+            data: [metrics.totalAssets, metrics.totalLiabilities, metrics.netWorth],
+            backgroundColor: ['#10b981', '#f43f5e', '#6366f1'],
+            borderRadius: 10,
+            barPercentage: 0.55
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: cc.tooltipBg,
+              callbacks: { label: (ctx) => ` ${formatCurrency(ctx.raw)}` }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: cc.text, font: { size: 11, weight: '600' } } },
+            y: {
+              grid: { color: cc.grid },
+              ticks: { color: cc.text, font: { size: 11 }, callback: (v) => formatCompact(v) }
+            }
+          }
+        }
+      });
+
+      const p = state.projection;
+      const startNW = p.overrideNW ? p.customNW : metrics.netWorth;
+      const monthlySav = p.overrideSavings ? p.customSavings : metrics.totalMonthlySavings;
+      const miniRows = runProjection(startNW, monthlySav, 10, p.returnRate, p.stepUp, p.inflation);
+
+      document.getElementById('dash-proj-subtitle').textContent =
+        `Projected 10-year trajectory at ${p.returnRate}% p.a. (${formatCompact(miniRows[miniRows.length - 1].endBalance)} by ${miniRows[miniRows.length - 1].calendarYear})`;
+
+      if (charts.dashProjection) charts.dashProjection.destroy();
+      const ctxProj = document.getElementById('chart-dash-projection').getContext('2d');
+      const gradient = ctxProj.createLinearGradient(0, 0, 0, 260);
+      gradient.addColorStop(0, 'rgba(99, 102, 241, 0.32)');
+      gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+      charts.dashProjection = new Chart(ctxProj, {
+        type: 'line',
+        data: {
+          labels: miniRows.map((r) => r.calendarYear),
+          datasets: [{
+            label: 'Projected Net Worth',
+            data: miniRows.map((r) => Math.round(r.endBalance)),
+            borderColor: '#6366f1',
+            backgroundColor: gradient,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+            pointHoverRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: cc.tooltipBg,
+              callbacks: { label: (ctx) => ` ${formatCurrency(ctx.raw)} (${formatCompact(ctx.raw)})` }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: cc.text, font: { size: 11 } } },
+            y: {
+              grid: { color: cc.grid },
+              ticks: { color: cc.text, font: { size: 11 }, callback: (v) => formatCompact(v) }
+            }
+          }
+        }
+      });
+    }
+
+    /*************************************************************************
+     * 10. RENDER: EXPENSES & INCOME TRACKER (ADD / EDIT / DELETE)
+     *************************************************************************/
+    function setTxTypeUI(type) {
+      document.getElementById('tx-type').value = type;
+      document.querySelectorAll('.tx-type-btn').forEach((b) => {
+        const active = b.dataset.txType === type;
+        b.className = `tx-type-btn py-2 text-xs font-bold rounded-lg transition-all ${
+          active
+            ? `bg-white dark:bg-slate-700 shadow-sm ${type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`
+            : 'text-slate-600 dark:text-slate-400'
+        }`;
+      });
+    }
+
+    function resetTxForm() {
+      document.getElementById('tx-edit-id').value = '';
+      document.getElementById('tx-form-title').textContent = 'Add New Entry';
+      document.getElementById('tx-submit-btn').textContent = 'Save Entry';
+      document.getElementById('btn-tx-cancel-edit').classList.add('hidden');
+      document.getElementById('tx-title').value = '';
+      document.getElementById('tx-amount').value = '';
+      document.getElementById('tx-date').value = getTodayISO();
+    }
+
+    function editTransaction(id) {
+      const tx = state.transactions.find((t) => t.id === id);
+      if (!tx) return;
+      document.getElementById('tx-edit-id').value = tx.id;
+      document.getElementById('tx-form-title').textContent = 'Edit Entry';
+      document.getElementById('tx-submit-btn').textContent = 'Update Entry';
+      document.getElementById('btn-tx-cancel-edit').classList.remove('hidden');
+
+      setTxTypeUI(tx.type);
+      document.getElementById('tx-title').value = tx.title;
+      document.getElementById('tx-amount').value = tx.amount;
+      document.getElementById('tx-date').value = tx.date || getTodayISO();
+      document.getElementById('tx-category').value = tx.category;
+      document.getElementById('tx-frequency').value = tx.frequency || 'recurring';
+
+      document.getElementById('tx-title').focus();
+      document.getElementById('tx-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function renderTransactions(metrics) {
+      const filterCatSelect = document.getElementById('tx-filter-category');
+      const currentSelectedCat = filterCatSelect.value;
+      const uniqueCats = [...new Set(state.transactions.map((t) => t.category))].sort();
+      filterCatSelect.innerHTML = `<option value="all">All Categories</option>` +
+        uniqueCats.map((c) => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+      if (uniqueCats.includes(currentSelectedCat)) {
+        filterCatSelect.value = currentSelectedCat;
+      }
+
+      const searchQ = document.getElementById('tx-search').value.trim().toLowerCase();
+      const filterType = document.getElementById('tx-filter-type').value;
+      const filterCat = filterCatSelect.value;
+
+      const filtered = state.transactions
+        .filter((tx) => {
+          if (filterType !== 'all' && tx.type !== filterType) return false;
+          if (filterCat !== 'all' && tx.category !== filterCat) return false;
+          if (searchQ && !tx.title.toLowerCase().includes(searchQ) && !tx.category.toLowerCase().includes(searchQ)) return false;
+          return true;
+        })
+        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      document.getElementById('tx-count-label').textContent = `${filtered.length} ${filtered.length === 1 ? 'entry' : 'entries'} shown`;
+
+      const tbody = document.getElementById('tx-table-body');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-xs text-slate-400">No matching transactions found.</td></tr>`;
+      } else {
+        tbody.innerHTML = filtered.map((tx) => {
+          const isInc = tx.type === 'income';
+          return `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+              <td class="py-3 px-3 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">${tx.date || '—'}</td>
+              <td class="py-3 px-3 font-medium text-slate-900 dark:text-white">${escapeHTML(tx.title)}</td>
+              <td class="py-3 px-3">
+                <span class="inline-block px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  ${escapeHTML(tx.category)}
+                </span>
+              </td>
+              <td class="py-3 px-3">
+                <span class="text-[11px] font-medium ${tx.frequency === 'recurring' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}">
+                  ${tx.frequency === 'recurring' ? 'Monthly' : 'One-time'}
+                </span>
+              </td>
+              <td class="py-3 px-3 text-right font-bold whitespace-nowrap ${isInc ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                ${isInc ? '+' : '-'}${formatCurrency(tx.amount)}
+              </td>
+              <td class="py-3 px-2 text-right whitespace-nowrap">
+                <button onclick="editTransaction('${tx.id}')" title="Edit" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                  </svg>
+                </button>
+                <button onclick="deleteTransaction('${tx.id}')" title="Delete" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      const progContainer = document.getElementById('category-progress-list');
+      const expByCat = {};
+      state.transactions.filter((t) => t.type === 'expense').forEach((t) => {
+        expByCat[t.category] = (expByCat[t.category] || 0) + (Number(t.amount) || 0);
+      });
+      const sortedCats = Object.entries(expByCat).sort((a, b) => b[1] - a[1]);
+
+      if (sortedCats.length === 0 || metrics.monthlyExpenses === 0) {
+        progContainer.innerHTML = `<div class="text-xs text-slate-400">Add expenses to see category distribution.</div>`;
+      } else {
+        progContainer.innerHTML = sortedCats.map(([cat, amt], idx) => {
+          const pct = (amt / metrics.monthlyExpenses) * 100;
+          const color = CHART_PALETTE[idx % CHART_PALETTE.length];
+          return `
+            <div>
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span class="font-semibold text-slate-700 dark:text-slate-200">${escapeHTML(cat)}</span>
+                <span class="text-slate-500 dark:text-slate-400 font-medium">${formatCurrency(amt)} <strong class="text-slate-800 dark:text-slate-200">(${pct.toFixed(1)}%)</strong></span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500" style="width: ${Math.min(100, pct)}%; background-color: ${color};"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function deleteTransaction(id) {
+      state.transactions = state.transactions.filter((t) => t.id !== id);
+      saveState();
+      renderAll();
+      showToast('Transaction removed', 'info');
+    }
+
+    /*************************************************************************
+     * 11. RENDER: NET WORTH CALCULATOR
+     *************************************************************************/
+    function renderNetWorth(metrics) {
+      document.getElementById('nw-total-assets').textContent = formatCurrency(metrics.totalAssets);
+      document.getElementById('nw-total-liabilities').textContent = formatCurrency(metrics.totalLiabilities);
+      document.getElementById('nw-net-worth').textContent = formatCurrency(metrics.netWorth);
+      document.getElementById('nw-debt-ratio').textContent = `${metrics.debtToAssetRatio.toFixed(1)}%`;
+
+      const statusEl = document.getElementById('nw-debt-status');
+      if (metrics.debtToAssetRatio <= 25) {
+        statusEl.textContent = 'Healthy leverage (< 25%)';
+        statusEl.className = 'text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-0.5';
+      } else if (metrics.debtToAssetRatio <= 50) {
+        statusEl.textContent = 'Moderate leverage (25–50%)';
+        statusEl.className = 'text-xs text-amber-600 dark:text-amber-400 font-medium mt-0.5';
+      } else {
+        statusEl.textContent = 'High debt load (> 50%)';
+        statusEl.className = 'text-xs text-rose-600 dark:text-rose-400 font-medium mt-0.5';
+      }
+
+      const assetsEl = document.getElementById('assets-list');
+      if (state.assets.length === 0) {
+        assetsEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">No assets added yet.</div>`;
+      } else {
+        assetsEl.innerHTML = state.assets.map((item) => `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-900/60 transition-colors">
+            <div class="min-w-0 pr-2">
+              <div class="text-sm font-semibold text-slate-900 dark:text-white truncate">${escapeHTML(item.name)}</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">${escapeHTML(item.category)}</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">${formatCurrency(item.value)}</span>
+              <button onclick="openAssetLiabModal('asset', '${item.id}')" title="Edit" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
+              </button>
+              <button onclick="deleteAssetOrLiab('asset', '${item.id}')" title="Delete" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const liabEl = document.getElementById('liabilities-list');
+      if (state.liabilities.length === 0) {
+        liabEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">Debt-free! No liabilities added.</div>`;
+      } else {
+        liabEl.innerHTML = state.liabilities.map((item) => `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 hover:border-rose-200 dark:hover:border-rose-900/60 transition-colors">
+            <div class="min-w-0 pr-2">
+              <div class="text-sm font-semibold text-slate-900 dark:text-white truncate">${escapeHTML(item.name)}</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">${escapeHTML(item.category)}</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-sm font-bold text-rose-600 dark:text-rose-400">${formatCurrency(item.value)}</span>
+              <button onclick="openAssetLiabModal('liability', '${item.id}')" title="Edit" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
+              </button>
+              <button onclick="deleteAssetOrLiab('liability', '${item.id}')" title="Delete" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      if (activeTab === 'networth') {
+        renderAssetAllocationChart(metrics);
+      }
+    }
+
+    function renderAssetAllocationChart(metrics) {
+      const cc = getChartColors();
+      const map = {};
+      state.assets.forEach((a) => {
+        map[a.category] = (map[a.category] || 0) + (Number(a.value) || 0);
+      });
+      const entries = Object.entries(map).sort((a, b) => b[1] - a[1]);
+
+      if (charts.assetAllocation) charts.assetAllocation.destroy();
+      const ctx = document.getElementById('chart-asset-allocation').getContext('2d');
+      charts.assetAllocation = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: entries.length ? entries.map((e) => e[0]) : ['No Assets'],
+          datasets: [{
+            data: entries.length ? entries.map((e) => e[1]) : [1],
+            backgroundColor: entries.length ? CHART_PALETTE : ['#cbd5e1'],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: cc.tooltipBg,
+              callbacks: {
+                label: (c) => entries.length ? ` ${c.label}: ${formatCurrency(c.raw)}` : ' No assets'
+              }
+            }
+          }
+        }
+      });
+
+      const legendEl = document.getElementById('asset-allocation-legend');
+      if (entries.length === 0) {
+        legendEl.innerHTML = `<div class="text-xs text-slate-400">Add assets to view your allocation breakdown.</div>`;
+      } else {
+        legendEl.innerHTML = entries.map(([cat, val], i) => {
+          const pct = metrics.totalAssets > 0 ? (val / metrics.totalAssets) * 100 : 0;
+          return `
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${CHART_PALETTE[i % CHART_PALETTE.length]}"></span>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">${escapeHTML(cat)}</span>
+              </div>
+              <div class="text-right shrink-0 ml-2">
+                <div class="text-xs font-bold text-slate-900 dark:text-white">${pct.toFixed(1)}%</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">${formatCompact(val)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function deleteAssetOrLiab(kind, id) {
+      if (kind === 'asset') {
+        state.assets = state.assets.filter((a) => a.id !== id);
+      } else {
+        state.liabilities = state.liabilities.filter((l) => l.id !== id);
+      }
+      saveState();
+      renderAll();
+      showToast(`${kind === 'asset' ? 'Asset' : 'Liability'} deleted`, 'info');
+    }
+
+    /*************************************************************************
+     * 12. RENDER: WEALTH PROJECTION SIMULATOR
+     *************************************************************************/
+    function renderProjection(metrics) {
+      const p = state.projection;
+
+      const startNWInput = document.getElementById('proj-start-nw');
+      const monthlySavInput = document.getElementById('proj-monthly-savings');
+      const overrideNWChk = document.getElementById('proj-override-nw');
+      const overrideSavChk = document.getElementById('proj-override-savings');
+
+      overrideNWChk.checked = p.overrideNW;
+      startNWInput.disabled = !p.overrideNW;
+      startNWInput.value = Math.round(p.overrideNW ? p.customNW : metrics.netWorth);
+
+      overrideSavChk.checked = p.overrideSavings;
+      monthlySavInput.disabled = !p.overrideSavings;
+      monthlySavInput.value = Math.round(p.overrideSavings ? p.customSavings : metrics.totalMonthlySavings);
+
+      document.getElementById('proj-years').value = p.years;
+      document.getElementById('proj-years-num').value = p.years;
+      document.getElementById('proj-return').value = p.returnRate;
+      document.getElementById('proj-return-num').value = p.returnRate;
+      document.getElementById('proj-stepup').value = p.stepUp;
+      document.getElementById('proj-stepup-num').value = p.stepUp;
+      document.getElementById('proj-inflation').value = p.inflation;
+      document.getElementById('proj-inflation-num').value = p.inflation;
+
+      const isReal = p.displayMode === 'real';
+      document.getElementById('btn-mode-nominal').className = `proj-mode-btn py-2 px-2 rounded-lg text-xs font-bold transition-all ${
+        !isReal ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400'
+      }`;
+      document.getElementById('btn-mode-real').className = `proj-mode-btn py-2 px-2 rounded-lg text-xs font-bold transition-all ${
+        isReal ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400'
+      }`;
+
+      const isStacked = p.chartType === 'stacked';
+      document.getElementById('btn-chart-scenarios').className = `proj-chart-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+        !isStacked ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400'
+      }`;
+      document.getElementById('btn-chart-stacked').className = `proj-chart-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+        isStacked ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400'
+      }`;
+
+      const startNW = p.overrideNW ? Number(p.customNW) : metrics.netWorth;
+      const monthlySav = p.overrideSavings ? Number(p.customSavings) : metrics.totalMonthlySavings;
+
+      const consRate = Math.max(0.5, p.returnRate - 3);
+      const optRate = p.returnRate + 3;
+
+      const expectedRows = runProjection(startNW, monthlySav, p.years, p.returnRate, p.stepUp, p.inflation);
+      const consRows = runProjection(startNW, monthlySav, p.years, consRate, p.stepUp, p.inflation);
+      const optRows = runProjection(startNW, monthlySav, p.years, optRate, p.stepUp, p.inflation);
+
+      const finalRow = expectedRows[expectedRows.length - 1];
+      const displayFuture = isReal ? finalRow.realBalance : finalRow.endBalance;
+      const displayPrincipal = isReal
+        ? finalRow.totalPrincipal / Math.pow(1 + p.inflation / 100, p.years)
+        : finalRow.totalPrincipal;
+      const displayGains = displayFuture - displayPrincipal;
+      const multiplier = displayPrincipal > 0 ? displayFuture / displayPrincipal : 0;
+
+      document.getElementById('proj-kpi-future').textContent = formatCompact(displayFuture);
+      document.getElementById('proj-kpi-future').title = formatCurrency(displayFuture);
+      document.getElementById('proj-kpi-future-sub').textContent =
+        `By ${finalRow.calendarYear} (${isReal ? "Today's Money" : 'Nominal'})`;
+
+      document.getElementById('proj-kpi-principal').textContent = formatCompact(displayPrincipal);
+      document.getElementById('proj-kpi-principal').title = formatCurrency(displayPrincipal);
+
+      document.getElementById('proj-kpi-gains').textContent = formatCompact(displayGains);
+      document.getElementById('proj-kpi-gains').title = formatCurrency(displayGains);
+
+      document.getElementById('proj-kpi-multiplier').textContent = `${multiplier.toFixed(2)}x`;
+
+      renderMilestones(startNW, monthlySav, p.returnRate, p.stepUp, p.inflation, isReal);
+
+      const tbody = document.getElementById('proj-table-body');
+      tbody.innerHTML = expectedRows.slice(1).map((r) => `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+          <td class="py-2.5 px-4 font-semibold text-slate-900 dark:text-white whitespace-nowrap">${r.calendarYear} <span class="text-[11px] font-normal text-slate-400">(Yr ${r.yearIndex})</span></td>
+          <td class="py-2.5 px-4 text-right text-slate-600 dark:text-slate-300 whitespace-nowrap">${formatCurrency(r.startBalance)}</td>
+          <td class="py-2.5 px-4 text-right text-indigo-600 dark:text-indigo-400 font-medium whitespace-nowrap">+${formatCurrency(r.annualContribution)}</td>
+          <td class="py-2.5 px-4 text-right text-emerald-600 dark:text-emerald-400 font-medium whitespace-nowrap">+${formatCurrency(r.annualReturns)}</td>
+          <td class="py-2.5 px-4 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">${formatCurrency(r.endBalance)}</td>
+          <td class="py-2.5 px-4 text-right font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">${formatCurrency(r.realBalance)}</td>
+        </tr>
+      `).join('');
+
+      if (activeTab === 'projection') {
+        renderProjectionChart(expectedRows, consRows, optRows, consRate, p.returnRate, optRate, isReal, isStacked);
+      }
+    }
+
+    function renderMilestones(startNW, monthlySav, returnRate, stepUp, inflation, isReal) {
+      const longRun = runProjection(startNW, monthlySav, 40, returnRate, stepUp, inflation);
+      const curr = getCurr();
+
+      const baseTargets = curr.isIndian
+        ? [
+            { label: '2× Current Net Worth', value: Math.max(500000, startNW * 2) },
+            { label: '5× Current Net Worth', value: Math.max(1500000, startNW * 5) },
+            { label: '₹50 Lakhs Club', value: 5000000 },
+            { label: '₹1 Crore Milestone', value: 10000000 },
+            { label: '₹5 Crore Milestone', value: 50000000 },
+            { label: '₹10 Crore Milestone', value: 100000000 }
+          ]
+        : [
+            { label: '2× Current Net Worth', value: Math.max(50000, startNW * 2) },
+            { label: '5× Current Net Worth', value: Math.max(150000, startNW * 5) },
+            { label: `${curr.symbol}250K Milestone`, value: 250000 },
+            { label: `${curr.symbol}500K Milestone`, value: 500000 },
+            { label: `${curr.symbol}1 Million Club`, value: 1000000 },
+            { label: `${curr.symbol}5 Million Club`, value: 5000000 }
+          ];
+
+      const grid = document.getElementById('milestones-grid');
+      grid.innerHTML = baseTargets.map((m) => {
+        const hit = longRun.find((r) => (isReal ? r.realBalance : r.endBalance) >= m.value);
+        const alreadyAchieved = startNW >= m.value;
+
+        let badge = '';
+        if (alreadyAchieved) {
+          badge = `<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Achieved ✓</span>`;
+        } else if (hit) {
+          badge = `<span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">Year ${hit.calendarYear} (${hit.yearIndex} yrs)</span>`;
+        } else {
+          badge = `<span class="text-xs font-medium text-slate-400">40+ years</span>`;
+        }
+
+        return `
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 flex flex-col justify-between">
+            <div class="text-xs font-semibold text-slate-600 dark:text-slate-300">${m.label}</div>
+            <div class="text-base font-extrabold text-slate-900 dark:text-white mt-1">${formatCompact(m.value)}</div>
+            <div class="mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">${badge}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderProjectionChart(expectedRows, consRows, optRows, consRate, expRate, optRate, isReal, isStacked) {
+      const cc = getChartColors();
+      const labels = expectedRows.map((r) => r.calendarYear);
+      const valKey = isReal ? 'realBalance' : 'endBalance';
+
+      if (charts.wealthProjection) charts.wealthProjection.destroy();
+      const ctx = document.getElementById('chart-wealth-projection').getContext('2d');
+
+      if (!isStacked) {
+        document.getElementById('proj-chart-desc').textContent =
+          `Comparing Conservative (${consRate}%), Expected (${expRate}%), and Optimistic (${optRate}%) annual returns`;
+
+        charts.wealthProjection = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: `Optimistic (${optRate}%)`,
+                data: optRows.map((r) => Math.round(r[valKey])),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.35,
+                pointRadius: 2
+              },
+              {
+                label: `Expected (${expRate}%)`,
+                data: expectedRows.map((r) => Math.round(r[valKey])),
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.14)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3
+              },
+              {
+                label: `Conservative (${consRate}%)`,
+                data: consRows.map((r) => Math.round(r[valKey])),
+                borderColor: '#f59e0b',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [4, 4],
+                tension: 0.35,
+                pointRadius: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'top', labels: { color: cc.text, usePointStyle: true, font: { size: 11, weight: '600' } } },
+              tooltip: {
+                backgroundColor: cc.tooltipBg,
+                callbacks: {
+                  label: (c) => ` ${c.dataset.label}: ${formatCurrency(c.raw)} (${formatCompact(c.raw)})`
+                }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: cc.text, font: { size: 11 } } },
+              y: {
+                grid: { color: cc.grid },
+                ticks: { color: cc.text, font: { size: 11 }, callback: (v) => formatCompact(v) }
+              }
+            }
+          }
+        });
+      } else {
+        document.getElementById('proj-chart-desc').textContent =
+          `Breakdown of Total Principal Contributed vs. Compounded Wealth Gained (${isReal ? "Today's Money" : 'Nominal'})`;
+
+        const inflRate = state.projection.inflation / 100;
+        const principalData = expectedRows.map((r) => {
+          const val = isReal ? r.totalPrincipal / Math.pow(1 + inflRate, r.yearIndex) : r.totalPrincipal;
+          return Math.round(val);
+        });
+        const gainsData = expectedRows.map((r, idx) => {
+          const total = Math.round(r[valKey]);
+          return Math.max(0, total - principalData[idx]);
+        });
+
+        charts.wealthProjection = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Principal Contributed',
+                data: principalData,
+                backgroundColor: '#6366f1',
+                borderRadius: 4
+              },
+              {
+                label: 'Compounded Returns',
+                data: gainsData,
+                backgroundColor: '#10b981',
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'top', labels: { color: cc.text, usePointStyle: true, font: { size: 11, weight: '600' } } },
+              tooltip: {
+                backgroundColor: cc.tooltipBg,
+                callbacks: {
+                  label: (c) => ` ${c.dataset.label}: ${formatCurrency(c.raw)} (${formatCompact(c.raw)})`
+                }
+              }
+            },
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: cc.text, font: { size: 11 } } },
+              y: {
+                stacked: true,
+                grid: { color: cc.grid },
+                ticks: { color: cc.text, font: { size: 11 }, callback: (v) => formatCompact(v) }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    /*************************************************************************
+     * 13. MODALS & MASTER RENDER
+     *************************************************************************/
+    function openModal(modalId) {
+      const overlay = document.getElementById('modal-overlay');
+      document.querySelectorAll('.modal-box').forEach((m) => m.classList.add('hidden'));
+      document.getElementById(modalId).classList.remove('hidden');
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+    }
+
+    function closeModals() {
+      const overlay = document.getElementById('modal-overlay');
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+    }
+
+    function openQuickAddModal() {
+      switchTab('transactions');
+      resetTxForm();
+      const titleInput = document.getElementById('tx-title');
+      titleInput.focus();
+      titleInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function openAssetLiabModal(kind, editId = '') {
+      document.getElementById('al-kind').value = kind;
+      document.getElementById('al-edit-id').value = editId;
+      document.getElementById('al-modal-title').textContent =
+        `${editId ? 'Edit' : 'Add'} ${kind === 'asset' ? 'Asset' : 'Liability'}`;
+
+      const catSelect = document.getElementById('al-category');
+      const cats = kind === 'asset' ? ASSET_CATEGORIES : LIABILITY_CATEGORIES;
+      catSelect.innerHTML = cats.map((c) => `<option value="${c}">${c}</option>`).join('');
+
+      if (editId) {
+        const list = kind === 'asset' ? state.assets : state.liabilities;
+        const item = list.find((i) => i.id === editId);
+        if (item) {
+          document.getElementById('al-name').value = item.name;
+          catSelect.value = item.category;
+          document.getElementById('al-value').value = item.value;
+        }
+      } else {
+        document.getElementById('al-name').value = '';
+        document.getElementById('al-value').value = '';
+      }
+
+      openModal('modal-asset-liab');
+    }
+
+    function renderAll() {
+      const sym = getCurr().symbol;
+      document.querySelectorAll('.currency-symbol').forEach((el) => (el.textContent = sym));
+      document.getElementById('currency-select').value = state.currency;
+
+      const metrics = computeMetrics();
+      renderDashboard(metrics);
+      renderTransactions(metrics);
+      renderNetWorth(metrics);
+      renderProjection(metrics);
+    }
+
+    /*************************************************************************
+     * 14. EVENT LISTENERS, WINDOW EXPORTS & BOOTSTRAP
+     *************************************************************************/
+    // Expose handlers used by inline onclick attributes
+    window.switchTab = switchTab;
+    window.openQuickAddModal = openQuickAddModal;
+    window.openAssetLiabModal = openAssetLiabModal;
+    window.closeModals = closeModals;
+    window.deleteTransaction = deleteTransaction;
+    window.editTransaction = editTransaction;
+    window.deleteAssetOrLiab = deleteAssetOrLiab;
+
+    function initEventListeners() {
+      // Auth & Lock screen listeners
+      document.getElementById('auth-tab-signin').addEventListener('click', () => setAuthMode('signin'));
+      document.getElementById('auth-tab-signup').addEventListener('click', () => setAuthMode('signup'));
+      document.getElementById('auth-form').addEventListener('submit', handleAuthSubmit);
+      document.getElementById('lock-form').addEventListener('submit', handleUnlockSubmit);
+      document.getElementById('btn-lock-signout').addEventListener('click', handleSignOut);
+
+      // Vault Security Modal listeners
+      document.getElementById('btn-vault-security').addEventListener('click', () => {
+        updateSecurityInspectorUI();
+        openModal('modal-vault-security');
+      });
+      document.getElementById('btn-sec-lock-now').addEventListener('click', () => lockVault(true));
+      document.getElementById('btn-sec-signout').addEventListener('click', handleSignOut);
+      document.getElementById('btn-signout-sidebar').addEventListener('click', handleSignOut);
+      document.getElementById('btn-modal-signout-mobile').addEventListener('click', handleSignOut);
+      document.getElementById('btn-copy-ciphertext').addEventListener('click', copyCiphertextToClipboard);
+      document.getElementById('rotate-passphrase-form').addEventListener('submit', handleRotatePassphrase);
+      document.getElementById('btn-sec-export-enc').addEventListener('click', exportEncryptedBackup);
+
+      // Encrypted Backup Import
+      const importFileEl = document.getElementById('sec-import-file');
+      document.getElementById('btn-sec-import-trigger').addEventListener('click', () => importFileEl.click());
+      importFileEl.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            const env = parsed.vault || parsed;
+            if (!env.salt || !env.iv || !env.ciphertext) {
+              showToast('Invalid encrypted backup file format', 'error');
+              return;
+            }
+            pendingImportEnvelope = env;
+            document.getElementById('sec-import-filename').textContent = file.name;
+            document.getElementById('sec-import-passphrase').value = '';
+            document.getElementById('sec-import-box').classList.remove('hidden');
+          } catch (err) {
+            showToast('Could not parse JSON backup file', 'error');
+          }
+        };
+        reader.readAsText(file);
+        importFileEl.value = '';
+      });
+
+      document.getElementById('btn-sec-import-cancel').addEventListener('click', () => {
+        pendingImportEnvelope = null;
+        document.getElementById('sec-import-box').classList.add('hidden');
+      });
+
+      document.getElementById('btn-sec-import-confirm').addEventListener('click', async () => {
+        if (!pendingImportEnvelope) return;
+        const pass = document.getElementById('sec-import-passphrase').value;
+        if (!pass) {
+          showToast('Enter the backup passphrase to decrypt', 'error');
+          return;
+        }
+        try {
+          const res = await decryptVaultWithPassphrase(pendingImportEnvelope, pass);
+          state = normalizeState(res.state);
+          await saveState(); // Re-encrypts with current user's active key
+          pendingImportEnvelope = null;
+          document.getElementById('sec-import-box').classList.add('hidden');
+          applyThemeDOM(state.theme || 'light');
+          renderAll();
+          closeModals();
+          showToast('Encrypted backup decrypted & restored to your vault!');
+        } catch (err) {
+          showToast('Incorrect backup passphrase. Decryption failed.', 'error');
+        }
+      });
+
+      // Navigation buttons
+      document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      // Theme toggle
+      document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+        applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+      });
+
+      // Currency switcher
+      document.getElementById('currency-select').addEventListener('change', (e) => {
+        state.currency = e.target.value;
+        saveState();
+        renderAll();
+        showToast(`Currency switched to ${state.currency}`, 'info');
+      });
+
+      // Quick Add button
+      document.getElementById('btn-quick-add').addEventListener('click', openQuickAddModal);
+
+      // Export & Data Modals
+      document.getElementById('btn-export-sidebar').addEventListener('click', exportEncryptedBackup);
+      document.getElementById('btn-reset-sidebar').addEventListener('click', () => openModal('modal-data'));
+      document.getElementById('btn-mobile-settings').addEventListener('click', () => openModal('modal-data'));
+      document.getElementById('btn-modal-export').addEventListener('click', () => {
+        exportEncryptedBackup();
+        closeModals();
+      });
+      document.getElementById('btn-modal-restore-sample').addEventListener('click', async () => {
+        const currentTheme = state.theme;
+        state = getSampleState();
+        state.theme = currentTheme;
+        await saveState();
+        closeModals();
+        renderAll();
+        showToast('INR starter demo data loaded & encrypted');
+      });
+      document.getElementById('btn-modal-clear-all').addEventListener('click', async () => {
+        state.transactions = [];
+        state.assets = [];
+        state.liabilities = [];
+        state.projection.overrideNW = false;
+        state.projection.overrideSavings = false;
+        await saveState();
+        closeModals();
+        renderAll();
+        showToast('All financial data cleared', 'info');
+      });
+
+      document.getElementById('modal-overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-overlay') closeModals();
+      });
+
+      // Transaction Type Toggle & Cancel Edit
+      document.querySelectorAll('.tx-type-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.txType;
+          setTxTypeUI(type);
+          if (!document.getElementById('tx-edit-id').value) {
+            document.getElementById('tx-category').value = type === 'income' ? 'Salary' : 'Food & Dining';
+          }
+        });
+      });
+
+      document.getElementById('btn-tx-cancel-edit').addEventListener('click', resetTxForm);
+
+      // Add / Edit Transaction Form Submit
+      document.getElementById('tx-date').value = getTodayISO();
+      document.getElementById('tx-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('tx-edit-id').value;
+        const txData = {
+          id: editId || ('tx_' + Date.now()),
+          type: document.getElementById('tx-type').value,
+          title: document.getElementById('tx-title').value.trim(),
+          amount: parseFloat(document.getElementById('tx-amount').value) || 0,
+          category: document.getElementById('tx-category').value,
+          date: document.getElementById('tx-date').value || getTodayISO(),
+          frequency: document.getElementById('tx-frequency').value
+        };
+        if (!txData.title || txData.amount <= 0) return;
+
+        if (editId) {
+          const idx = state.transactions.findIndex((t) => t.id === editId);
+          if (idx > -1) state.transactions[idx] = txData;
+          showToast('Transaction updated');
+        } else {
+          state.transactions.unshift(txData);
+          showToast(`${txData.type === 'income' ? 'Income' : 'Expense'} added`);
+        }
+
+        saveState();
+        resetTxForm();
+        renderAll();
+      });
+
+      // Transaction Table Filters
+      document.getElementById('tx-search').addEventListener('input', () => renderTransactions(computeMetrics()));
+      document.getElementById('tx-filter-type').addEventListener('change', () => renderTransactions(computeMetrics()));
+      document.getElementById('tx-filter-category').addEventListener('change', () => renderTransactions(computeMetrics()));
+
+      // Add / Edit Asset or Liability Form Submit
+      document.getElementById('al-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const kind = document.getElementById('al-kind').value;
+        const editId = document.getElementById('al-edit-id').value;
+        const name = document.getElementById('al-name').value.trim();
+        const category = document.getElementById('al-category').value;
+        const value = parseFloat(document.getElementById('al-value').value) || 0;
+
+        if (!name) return;
+        const list = kind === 'asset' ? state.assets : state.liabilities;
+
+        if (editId) {
+          const idx = list.findIndex((i) => i.id === editId);
+          if (idx > -1) list[idx] = { id: editId, name, category, value };
+        } else {
+          list.push({ id: `${kind[0]}_${Date.now()}`, name, category, value });
+        }
+
+        saveState();
+        closeModals();
+        renderAll();
+        showToast(`${kind === 'asset' ? 'Asset' : 'Liability'} saved`);
+      });
+
+      // Projection Overrides & Sliders
+      document.getElementById('proj-override-nw').addEventListener('change', (e) => {
+        const metrics = computeMetrics();
+        state.projection.overrideNW = e.target.checked;
+        if (e.target.checked) state.projection.customNW = metrics.netWorth;
+        saveState();
+        renderProjection(metrics);
+      });
+      document.getElementById('proj-start-nw').addEventListener('input', (e) => {
+        state.projection.customNW = parseFloat(e.target.value) || 0;
+        saveState();
+        renderProjection(computeMetrics());
+      });
+
+      document.getElementById('proj-override-savings').addEventListener('change', (e) => {
+        const metrics = computeMetrics();
+        state.projection.overrideSavings = e.target.checked;
+        if (e.target.checked) state.projection.customSavings = metrics.totalMonthlySavings;
+        saveState();
+        renderProjection(metrics);
+      });
+      document.getElementById('proj-monthly-savings').addEventListener('input', (e) => {
+        state.projection.customSavings = parseFloat(e.target.value) || 0;
+        saveState();
+        renderProjection(computeMetrics());
+      });
+
+      function bindSliderPair(rangeId, numId, stateProp, min, max) {
+        const rangeEl = document.getElementById(rangeId);
+        const numEl = document.getElementById(numId);
+        const update = (val) => {
+          const clamped = Math.min(max, Math.max(min, parseFloat(val) || min));
+          state.projection[stateProp] = clamped;
+          saveState();
+          renderProjection(computeMetrics());
+        };
+        rangeEl.addEventListener('input', (e) => update(e.target.value));
+        numEl.addEventListener('change', (e) => update(e.target.value));
+      }
+
+      bindSliderPair('proj-years', 'proj-years-num', 'years', 1, 35);
+      bindSliderPair('proj-return', 'proj-return-num', 'returnRate', 1, 25);
+      bindSliderPair('proj-stepup', 'proj-stepup-num', 'stepUp', 0, 25);
+      bindSliderPair('proj-inflation', 'proj-inflation-num', 'inflation', 0, 12);
+
+      document.getElementById('btn-mode-nominal').addEventListener('click', () => {
+        state.projection.displayMode = 'nominal';
+        saveState();
+        renderProjection(computeMetrics());
+      });
+      document.getElementById('btn-mode-real').addEventListener('click', () => {
+        state.projection.displayMode = 'real';
+        saveState();
+        renderProjection(computeMetrics());
+      });
+
+      document.getElementById('btn-chart-scenarios').addEventListener('click', () => {
+        state.projection.chartType = 'scenarios';
+        saveState();
+        renderProjection(computeMetrics());
+      });
+      document.getElementById('btn-chart-stacked').addEventListener('click', () => {
+        state.projection.chartType = 'stacked';
+        saveState();
+        renderProjection(computeMetrics());
+      });
+
+      document.getElementById('btn-toggle-proj-table').addEventListener('click', () => {
+        const container = document.getElementById('proj-table-container');
+        const chevron = document.getElementById('proj-table-chevron');
+        container.classList.toggle('hidden');
+        chevron.classList.toggle('rotate-180');
+      });
+    }
+
+    // Boot Application & Monitor Auth State
+    window.addEventListener('DOMContentLoaded', () => {
+      initEventListeners();
+      setAuthMode('signin');
+
+      if (auth) {
+        onAuthStateChanged(auth, (user) => {
+          currentUser = user;
+          if (!user) {
+            // Logged out -> show Sign In / Sign Up gate
+            vaultKey = null;
+            vaultSalt = null;
+            document.getElementById('app-shell').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('flex');
+            document.getElementById('lock-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+          } else if (!vaultKey) {
+            // Authenticated (e.g. page reload), but encryption key is not in memory -> prompt Vault Lock screen
+            document.getElementById('app-shell').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('flex');
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('lock-user-email').textContent = user.email || user.uid;
+            document.getElementById('lock-screen').classList.remove('hidden');
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
