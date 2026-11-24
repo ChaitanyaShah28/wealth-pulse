@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WealthPulse — Personal Finance OS</title>
+  <title>WealthPulse — Personal Finance</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -11,21 +11,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
-    .tab-btn.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
-    .tab-btn.active svg { color: #4f46e5; }
-    .mob-tab-btn.active { color: #4f46e5; font-weight: 700; }
+    .nav-btn.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
+    .nav-btn.active svg { color: #4f46e5; }
+    .mob-nav-btn.active { color: #4f46e5; font-weight: 700; }
+    .period-pill.active { background-color: #4f46e5; color: #ffffff; }
     .view-section { display: none; }
     .view-section.active { display: block; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
   </style>
 </head>
-<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900 pb-20 md:pb-0">
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900 pb-24 md:pb-0">
 
-  <!-- ==================== AUTH & VAULT UNLOCK OVERLAY ==================== -->
+  <!-- ==================== LOGIN & VAULT SCREEN ==================== -->
   <div id="auth-screen" class="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-slate-100">
-    <div class="w-full max-w-md">
-      <!-- Brand Header -->
+    <div class="w-full max-w-sm">
       <div class="text-center mb-6">
         <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-indigo-200 mb-3">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -33,106 +33,72 @@
           </svg>
         </div>
         <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">WealthPulse</h1>
-        <p class="text-xs text-slate-500 mt-1">Zero-Knowledge Encrypted Personal Finance OS</p>
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium mt-3">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-          End-to-End AES-256-GCM Encrypted
-        </div>
+        <p class="text-xs text-slate-500 mt-1">Simple, private money &amp; mutual fund tracker</p>
       </div>
 
-      <!-- Auth Card -->
       <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/70 border border-slate-200/80 p-6">
-        <!-- Mode Switcher -->
         <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl mb-5">
-          <button type="button" id="mode-signin-btn" class="py-2 text-sm font-semibold rounded-lg bg-white text-indigo-600 shadow-sm transition">Sign In</button>
-          <button type="button" id="mode-signup-btn" class="py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">Create Account</button>
+          <button type="button" id="mode-signin-btn" class="py-2 text-xs font-semibold rounded-lg bg-white text-indigo-600 shadow-sm transition">Sign In</button>
+          <button type="button" id="mode-signup-btn" class="py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">Create Account</button>
         </div>
 
-        <!-- Error Banner -->
-        <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs leading-relaxed"></div>
+        <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs"></div>
 
-        <form id="auth-form" class="space-y-4">
+        <form id="auth-form" class="space-y-3.5">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-            <input type="email" id="auth-email" required placeholder="you@example.com" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+            <input type="email" id="auth-email" required placeholder="you@example.com" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Account Password</label>
-            <input type="password" id="auth-password" required minlength="6" placeholder="Minimum 6 characters" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+            <input type="password" id="auth-password" required minlength="6" placeholder="Min 6 characters" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-semibold text-slate-700">Vault Encryption Passphrase</label>
-              <span class="text-[11px] font-semibold text-emerald-600">Client-Side Key</span>
+              <label class="text-xs font-semibold text-slate-700">Secret Vault PIN / Passphrase</label>
+              <span class="text-[11px] font-medium text-emerald-600">🔒 Private Key</span>
             </div>
-            <input type="password" id="vault-passphrase" required minlength="4" placeholder="Secret passphrase to encrypt/decrypt vault" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            <p class="text-[11px] text-slate-400 mt-1">Encrypts your data locally before syncing to the cloud.</p>
+            <input type="password" id="vault-passphrase" required minlength="4" placeholder="Locks your numbers privately" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           </div>
 
           <div id="confirm-passphrase-group" class="hidden">
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Confirm Vault Passphrase</label>
-            <input type="password" id="vault-passphrase-confirm" placeholder="Re-enter vault passphrase" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Confirm Vault PIN / Passphrase</label>
+            <input type="password" id="vault-passphrase-confirm" placeholder="Re-enter vault passphrase" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           </div>
 
-          <!-- Remember Vault Key Toggle -->
           <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
-            <input type="checkbox" id="remember-vault-cb" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500" />
-            <div>
-              <div class="text-xs font-semibold text-slate-700">Remember Vault on This Device</div>
-              <div class="text-[11px] text-slate-400">Skip re-typing passphrase on reloads (uncheck on shared PCs)</div>
-            </div>
+            <input type="checkbox" id="remember-vault-cb" checked class="w-4 h-4 rounded text-indigo-600" />
+            <span class="text-xs font-medium text-slate-700">Stay unlocked on this device</span>
           </label>
 
-          <div id="starter-data-group" class="hidden space-y-2 pt-1">
-            <label class="block text-xs font-semibold text-slate-700">Initial Vault Setup</label>
-            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-indigo-200 bg-indigo-50/40 cursor-pointer">
-              <input type="radio" name="init-mode" value="empty" checked class="mt-0.5 text-indigo-600" />
-              <div>
-                <div class="text-xs font-semibold text-slate-800">Start with Clean Empty Vault (Recommended for Excel Upload)</div>
-                <div class="text-[11px] text-slate-500">Upload your own Excel/CSV cash &amp; mutual fund entries right away.</div>
-              </div>
-            </label>
-            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="init-mode" value="demo" class="mt-0.5 text-indigo-600" />
-              <div>
-                <div class="text-xs font-semibold text-slate-800">Load Indian Rupee (₹) Starter Demo Data</div>
-                <div class="text-[11px] text-slate-500">Pre-filled salary, SIPs, mutual funds, and net worth to explore first.</div>
-              </div>
-            </label>
-          </div>
-
-          <button type="submit" id="auth-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md shadow-indigo-200 transition flex items-center justify-center gap-2">
-            <span id="auth-submit-text">Sign In &amp; Open Vault</span>
+          <button type="submit" id="auth-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md shadow-indigo-200 transition">
+            <span id="auth-submit-text">Open My Vault</span>
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MAIN APPLICATION SHELL ==================== -->
+  <!-- ==================== MAIN APP SHELL ==================== -->
   <div id="app-shell" class="hidden min-h-screen flex flex-col md:flex-row">
-    <!-- Mobile Top Bar -->
-    <div class="md:hidden flex items-center justify-between bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30">
-      <div class="flex items-center gap-2.5">
+    <!-- Mobile Top Header -->
+    <header class="md:hidden flex items-center justify-between bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30">
+      <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
         </div>
         <span class="font-bold text-slate-900 text-sm">WealthPulse</span>
       </div>
       <div class="flex items-center gap-2">
-        <button type="button" class="open-import-btn px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">Import Excel</button>
-        <button type="button" class="open-quick-modal-btn px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">+ Add</button>
-        <button type="button" id="mobile-signout-btn" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 text-xs font-semibold">Exit</button>
+        <button type="button" class="open-import-btn px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">Import</button>
+        <button type="button" class="open-quick-btn px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">+ Add</button>
       </div>
-    </div>
+    </header>
 
-    <!-- Desktop Left Sidebar -->
-    <aside id="sidebar" class="hidden md:flex md:flex-col w-64 bg-white border-r border-slate-200 min-h-screen shrink-0 z-20">
-      <!-- Brand -->
+    <!-- Desktop Sidebar -->
+    <aside class="hidden md:flex md:flex-col w-60 bg-white border-r border-slate-200 min-h-screen shrink-0">
       <div class="flex items-center gap-3 px-5 py-5 border-b border-slate-100">
         <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -141,489 +107,338 @@
         </div>
         <div>
           <div class="font-bold text-slate-900 text-base leading-tight">WealthPulse</div>
-          <div class="text-[11px] text-slate-400">Personal Finance OS</div>
+          <div class="text-[11px] text-emerald-600 font-medium">🔒 Private Vault</div>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
       <nav class="flex-1 px-3 py-4 space-y-1">
-        <button type="button" data-tab="dashboard" class="tab-btn active w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-          <span>Dashboard</span>
+        <button type="button" data-tab="home" class="nav-btn active w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span>Overview</span>
         </button>
 
-        <button type="button" data-tab="transactions" class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-          </svg>
-          <span>Expenses &amp; Income</span>
+        <button type="button" data-tab="activity" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          <span>Cashflow &amp; Auto-Pay</span>
         </button>
 
-        <button type="button" data-tab="networth" class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-          </svg>
-          <span>Net Worth &amp; MF</span>
+        <button type="button" data-tab="wealth" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          <span>Mutual Funds &amp; Goals</span>
         </button>
-
-        <button type="button" data-tab="projection" class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          <span>Wealth Projection</span>
-        </button>
-
-        <div class="pt-3 mt-3 border-t border-slate-100">
-          <button type="button" class="open-import-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50/80 hover:bg-emerald-100/80 border border-emerald-200/70 transition text-left">
-            <svg class="w-4 h-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            <span>Import Excel / CSV</span>
-          </button>
-        </div>
       </nav>
 
-      <!-- Sidebar Footer: Sync Status, Export, Data Tools, Sign Out -->
-      <div class="p-3 border-t border-slate-100 space-y-2.5">
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span id="sidebar-user-email" class="text-xs font-semibold text-slate-700 truncate">user@example.com</span>
-          </div>
-          <div id="sync-status" class="text-[11px] text-slate-400 mt-1 pl-4">Encrypted &amp; Synced</div>
-        </div>
-
-        <button type="button" id="btn-export-backup" class="w-full py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 transition">
-          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          Export Encrypted Backup
+      <div class="p-3 border-t border-slate-100 space-y-2">
+        <button type="button" class="open-import-btn w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+          <span>↑ Upload Excel / CSV</span>
         </button>
-
-        <div class="flex items-center justify-between px-2 pt-1">
-          <button type="button" id="btn-data-tools" class="text-xs font-medium text-slate-500 hover:text-indigo-600 transition">Data Tools</button>
-          <button type="button" id="btn-sign-out" class="text-xs font-semibold text-rose-600 hover:text-rose-700 transition">Sign Out</button>
+        <button type="button" id="btn-export-backup" class="w-full py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-600 transition">
+          ↓ Backup Vault
+        </button>
+        <div class="pt-1 px-2 flex items-center justify-between text-[11px] text-slate-400">
+          <span id="sync-status" class="truncate">Synced</span>
+          <button type="button" id="btn-sign-out" class="font-semibold text-rose-500 hover:text-rose-700">Sign Out</button>
         </div>
       </div>
     </aside>
 
-    <!-- Mobile Bottom Navigation Bar -->
-    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 grid grid-cols-4 py-2 z-30">
-      <button type="button" data-tab="dashboard" class="mob-tab-btn active flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-        <span>Home</span>
+    <!-- Mobile Bottom Navigation (Clean 3-Tab Layout) -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 grid grid-cols-3 py-2 z-30">
+      <button type="button" data-tab="home" class="mob-nav-btn active flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Overview</span>
       </button>
-      <button type="button" data-tab="transactions" class="mob-tab-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+      <button type="button" data-tab="activity" class="mob-nav-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
         <span>Cashflow</span>
       </button>
-      <button type="button" data-tab="networth" class="mob-tab-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-        <span>Net Worth</span>
-      </button>
-      <button type="button" data-tab="projection" class="mob-tab-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>Project</span>
+      <button type="button" data-tab="wealth" class="mob-nav-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <span>Wealth</span>
       </button>
     </nav>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
-      <!-- Top Header Bar -->
+    <!-- Main Content Container -->
+    <main class="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full space-y-6">
+      <!-- Top Bar -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 id="page-title" class="text-xl font-bold text-slate-900">Financial Overview</h2>
-          <p id="page-subtitle" class="text-xs text-slate-500">Real-time encrypted cashflow, net worth, and wealth trajectory</p>
+          <h2 id="page-title" class="text-xl font-bold text-slate-900">Overview</h2>
+          <p id="page-subtitle" class="text-xs text-slate-500" id="user-greeting">Your monthly cashflow and net worth at a glance</p>
         </div>
-        <div class="hidden md:flex items-center gap-2.5">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            AES-256 Encrypted
-          </span>
-          <button type="button" class="open-import-btn px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-            Upload Excel / CSV
+
+        <div class="flex items-center gap-2">
+          <!-- Period Filter Pills -->
+          <div class="inline-flex bg-slate-200/70 p-1 rounded-xl text-xs font-semibold">
+            <button type="button" data-period="this-month" class="period-pill active px-3 py-1 rounded-lg transition">This Month</button>
+            <button type="button" data-period="last-month" class="period-pill px-3 py-1 rounded-lg text-slate-600 transition">Last Month</button>
+            <button type="button" data-period="all" class="period-pill px-3 py-1 rounded-lg text-slate-600 transition">All Time</button>
+          </div>
+
+          <button type="button" class="open-quick-btn hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+            <span>+ Quick Add</span>
           </button>
-          <button type="button" class="open-quick-modal-btn px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">+ Quick Entry</button>
         </div>
       </div>
 
-      <!-- Toast Notification Banner -->
-      <div id="toast-banner" class="hidden p-3.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-lg flex items-center justify-between">
-        <span id="toast-text">Imported successfully!</span>
-        <button type="button" onclick="document.getElementById('toast-banner').classList.add('hidden')" class="text-white/80 hover:text-white ml-4">✕</button>
+      <!-- Toast Notification -->
+      <div id="toast-banner" class="hidden p-3.5 rounded-xl bg-slate-900 text-white text-xs font-medium shadow-lg flex items-center justify-between">
+        <span id="toast-text">Done!</span>
+        <button type="button" onclick="document.getElementById('toast-banner').classList.add('hidden')" class="text-slate-400 hover:text-white ml-4">✕</button>
       </div>
 
-      <!-- ==================== TAB 1: DASHBOARD ==================== -->
-      <section id="view-dashboard" class="view-section active space-y-6">
-        <!-- Empty Vault Onboarding Callout (Shown automatically when vault is empty) -->
-        <div id="empty-vault-banner" class="hidden rounded-2xl bg-gradient-to-r from-indigo-50 via-white to-emerald-50 border border-indigo-200/80 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <!-- ==================== TAB 1: OVERVIEW (SIMPLE & VISUAL) ==================== -->
+      <section id="view-home" class="view-section active space-y-6">
+        <!-- Empty Vault Prompt -->
+        <div id="empty-vault-card" class="hidden rounded-2xl bg-indigo-50/70 border border-indigo-200 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h3 class="font-bold text-slate-900 text-sm">Bring Your Finances Up to Date in One Click</h3>
-            <p class="text-xs text-slate-600 mt-1">Upload your filled <strong>WealthPulse_Data_Template.xlsx</strong> (or CSV) to import all historical cash/bank entries and mutual fund holdings at once.</p>
+            <h3 class="font-bold text-slate-900 text-sm">Start by importing your Excel file or adding a monthly rule</h3>
+            <p class="text-xs text-slate-600 mt-1">Upload your cash &amp; mutual fund sheet, or add your monthly salary &amp; SIPs once to automate every month.</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <button type="button" class="open-import-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Upload Excel / CSV File</button>
-            <button type="button" class="open-quick-modal-btn px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition">+ Single Entry</button>
+            <button type="button" class="open-import-btn px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700">Upload Excel / CSV</button>
+            <button type="button" class="open-quick-btn px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-semibold">+ Add Entry</button>
           </div>
         </div>
 
-        <!-- 4 KPI Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5 shadow-lg shadow-indigo-200/60">
-            <div class="flex items-center justify-between text-indigo-100 text-[11px] font-semibold uppercase tracking-wider">
-              <span>Current Net Worth</span>
-              <span class="w-6 h-6 rounded-lg bg-white/15 flex items-center justify-center">₹</span>
-            </div>
-            <div id="kpi-net-worth" class="text-2xl font-extrabold mt-2">₹0</div>
-            <div id="kpi-net-worth-sub" class="text-xs text-indigo-100 mt-1">₹0 Assets – ₹0 Debt</div>
+        <!-- 4 Clean Summary Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div class="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-4 md:p-5 shadow-md shadow-indigo-200/50">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-indigo-100">Total Net Worth</div>
+            <div id="kpi-net-worth" class="text-xl md:text-2xl font-extrabold mt-1.5">₹0</div>
+            <div id="kpi-net-worth-sub" class="text-[11px] text-indigo-100 mt-1 truncate">₹0 Assets – ₹0 Debt</div>
           </div>
 
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
-              <span>Total Inflows</span>
-              <span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">↗</span>
-            </div>
-            <div id="kpi-income" class="text-2xl font-extrabold text-slate-900 mt-2">₹0</div>
-            <div class="text-xs text-emerald-600 font-medium mt-1">Income &amp; credits logged</div>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-4 md:p-5 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Income</div>
+            <div id="kpi-income" class="text-xl md:text-2xl font-extrabold text-emerald-600 mt-1.5">₹0</div>
+            <div id="kpi-income-sub" class="text-[11px] text-slate-400 mt-1">This month</div>
           </div>
 
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
-              <span>Total Outflows</span>
-              <span class="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">↘</span>
-            </div>
-            <div id="kpi-expenses" class="text-2xl font-extrabold text-slate-900 mt-2">₹0</div>
-            <div class="text-xs text-rose-500 font-medium mt-1">Expenses &amp; SIPs tracked</div>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-4 md:p-5 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Expenses &amp; SIPs</div>
+            <div id="kpi-expenses" class="text-xl md:text-2xl font-extrabold text-slate-900 mt-1.5">₹0</div>
+            <div id="kpi-expenses-sub" class="text-[11px] text-slate-400 mt-1">This month</div>
           </div>
 
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
-              <span>Net Savings + SIP</span>
-              <span id="kpi-savings-rate" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">0%</span>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-4 md:p-5 shadow-2xs">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Saved + Invested</span>
+              <span id="kpi-savings-rate" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">0%</span>
             </div>
-            <div id="kpi-savings" class="text-2xl font-extrabold text-slate-900 mt-2">₹0</div>
-            <div class="text-xs text-slate-400 mt-1">Surplus + Investments/SIP</div>
+            <div id="kpi-savings" class="text-xl md:text-2xl font-extrabold text-indigo-600 mt-1.5">₹0</div>
+            <div class="text-[11px] text-slate-400 mt-1">Surplus + SIPs</div>
           </div>
         </div>
 
-        <!-- Middle Charts Row -->
+        <!-- Active Monthly Auto-Rules Strip -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">Monthly Auto-Pay &amp; Auto-Income</h3>
+              <p class="text-xs text-slate-400">Automatically added on their scheduled day every month</p>
+            </div>
+            <button type="button" id="add-recurring-shortcut" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-semibold transition">+ Add Monthly Rule</button>
+          </div>
+          <div id="home-recurring-strip" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+        </div>
+
+        <!-- Spending Chart + Recent Activity -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="font-bold text-slate-900 text-sm">Expense Breakdown</h3>
-                <p class="text-xs text-slate-400">Distribution by spending category</p>
-              </div>
-              <button type="button" data-goto="transactions" class="goto-btn text-xs font-semibold text-indigo-600 hover:text-indigo-700">View all →</button>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-slate-900 text-sm">Where Money Goes</h3>
+              <span id="chart-period-label" class="text-[11px] font-medium text-slate-400">This Month</span>
             </div>
-            <div class="h-64 flex items-center justify-center">
+            <div class="h-60 flex items-center justify-center">
               <canvas id="chart-expense-donut"></canvas>
             </div>
           </div>
 
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="font-bold text-slate-900 text-sm">Assets vs. Liabilities</h3>
-                <p class="text-xs text-slate-400">Mutual funds, savings, and debt overview</p>
-              </div>
-              <button type="button" data-goto="networth" class="goto-btn text-xs font-semibold text-indigo-600 hover:text-indigo-700">Manage →</button>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-slate-900 text-sm">Recent Activity</h3>
+              <button type="button" data-goto="activity" class="goto-btn text-xs font-semibold text-indigo-600 hover:text-indigo-700">See all →</button>
             </div>
-            <div class="h-64 flex items-center justify-center">
-              <canvas id="chart-balance-bar"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bottom Row: 10-Year Preview + Recent Transactions -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="font-bold text-slate-900 text-sm">10-Year Net Worth Preview</h3>
-                <p id="preview-10yr-sub" class="text-xs text-slate-400">Projected 10-year trajectory at 12% p.a.</p>
-              </div>
-              <button type="button" data-goto="projection" class="goto-btn px-3 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-xs font-semibold hover:bg-indigo-100">Open Simulator →</button>
-            </div>
-            <div class="h-56">
-              <canvas id="chart-preview-line"></canvas>
-            </div>
-          </div>
-
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="font-bold text-slate-900 text-sm">Recent Transactions</h3>
-                <p class="text-xs text-slate-400">Latest income &amp; expense entries</p>
-              </div>
-              <button type="button" class="open-quick-modal-btn text-xs font-semibold text-indigo-600 hover:text-indigo-700">+ Quick Add</button>
-            </div>
-            <div id="recent-transactions-list" class="space-y-2.5 max-h-56 overflow-y-auto pr-1"></div>
+            <div id="recent-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
           </div>
         </div>
       </section>
 
-      <!-- ==================== TAB 2: EXPENSES & INCOME ==================== -->
-      <section id="view-transactions" class="view-section space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Add Transaction Form -->
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm h-fit space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="font-bold text-slate-900 text-sm">Record Cash / Bank Entry</h3>
-              <button type="button" class="open-import-btn text-xs font-semibold text-emerald-600 hover:text-emerald-700">Bulk Upload ↑</button>
+      <!-- ==================== TAB 2: CASHFLOW & MONTHLY AUTO-PAY ==================== -->
+      <section id="view-activity" class="view-section space-y-6">
+        <!-- Monthly Recurring Rules Manager -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">Recurring Monthly Rules (Salary, Rent, SIPs, Bills)</h3>
+              <p class="text-xs text-slate-400">Add once — WealthPulse auto-logs them every month on the selected date</p>
             </div>
-            <form id="tx-form" class="space-y-3.5">
-              <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
-                <label class="text-center cursor-pointer">
-                  <input type="radio" name="tx-type" value="expense" checked class="sr-only peer" />
-                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-600">Expense / SIP</div>
-                </label>
-                <label class="text-center cursor-pointer">
-                  <input type="radio" name="tx-type" value="income" class="sr-only peer" />
-                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-600">Income</div>
-                </label>
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Description</label>
-                <input type="text" id="tx-title" required placeholder="e.g., Monthly Salary, Grocery, Nifty 50 SIP" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">Amount (₹)</label>
-                  <input type="number" id="tx-amount" required min="1" step="any" placeholder="5000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
-                  <input type="date" id="tx-date" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
-                <select id="tx-category" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                  <option value="Food & Dining">Food &amp; Dining</option>
-                  <option value="Investments/SIP">Investments/SIP</option>
-                  <option value="Housing/Rent">Housing/Rent</option>
-                  <option value="Transport & Fuel">Transport &amp; Fuel</option>
-                  <option value="Shopping">Shopping</option>
-                  <option value="Utilities">Utilities</option>
-                  <option value="EMI/Debt Payment">EMI/Debt Payment</option>
-                  <option value="Health">Health</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Salary & Bonus">Salary &amp; Bonus</option>
-                  <option value="Freelance & Dividends">Freelance &amp; Dividends</option>
-                </select>
-              </div>
-
-              <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Save Encrypted Entry</button>
-            </form>
+            <button type="button" id="open-recurring-modal-btn" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition">+ New Monthly Rule</button>
           </div>
+          <div id="recurring-rules-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
 
-          <!-- Transactions Table -->
-          <div class="lg:col-span-2 rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div>
-                <h3 class="font-bold text-slate-900 text-sm">All Cash &amp; Bank Entries (<span id="tx-count-badge">0</span>)</h3>
-                <p class="text-xs text-slate-400">Sorted newest first • Encrypted end-to-end</p>
-              </div>
-              <select id="tx-filter" class="px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
-                <option value="all">All Entries</option>
+        <!-- Full Transaction History -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">All Cash &amp; Bank Entries (<span id="tx-total-count">0</span>)</h3>
+              <p class="text-xs text-slate-400">Entries marked <span class="text-indigo-600 font-semibold">🔄 Auto</span> were generated from your monthly rules</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <select id="tx-type-filter" class="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
+                <option value="all">All Types</option>
                 <option value="income">Income Only</option>
-                <option value="expense">Expenses &amp; SIPs Only</option>
+                <option value="expense">Expenses &amp; SIPs</option>
               </select>
+              <button type="button" class="open-quick-btn px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-semibold">+ Add One-Time</button>
             </div>
-            <div class="overflow-x-auto max-h-[540px] overflow-y-auto">
-              <table class="w-full text-left border-collapse">
-                <thead class="sticky top-0 bg-white">
-                  <tr class="border-b border-slate-100 text-[11px] font-semibold uppercase text-slate-400">
-                    <th class="py-2.5 px-2">Entry</th>
-                    <th class="py-2.5 px-2">Category</th>
-                    <th class="py-2.5 px-2">Date</th>
-                    <th class="py-2.5 px-2 text-right">Amount</th>
-                    <th class="py-2.5 px-2 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="tx-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
-              </table>
-            </div>
+          </div>
+
+          <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
+            <table class="w-full text-left border-collapse">
+              <thead class="sticky top-0 bg-white">
+                <tr class="border-b border-slate-100 text-[11px] font-semibold uppercase text-slate-400">
+                  <th class="py-2.5 px-2">Item</th>
+                  <th class="py-2.5 px-2">Category</th>
+                  <th class="py-2.5 px-2">Date</th>
+                  <th class="py-2.5 px-2 text-right">Amount</th>
+                  <th class="py-2.5 px-2 text-right"></th>
+                </tr>
+              </thead>
+              <tbody id="tx-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+            </table>
           </div>
         </div>
       </section>
 
-      <!-- ==================== TAB 3: NET WORTH & MUTUAL FUNDS ==================== -->
-      <section id="view-networth" class="view-section space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="text-xs font-semibold text-slate-400 uppercase">Total Assets &amp; Mutual Funds</div>
-            <div id="nw-total-assets" class="text-2xl font-extrabold text-emerald-600 mt-1">₹0</div>
+      <!-- ==================== TAB 3: MUTUAL FUNDS, NET WORTH & GOALS ==================== -->
+      <section id="view-wealth" class="view-section space-y-6">
+        <!-- Balance Sheet Top Summary -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
+            <div class="text-xs font-semibold text-slate-400 uppercase">Mutual Funds &amp; Assets</div>
+            <div id="nw-assets-total" class="text-2xl font-extrabold text-emerald-600 mt-1">₹0</div>
           </div>
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="text-xs font-semibold text-slate-400 uppercase">Total Liabilities</div>
-            <div id="nw-total-liabilities" class="text-2xl font-extrabold text-rose-600 mt-1">₹0</div>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
+            <div class="text-xs font-semibold text-slate-400 uppercase">Loans &amp; Credit Debt</div>
+            <div id="nw-debt-total" class="text-2xl font-extrabold text-rose-600 mt-1">₹0</div>
           </div>
-          <div class="rounded-2xl bg-indigo-600 text-white p-5 shadow-sm">
+          <div class="rounded-2xl bg-indigo-600 text-white p-5 shadow-2xs">
             <div class="text-xs font-semibold text-indigo-100 uppercase">Net Worth</div>
             <div id="nw-net-total" class="text-2xl font-extrabold mt-1">₹0</div>
           </div>
         </div>
 
+        <!-- Mutual Funds & Assets Manager -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Add Asset / Liability Form -->
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm h-fit space-y-4">
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs h-fit space-y-3.5">
             <div class="flex items-center justify-between">
-              <h3 class="font-bold text-slate-900 text-sm">Add Mutual Fund / Asset</h3>
-              <button type="button" class="open-import-btn text-xs font-semibold text-emerald-600 hover:text-emerald-700">Bulk Upload ↑</button>
+              <h3 class="font-bold text-slate-900 text-sm">Add Fund / Asset / Loan</h3>
+              <button type="button" class="open-import-btn text-xs font-semibold text-emerald-600">Import Excel ↑</button>
             </div>
-            <form id="nw-form" class="space-y-3.5">
+            <form id="nw-form" class="space-y-3">
               <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
                 <label class="text-center cursor-pointer">
                   <input type="radio" name="nw-kind" value="asset" checked class="sr-only peer" />
-                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-600">Asset / MF (+)</div>
+                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-600">Asset / MF</div>
                 </label>
                 <label class="text-center cursor-pointer">
                   <input type="radio" name="nw-kind" value="liability" class="sr-only peer" />
-                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-600">Liability (–)</div>
+                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-600">Loan / Debt</div>
                 </label>
               </div>
 
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Fund / Asset Name</label>
-                <input type="text" id="nw-name" required placeholder="e.g., Parag Parikh Flexi Cap Fund" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+              <input type="text" id="nw-name" required placeholder="Fund or account name (e.g., Nifty 50 Index)" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+
+              <select id="nw-category" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white">
+                <option value="Equity & Mutual Funds">Equity &amp; Mutual Funds</option>
+                <option value="Bank & Fixed Deposits">Bank &amp; Fixed Deposits</option>
+                <option value="EPF / PPF / NPS">EPF / PPF / NPS</option>
+                <option value="Gold & Sovereign Bonds">Gold &amp; Sovereign Bonds</option>
+                <option value="Home / Auto Loan">Home / Auto Loan</option>
+                <option value="Credit Card / Personal Loan">Credit Card / Personal Loan</option>
+              </select>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <input type="number" id="nw-invested" min="0" step="any" placeholder="Invested ₹ (opt.)" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+                <input type="number" id="nw-value" required min="0" step="any" placeholder="Current ₹" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
               </div>
 
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
-                <select id="nw-category" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                  <option value="Equity & Mutual Funds">Equity &amp; Mutual Funds</option>
-                  <option value="Bank & Fixed Deposits">Bank &amp; Fixed Deposits</option>
-                  <option value="EPF / PPF / NPS">EPF / PPF / NPS</option>
-                  <option value="Gold & Sovereign Bonds">Gold &amp; Sovereign Bonds</option>
-                  <option value="Real Estate & Vehicles">Real Estate &amp; Vehicles</option>
-                  <option value="Home / Auto Loan">Home / Auto Loan</option>
-                  <option value="Credit Card / Personal Loan">Credit Card / Personal Loan</option>
-                </select>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">Invested (₹, opt.)</label>
-                  <input type="number" id="nw-invested" min="0" step="any" placeholder="200000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">Current Value (₹)</label>
-                  <input type="number" id="nw-value" required min="0" step="any" placeholder="250000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-                </div>
-              </div>
-
-              <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Add to Portfolio</button>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition">Save Item</button>
             </form>
           </div>
 
-          <!-- Assets & Liabilities Lists -->
-          <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
+          <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
               <div class="flex items-center justify-between mb-3">
                 <h3 class="font-bold text-emerald-700 text-sm">Mutual Funds &amp; Assets</h3>
-                <span class="text-[11px] text-slate-400">Click ₹ to edit value</span>
+                <span class="text-[11px] text-slate-400">Tap ₹ to update</span>
               </div>
               <div id="assets-list" class="space-y-2.5"></div>
             </div>
-            <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
+
+            <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
               <div class="flex items-center justify-between mb-3">
-                <h3 class="font-bold text-rose-700 text-sm">Liabilities</h3>
-                <span class="text-[11px] text-slate-400">Click ₹ to edit value</span>
+                <h3 class="font-bold text-rose-700 text-sm">Loans &amp; Liabilities</h3>
+                <span class="text-[11px] text-slate-400">Tap ₹ to update</span>
               </div>
               <div id="liabilities-list" class="space-y-2.5"></div>
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- ==================== TAB 4: WEALTH PROJECTION ==================== -->
-      <section id="view-projection" class="view-section space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Simulator Controls -->
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm space-y-4 h-fit">
-            <h3 class="font-bold text-slate-900 text-sm">Compound Wealth Simulator</h3>
-
+        <!-- Simple Future Goal Calculator -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Starting Corpus (₹)</span>
-                <span id="sim-corpus-label" class="text-indigo-600">₹0</span>
-              </div>
-              <input type="number" id="sim-corpus" step="10000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+              <h3 class="font-bold text-slate-900 text-sm">Future Wealth Projection</h3>
+              <p class="text-xs text-slate-400">See how your current net worth + monthly SIP grows over time</p>
             </div>
-
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Monthly Investment / SIP (₹)</span>
-                <span id="sim-sip-label" class="text-indigo-600">₹25,000</span>
-              </div>
-              <input type="range" id="sim-sip" min="0" max="500000" step="2500" value="25000" class="w-full accent-indigo-600" />
-            </div>
-
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Expected Annual Return (%)</span>
-                <span id="sim-rate-label" class="text-indigo-600">12%</span>
-              </div>
-              <input type="range" id="sim-rate" min="4" max="24" step="0.5" value="12" class="w-full accent-indigo-600" />
-            </div>
-
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Annual SIP Step-Up (%)</span>
-                <span id="sim-stepup-label" class="text-indigo-600">10%</span>
-              </div>
-              <input type="range" id="sim-stepup" min="0" max="25" step="1" value="10" class="w-full accent-indigo-600" />
-            </div>
-
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Time Horizon (Years)</span>
-                <span id="sim-years-label" class="text-indigo-600">15 Years</span>
-              </div>
-              <input type="range" id="sim-years" min="3" max="35" step="1" value="15" class="w-full accent-indigo-600" />
+            <div class="text-right">
+              <span class="text-[11px] text-slate-400 block">Projected Value</span>
+              <span id="sim-final-corpus" class="text-lg font-extrabold text-indigo-600">₹0</span>
             </div>
           </div>
 
-          <!-- Projection Results & Chart -->
-          <div class="lg:col-span-2 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="rounded-2xl bg-white border border-slate-200/80 p-4 shadow-sm">
-                <div class="text-[11px] font-semibold text-slate-400 uppercase">Total Invested</div>
-                <div id="sim-total-invested" class="text-lg font-extrabold text-slate-800 mt-1">₹0</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-600">Monthly SIP</span>
+                <span id="sim-sip-label" class="text-indigo-600">₹25,000</span>
               </div>
-              <div class="rounded-2xl bg-white border border-slate-200/80 p-4 shadow-sm">
-                <div class="text-[11px] font-semibold text-slate-400 uppercase">Wealth Gained</div>
-                <div id="sim-wealth-gain" class="text-lg font-extrabold text-emerald-600 mt-1">₹0</div>
-              </div>
-              <div class="rounded-2xl bg-indigo-600 text-white p-4 shadow-sm">
-                <div class="text-[11px] font-semibold text-indigo-100 uppercase">Projected Corpus</div>
-                <div id="sim-final-corpus" class="text-lg font-extrabold mt-1">₹0</div>
-              </div>
+              <input type="range" id="sim-sip" min="0" max="300000" step="2500" value="25000" class="w-full accent-indigo-600" />
             </div>
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-600">Annual Return</span>
+                <span id="sim-rate-label" class="text-indigo-600">12%</span>
+              </div>
+              <input type="range" id="sim-rate" min="6" max="20" step="0.5" value="12" class="w-full accent-indigo-600" />
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-600">Years</span>
+                <span id="sim-years-label" class="text-indigo-600">15 Yrs</span>
+              </div>
+              <input type="range" id="sim-years" min="3" max="30" step="1" value="15" class="w-full accent-indigo-600" />
+            </div>
+          </div>
 
-            <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-              <h3 class="font-bold text-slate-900 text-sm mb-3">Corpus Growth Trajectory</h3>
-              <div class="h-72">
-                <canvas id="chart-simulator-line"></canvas>
-              </div>
-            </div>
+          <div class="h-56">
+            <canvas id="chart-simulator-line"></canvas>
           </div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- ==================== 1-TAP QUICK ENTRY MODAL ==================== -->
+  <!-- ==================== 1-TAP ADD ENTRY / MONTHLY RULE MODAL ==================== -->
   <div id="quick-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="font-bold text-slate-900 text-base">Quick Entry</h3>
+        <h3 class="font-bold text-slate-900 text-base">Add Entry</h3>
         <button type="button" id="close-quick-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
       </div>
 
@@ -641,7 +456,7 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Amount (₹)</label>
-          <input type="number" id="q-amount" required min="1" step="any" placeholder="500" class="w-full px-3.5 py-2.5 text-base font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          <input type="number" id="q-amount" required min="1" step="any" placeholder="500" class="w-full px-3.5 py-2.5 text-lg font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
           <div class="flex flex-wrap gap-1.5 mt-2">
             <button type="button" data-amt="100" class="q-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-semibold text-slate-600">+₹100</button>
             <button type="button" data-amt="500" class="q-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-semibold text-slate-600">+₹500</button>
@@ -651,8 +466,11 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Note / Description</label>
-          <input type="text" id="q-title" required placeholder="e.g., Tea & Snacks, Petrol, SIP" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-semibold text-slate-700">What is this for?</label>
+            <span id="smart-cat-hint" class="text-[11px] text-indigo-600 font-medium"></span>
+          </div>
+          <input type="text" id="q-title" required placeholder="e.g., Salary, Rent, Nifty SIP, Lunch, Petrol" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -660,10 +478,10 @@
             <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
             <select id="q-category" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white">
               <option value="Food & Dining">Food &amp; Dining</option>
-              <option value="Transport & Fuel">Transport &amp; Fuel</option>
               <option value="Investments/SIP">Investments/SIP</option>
-              <option value="Shopping">Shopping</option>
               <option value="Housing/Rent">Housing/Rent</option>
+              <option value="Transport & Fuel">Transport &amp; Fuel</option>
+              <option value="Shopping">Shopping</option>
               <option value="Utilities">Utilities</option>
               <option value="EMI/Debt Payment">EMI/Debt Payment</option>
               <option value="Health">Health</option>
@@ -678,7 +496,29 @@
           </div>
         </div>
 
-        <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Save Entry</button>
+        <!-- Repeat Monthly Toggle -->
+        <div class="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200/80 space-y-2.5">
+          <label class="flex items-center justify-between cursor-pointer">
+            <div>
+              <div class="text-xs font-bold text-indigo-950">Repeat Every Month Automatically</div>
+              <div class="text-[11px] text-indigo-700/80">Auto-adds on this day each month (Salary, SIP, Rent)</div>
+            </div>
+            <input type="checkbox" id="q-recurring-cb" class="w-4 h-4 rounded text-indigo-600" />
+          </label>
+
+          <div id="q-recurring-options" class="hidden pt-2 border-t border-indigo-200/60 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-slate-700">Day of month (1–28):</span>
+              <input type="number" id="q-recurring-day" min="1" max="28" value="1" class="w-20 px-2.5 py-1 rounded-lg border border-slate-300 text-center font-bold bg-white" />
+            </div>
+            <label id="q-auto-mf-wrap" class="hidden flex items-center gap-2 text-[11px] font-medium text-emerald-800 cursor-pointer">
+              <input type="checkbox" id="q-auto-mf-cb" checked class="rounded text-emerald-600" />
+              <span>Also auto-add SIP amount to Mutual Funds Net Worth</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Save</button>
       </form>
     </div>
   </div>
@@ -688,69 +528,44 @@
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-slate-900 text-base">Upload Cash &amp; Mutual Fund Entries</h3>
-          <p class="text-xs text-slate-400">Supports <strong>.xlsx</strong> (WealthPulse template) or <strong>.csv</strong> files</p>
+          <h3 class="font-bold text-slate-900 text-base">Upload Excel / CSV</h3>
+          <p class="text-xs text-slate-400">Import historical cash entries &amp; mutual fund holdings</p>
         </div>
         <button type="button" id="close-import-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
       </div>
 
-      <!-- Import Mode Selector -->
       <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
         <label class="text-center cursor-pointer">
           <input type="radio" name="import-mode" value="append" checked class="sr-only peer" />
-          <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm text-slate-600">Add to Existing Data</div>
+          <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm text-slate-600">Add to Existing</div>
         </label>
         <label class="text-center cursor-pointer">
           <input type="radio" name="import-mode" value="replace" class="sr-only peer" />
-          <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-600">Replace Vault Data</div>
+          <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-600">Replace All</div>
         </label>
       </div>
 
-      <!-- File Drop Zone -->
       <label class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-indigo-200 hover:border-indigo-400 rounded-2xl bg-indigo-50/30 cursor-pointer transition text-center">
-        <svg class="w-8 h-8 text-indigo-500 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-        </svg>
-        <span class="text-xs font-bold text-slate-800">Click to choose your .xlsx or .csv file</span>
-        <span class="text-[11px] text-slate-400 mt-1">Reads both "Cash &amp; Bank Entries" and "Mutual Funds &amp; Assets" tabs automatically</span>
+        <span class="text-xs font-bold text-slate-800">Choose .xlsx or .csv file</span>
+        <span class="text-[11px] text-slate-400 mt-1">Reads both Cash &amp; Mutual Fund tabs automatically</span>
         <input type="file" id="import-file-input" accept=".xlsx,.xls,.csv" class="hidden" />
       </label>
 
-      <!-- Preview Box -->
       <div id="import-preview-box" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-        <div class="text-xs font-bold text-slate-800" id="import-preview-title">File Ready to Import</div>
-        <div class="text-xs text-slate-600 space-y-1" id="import-preview-summary"></div>
-        <button type="button" id="confirm-import-btn" class="w-full mt-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
-          Encrypt &amp; Import All Entries Now
+        <div class="text-xs text-slate-700 space-y-1" id="import-preview-summary"></div>
+        <button type="button" id="confirm-import-btn" class="w-full mt-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">
+          Import Now
         </button>
       </div>
 
       <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-        <span class="text-[11px] text-slate-400">Need a blank Excel template?</span>
-        <button type="button" id="download-template-btn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">Download .xlsx Template ↓</button>
+        <span class="text-[11px] text-slate-400">Need the Excel template?</span>
+        <button type="button" id="download-template-btn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">Download Template ↓</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== DATA TOOLS MODAL ==================== -->
-  <div id="data-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="font-bold text-slate-900 text-base">Vault Data &amp; Security Tools</h3>
-        <button type="button" id="close-data-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
-      </div>
-      <p class="text-xs text-slate-500 leading-relaxed">
-        Your vault is encrypted locally using <strong>AES-256-GCM</strong> before syncing to Firestore.
-      </p>
-      <div class="space-y-2.5 pt-1">
-        <button type="button" id="modal-open-import" class="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">Upload Excel / CSV File</button>
-        <button type="button" id="modal-load-demo" class="w-full py-2.5 px-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">Load Indian Rupee (₹) Demo Dataset</button>
-        <button type="button" id="modal-clear-vault" class="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition">Reset Vault to Empty</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== APPLICATION LOGIC (ES MODULE) ==================== -->
+  <!-- ==================== APPLICATION LOGIC ==================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import {
@@ -767,9 +582,6 @@
       setDoc
     } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-    /*************************************************************************
-     * 1. FIREBASE INITIALIZATION & CONSTANTS
-     *************************************************************************/
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'wealthpulse-default';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
       apiKey: "AIzaSyA_RjSDOTJVcI-7nwnFIF9Pb0U12dCUqJ4",
@@ -784,52 +596,30 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    /*************************************************************************
-     * 2. STATE & CLIENT-SIDE ZERO-KNOWLEDGE CRYPTO (PBKDF2 + AES-256-GCM)
-     *************************************************************************/
     let currentUser = null;
     let vaultKey = null;
     let vaultSaltB64 = null;
     let authMode = 'signin';
+    let activePeriod = 'this-month';
     let stagedImportData = null;
 
     let vaultData = {
       transactions: [],
-      netWorthItems: []
+      netWorthItems: [],
+      recurringRules: []
     };
 
-    let charts = {
-      donut: null,
-      balance: null,
-      preview: null,
-      simulator: null
-    };
-
+    let charts = { donut: null, simulator: null };
     const enc = new TextEncoder();
     const dec = new TextDecoder();
 
-    function bufToB64(buf) {
-      return btoa(String.fromCharCode(...new Uint8Array(buf)));
-    }
-    function b64ToBuf(b64) {
-      return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    }
+    function bufToB64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+    function b64ToBuf(b64) { return Uint8Array.from(atob(b64), c => c.charCodeAt(0)); }
 
     async function deriveKey(passphrase, saltBytes) {
-      const baseKey = await crypto.subtle.importKey(
-        'raw',
-        enc.encode(passphrase),
-        { name: 'PBKDF2' },
-        false,
-        ['deriveKey']
-      );
+      const baseKey = await crypto.subtle.importKey('raw', enc.encode(passphrase), { name: 'PBKDF2' }, false, ['deriveKey']);
       return crypto.subtle.deriveKey(
-        {
-          name: 'PBKDF2',
-          salt: saltBytes,
-          iterations: 150000,
-          hash: 'SHA-256'
-        },
+        { name: 'PBKDF2', salt: saltBytes, iterations: 150000, hash: 'SHA-256' },
         baseKey,
         { name: 'AES-GCM', length: 256 },
         false,
@@ -839,60 +629,32 @@
 
     async function encryptVault(plainObj, key) {
       const iv = crypto.getRandomValues(new Uint8Array(12));
-      const encoded = enc.encode(JSON.stringify(plainObj));
-      const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
-      return {
-        iv: bufToB64(iv),
-        ciphertext: bufToB64(cipherBuf)
-      };
+      const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(plainObj)));
+      return { iv: bufToB64(iv), ciphertext: bufToB64(cipherBuf) };
     }
 
     async function decryptVault(payload, key) {
-      const iv = b64ToBuf(payload.iv);
-      const cipherBuf = b64ToBuf(payload.ciphertext);
-      const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipherBuf);
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: b64ToBuf(payload.iv) },
+        key,
+        b64ToBuf(payload.ciphertext)
+      );
       return JSON.parse(dec.decode(plainBuf));
     }
 
     function showToast(msg) {
-      const banner = document.getElementById('toast-banner');
+      const el = document.getElementById('toast-banner');
       document.getElementById('toast-text').textContent = msg;
-      banner.classList.remove('hidden');
-      setTimeout(() => banner.classList.add('hidden'), 5000);
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 4500);
     }
 
-    function getDemoDataset() {
-      const today = new Date().toISOString().slice(0, 10);
-      return {
-        transactions: [
-          { id: 't1', type: 'income', title: 'Monthly Tech Salary', amount: 162000, category: 'Salary & Bonus', date: today },
-          { id: 't2', type: 'income', title: 'Dividend & Interest Credit', amount: 12500, category: 'Freelance & Dividends', date: today },
-          { id: 't3', type: 'expense', title: 'Nifty 50 & FlexiCap SIP', amount: 38000, category: 'Investments/SIP', date: today },
-          { id: 't4', type: 'expense', title: 'Apartment Rent & Maintenance', amount: 28000, category: 'Housing/Rent', date: today },
-          { id: 't5', type: 'expense', title: 'Vehicle EMI', amount: 18500, category: 'EMI/Debt Payment', date: today },
-          { id: 't6', type: 'expense', title: 'Groceries & Dining Out', amount: 14600, category: 'Food & Dining', date: today },
-          { id: 't7', type: 'expense', title: 'Fuel & Commute', amount: 6500, category: 'Transport & Fuel', date: today }
-        ],
-        netWorthItems: [
-          { id: 'n1', kind: 'asset', name: 'Equity Mutual Funds (SIP Portfolio)', category: 'Equity & Mutual Funds', invested: 1750000, value: 2150000 },
-          { id: 'n2', kind: 'asset', name: 'EPF & PPF Retirement Corpus', category: 'EPF / PPF / NPS', invested: 1050000, value: 1240000 },
-          { id: 'n3', kind: 'asset', name: 'Emergency FD & Liquid Savings', category: 'Bank & Fixed Deposits', invested: 750000, value: 780000 },
-          { id: 'n4', kind: 'liability', name: 'Auto Loan Remaining Principal', category: 'Home / Auto Loan', invested: 0, value: 485000 }
-        ]
-      };
-    }
-
-    /*************************************************************************
-     * 3. FIRESTORE SYNC HELPERS
-     *************************************************************************/
-    function getUserDocRef(uid) {
-      return doc(db, 'users', uid);
-    }
+    function getUserDocRef(uid) { return doc(db, 'users', uid); }
 
     async function saveVaultToCloud() {
       if (!currentUser || !vaultKey || !vaultSaltB64) return;
       const syncEl = document.getElementById('sync-status');
-      syncEl.textContent = 'Encrypting & syncing...';
+      syncEl.textContent = 'Saving...';
       try {
         const encrypted = await encryptVault(vaultData, vaultKey);
         await setDoc(getUserDocRef(currentUser.uid), {
@@ -902,351 +664,323 @@
           ciphertext: encrypted.ciphertext,
           updatedAt: new Date().toISOString()
         }, { merge: true });
-        const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        syncEl.textContent = `Synced • ${nowTime}`;
+        syncEl.textContent = `Synced ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       } catch (err) {
-        console.error('Firestore save failed:', err);
-        syncEl.textContent = 'Sync error (check rules)';
+        console.error(err);
+        syncEl.textContent = 'Sync error';
       }
     }
 
     /*************************************************************************
-     * 4. NAVIGATION (DESKTOP SIDEBAR + MOBILE BOTTOM BAR)
+     * MONTHLY RECURRING AUTOMATION ENGINE
      *************************************************************************/
-    const tabTitles = {
-      dashboard: ['Financial Overview', 'Real-time encrypted cashflow, net worth, and wealth trajectory'],
-      transactions: ['Expenses & Income', 'Log and manage your encrypted cash & bank entries'],
-      networth: ['Net Worth & Mutual Funds', 'Track mutual funds, savings, and outstanding liabilities'],
-      projection: ['Wealth Projection Simulator', 'Model long-term compounding with annual SIP step-ups']
+    async function processRecurringRules() {
+      if (!Array.isArray(vaultData.recurringRules)) vaultData.recurringRules = [];
+      if (!Array.isArray(vaultData.transactions)) vaultData.transactions = [];
+      if (!Array.isArray(vaultData.netWorthItems)) vaultData.netWorthItems = [];
+
+      const now = new Date();
+      const curYear = now.getFullYear();
+      const curMonth = now.getMonth(); // 0-11
+      const curDay = now.getDate();
+      let generatedCount = 0;
+
+      for (const rule of vaultData.recurringRules) {
+        if (rule.paused) continue;
+        const startParts = (rule.startMonth || `${curYear}-${String(curMonth + 1).padStart(2, '0')}`).split('-');
+        let y = parseInt(startParts[0], 10);
+        let m = parseInt(startParts[1], 10) - 1;
+        const dayOfMonth = Math.min(28, Math.max(1, Number(rule.dayOfMonth) || 1));
+
+        while (y < curYear || (y === curYear && m <= curMonth)) {
+          // Only trigger if scheduled day has arrived in current month
+          if (y === curYear && m === curMonth && curDay < dayOfMonth) break;
+
+          const ymKey = `${y}-${String(m + 1).padStart(2, '0')}`;
+          const dateStr = `${ymKey}-${String(dayOfMonth).padStart(2, '0')}`;
+          const uniqueTag = `rec_${rule.id}_${ymKey}`;
+
+          const alreadyExists = vaultData.transactions.some(t => t.recurrenceKey === uniqueTag);
+          if (!alreadyExists) {
+            vaultData.transactions.push({
+              id: 'tx_' + uniqueTag,
+              recurrenceKey: uniqueTag,
+              isAuto: true,
+              type: rule.type,
+              title: rule.title,
+              amount: Number(rule.amount),
+              category: rule.category,
+              date: dateStr
+            });
+            generatedCount++;
+
+            // Optional SIP auto-sync into Mutual Funds Net Worth
+            if (rule.autoAddToMF && rule.type === 'expense') {
+              let mfItem = vaultData.netWorthItems.find(i => i.kind === 'asset' && i.category === 'Equity & Mutual Funds');
+              if (!mfItem) {
+                mfItem = {
+                  id: 'nw_auto_mf',
+                  kind: 'asset',
+                  name: 'Mutual Funds (SIP Portfolio)',
+                  category: 'Equity & Mutual Funds',
+                  invested: 0,
+                  value: 0
+                };
+                vaultData.netWorthItems.push(mfItem);
+              }
+              mfItem.invested = (Number(mfItem.invested) || 0) + Number(rule.amount);
+              mfItem.value = (Number(mfItem.value) || 0) + Number(rule.amount);
+            }
+          }
+
+          m++;
+          if (m > 11) { m = 0; y++; }
+        }
+      }
+
+      if (generatedCount > 0) {
+        await saveVaultToCloud();
+        showToast(`🔄 Auto-posted ${generatedCount} recurring monthly ${generatedCount === 1 ? 'entry' : 'entries'}!`);
+      }
+    }
+
+    /*************************************************************************
+     * SMART AUTO-CATEGORIZATION
+     *************************************************************************/
+    const keywordRules = [
+      { keys: ['salary', 'payroll', 'stipend', 'bonus'], cat: 'Salary & Bonus', type: 'income' },
+      { keys: ['dividend', 'interest', 'freelance', 'refund'], cat: 'Freelance & Dividends', type: 'income' },
+      { keys: ['sip', 'mutual fund', 'nifty', 'index', 'ppf', 'nps', 'stock', 'zerodha', 'groww'], cat: 'Investments/SIP', type: 'expense' },
+      { keys: ['rent', 'maintenance', 'society', 'flat', 'pg'], cat: 'Housing/Rent', type: 'expense' },
+      { keys: ['emi', 'loan', 'credit card'], cat: 'EMI/Debt Payment', type: 'expense' },
+      { keys: ['swiggy', 'zomato', 'food', 'lunch', 'dinner', 'breakfast', 'coffee', 'tea', 'grocery', 'milk', 'restaurant'], cat: 'Food & Dining', type: 'expense' },
+      { keys: ['petrol', 'diesel', 'fuel', 'uber', 'ola', 'metro', 'bus', 'train', 'flight', 'toll', 'parking'], cat: 'Transport & Fuel', type: 'expense' },
+      { keys: ['electricity', 'wifi', 'broadband', 'jio', 'airtel', 'recharge', 'gas', 'water', 'bill'], cat: 'Utilities', type: 'expense' },
+      { keys: ['hospital', 'doctor', 'medicine', 'pharmacy', 'gym', 'insurance'], cat: 'Health', type: 'expense' },
+      { keys: ['movie', 'netflix', 'prime', 'spotify', 'game', 'outing'], cat: 'Entertainment', type: 'expense' },
+      { keys: ['amazon', 'flipkart', 'myntra', 'clothes', 'shoes', 'shopping'], cat: 'Shopping', type: 'expense' }
+    ];
+
+    document.getElementById('q-title').addEventListener('input', (e) => {
+      const text = e.target.value.toLowerCase();
+      const hintEl = document.getElementById('smart-cat-hint');
+      for (const rule of keywordRules) {
+        if (rule.keys.some(k => text.includes(k))) {
+          document.getElementById('q-category').value = rule.cat;
+          const radio = document.querySelector(`input[name="q-type"][value="${rule.type}"]`);
+          if (radio) radio.checked = true;
+          hintEl.textContent = `Auto: ${rule.cat}`;
+          updateAutoMfVisibility();
+          return;
+        }
+      }
+      hintEl.textContent = '';
+    });
+
+    function updateAutoMfVisibility() {
+      const isRec = document.getElementById('q-recurring-cb').checked;
+      const cat = document.getElementById('q-category').value;
+      const wrap = document.getElementById('q-auto-mf-wrap');
+      wrap.classList.toggle('hidden', !(isRec && cat === 'Investments/SIP'));
+    }
+
+    document.getElementById('q-recurring-cb').addEventListener('change', (e) => {
+      document.getElementById('q-recurring-options').classList.toggle('hidden', !e.target.checked);
+      updateAutoMfVisibility();
+    });
+    document.getElementById('q-category').addEventListener('change', updateAutoMfVisibility);
+
+    /*************************************************************************
+     * NAVIGATION & PERIOD FILTERING
+     *************************************************************************/
+    const tabInfo = {
+      home: ['Overview', 'Your monthly cashflow and net worth at a glance'],
+      activity: ['Cashflow & Auto-Pay', 'Manage automatic monthly rules and transaction history'],
+      wealth: ['Mutual Funds & Goals', 'Track investments, loans, and long-term growth']
     };
 
     function switchTab(tabName) {
-      if (!tabTitles[tabName]) return;
-
-      document.querySelectorAll('.tab-btn, .mob-tab-btn').forEach(btn => {
-        if (btn.dataset.tab === tabName) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
+      if (!tabInfo[tabName]) return;
+      document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
       });
-
       document.querySelectorAll('.view-section').forEach(sec => {
-        if (sec.id === `view-${tabName}`) {
-          sec.classList.add('active');
-        } else {
-          sec.classList.remove('active');
-        }
+        sec.classList.toggle('active', sec.id === `view-${tabName}`);
       });
-
-      document.getElementById('page-title').textContent = tabTitles[tabName][0];
-      document.getElementById('page-subtitle').textContent = tabTitles[tabName][1];
-
-      if (tabName === 'dashboard') {
-        renderDashboardCharts();
-      } else if (tabName === 'projection') {
-        runSimulator();
-      }
+      document.getElementById('page-title').textContent = tabInfo[tabName][0];
+      document.getElementById('page-subtitle').textContent = tabInfo[tabName][1];
+      if (tabName === 'home') renderDonutChart();
+      if (tabName === 'wealth') runSimulator();
     }
 
-    window.switchTab = switchTab;
-
-    document.querySelectorAll('.tab-btn, .mob-tab-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        switchTab(btn.dataset.tab);
-      });
+    document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
-
     document.querySelectorAll('.goto-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        switchTab(btn.dataset.goto);
+      btn.addEventListener('click', () => switchTab(btn.dataset.goto));
+    });
+
+    document.querySelectorAll('.period-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        activePeriod = pill.dataset.period;
+        document.querySelectorAll('.period-pill').forEach(p => {
+          p.classList.toggle('active', p === pill);
+          p.classList.toggle('text-slate-600', p !== pill);
+        });
+        refreshAllUI();
       });
     });
+
+    function getFilteredTransactionsByPeriod() {
+      const now = new Date();
+      const thisYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const lastDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const lastYM = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}`;
+
+      return vaultData.transactions.filter(t => {
+        const d = String(t.date || '');
+        if (activePeriod === 'this-month') return d.startsWith(thisYM);
+        if (activePeriod === 'last-month') return d.startsWith(lastYM);
+        return true;
+      });
+    }
 
     /*************************************************************************
-     * 5. EXCEL / CSV PARSER & BULK IMPORTER
+     * RENDERING UI
      *************************************************************************/
-    function normalizeExcelDate(rawVal) {
-      if (!rawVal) return new Date().toISOString().slice(0, 10);
-      if (typeof rawVal === 'number') {
-        const utcDays = Math.floor(rawVal - 25569);
-        const d = new Date(utcDays * 86400 * 1000);
-        if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-      }
-      const str = String(rawVal).trim();
-      if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
-      const parsed = new Date(str);
-      if (!isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
-      return new Date().toISOString().slice(0, 10);
-    }
-
-    function parseNumericAmount(val) {
-      if (typeof val === 'number') return val;
-      if (!val) return 0;
-      const cleaned = String(val).replace(/[₹,\s]/g, '');
-      const num = parseFloat(cleaned);
-      return isNaN(num) ? 0 : num;
-    }
-
-    function parseWorkbookData(workbook) {
-      const importedTransactions = [];
-      const importedNetWorth = [];
-
-      workbook.SheetNames.forEach(sheetName => {
-        const sheet = workbook.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-        if (!rows || rows.length === 0) return;
-
-        // Locate header row automatically
-        let headerRowIdx = -1;
-        for (let i = 0; i < Math.min(rows.length, 6); i++) {
-          const rowStr = rows[i].map(c => String(c).toLowerCase()).join('|');
-          if (rowStr.includes('description') || rowStr.includes('fund') || rowStr.includes('asset') || rowStr.includes('amount') || rowStr.includes('current value')) {
-            headerRowIdx = i;
-            break;
-          }
-        }
-        if (headerRowIdx === -1) return;
-
-        const headers = rows[headerRowIdx].map(h => String(h).toLowerCase().trim());
-        const isNetWorthSheet = headers.some(h => h.includes('fund') || h.includes('current value') || h.includes('kind'));
-
-        for (let r = headerRowIdx + 1; r < rows.length; r++) {
-          const row = rows[r];
-          if (!row || row.every(cell => String(cell).trim() === '')) continue;
-
-          if (isNetWorthSheet) {
-            const idxKind = headers.findIndex(h => h.includes('kind') || h.includes('type'));
-            const idxName = headers.findIndex(h => h.includes('fund') || h.includes('name') || h.includes('asset'));
-            const idxCat = headers.findIndex(h => h.includes('category'));
-            const idxInv = headers.findIndex(h => h.includes('invested'));
-            const idxVal = headers.findIndex(h => h.includes('current') || h.includes('value'));
-
-            const name = idxName >= 0 ? String(row[idxName]).trim() : '';
-            if (!name || name.toLowerCase().startsWith('total')) continue;
-
-            const rawKind = idxKind >= 0 ? String(row[idxKind]).toLowerCase() : 'asset';
-            const kind = rawKind.includes('liab') || rawKind.includes('loan') || rawKind.includes('debt') ? 'liability' : 'asset';
-            const category = (idxCat >= 0 && String(row[idxCat]).trim()) ? String(row[idxCat]).trim() : (kind === 'asset' ? 'Equity & Mutual Funds' : 'Home / Auto Loan');
-            const invested = idxInv >= 0 ? parseNumericAmount(row[idxInv]) : 0;
-            const value = idxVal >= 0 ? parseNumericAmount(row[idxVal]) : 0;
-
-            if (value > 0 || invested > 0) {
-              importedNetWorth.push({
-                id: 'nw_imp_' + Date.now() + '_' + r,
-                kind,
-                name,
-                category,
-                invested,
-                value: value > 0 ? value : invested
-              });
-            }
-          } else {
-            const idxDate = headers.findIndex(h => h.includes('date'));
-            const idxDesc = headers.findIndex(h => h.includes('desc') || h.includes('title') || h.includes('narration') || h.includes('particular'));
-            const idxType = headers.findIndex(h => h.includes('type'));
-            const idxCat = headers.findIndex(h => h.includes('category'));
-            const idxAmt = headers.findIndex(h => h.includes('amount') || h.includes('inr') || h.includes('debit'));
-
-            const title = idxDesc >= 0 ? String(row[idxDesc]).trim() : '';
-            const amount = idxAmt >= 0 ? Math.abs(parseNumericAmount(row[idxAmt])) : 0;
-            if (!title || amount <= 0) continue;
-
-            const rawType = idxType >= 0 ? String(row[idxType]).toLowerCase() : 'expense';
-            const type = rawType.includes('inc') || rawType.includes('credit') ? 'income' : 'expense';
-            const category = (idxCat >= 0 && String(row[idxCat]).trim()) ? String(row[idxCat]).trim() : (type === 'income' ? 'Salary & Bonus' : 'Food & Dining');
-            const date = idxDate >= 0 ? normalizeExcelDate(row[idxDate]) : new Date().toISOString().slice(0, 10);
-
-            importedTransactions.push({
-              id: 'tx_imp_' + Date.now() + '_' + r,
-              type,
-              title,
-              amount,
-              category,
-              date
-            });
-          }
-        }
-      });
-
-      return { transactions: importedTransactions, netWorthItems: importedNetWorth };
-    }
-
-    document.querySelectorAll('.open-import-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        stagedImportData = null;
-        document.getElementById('import-file-input').value = '';
-        document.getElementById('import-preview-box').classList.add('hidden');
-        document.getElementById('import-modal').classList.remove('hidden');
-      });
-    });
-
-    document.getElementById('close-import-modal').addEventListener('click', () => {
-      document.getElementById('import-modal').classList.add('hidden');
-    });
-
-    document.getElementById('import-file-input').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        try {
-          const data = new Uint8Array(evt.target.result);
-          const wb = XLSX.read(data, { type: 'array' });
-          stagedImportData = parseWorkbookData(wb);
-
-          const txCount = stagedImportData.transactions.length;
-          const nwCount = stagedImportData.netWorthItems.length;
-          const previewBox = document.getElementById('import-preview-box');
-          const summaryEl = document.getElementById('import-preview-summary');
-
-          if (txCount === 0 && nwCount === 0) {
-            summaryEl.innerHTML = `<span class="text-rose-600 font-semibold">No valid rows found. Make sure your file has columns like Date, Description, Amount or Fund Name, Current Value.</span>`;
-            document.getElementById('confirm-import-btn').classList.add('hidden');
-          } else {
-            summaryEl.innerHTML = `
-              <div>• <strong>${txCount}</strong> Cash / Bank Entries detected</div>
-              <div>• <strong>${nwCount}</strong> Mutual Fund / Asset / Liability items detected</div>
-            `;
-            document.getElementById('confirm-import-btn').classList.remove('hidden');
-          }
-          previewBox.classList.remove('hidden');
-        } catch (err) {
-          alert('Could not read file: ' + err.message);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    });
-
-    document.getElementById('confirm-import-btn').addEventListener('click', async () => {
-      if (!stagedImportData) return;
-      const mode = document.querySelector('input[name="import-mode"]:checked').value;
-      if (mode === 'replace') {
-        vaultData.transactions = stagedImportData.transactions;
-        vaultData.netWorthItems = stagedImportData.netWorthItems;
-      } else {
-        vaultData.transactions = [...vaultData.transactions, ...stagedImportData.transactions];
-        vaultData.netWorthItems = [...vaultData.netWorthItems, ...stagedImportData.netWorthItems];
-      }
-
-      const totalImported = stagedImportData.transactions.length + stagedImportData.netWorthItems.length;
-      document.getElementById('import-modal').classList.add('hidden');
-      refreshAllUI();
-      await saveVaultToCloud();
-      showToast(`Imported & encrypted ${totalImported} entries into your vault!`);
-    });
-
-    // Built-in .xlsx template generator right in browser
-    document.getElementById('download-template-btn').addEventListener('click', () => {
-      const wb = XLSX.utils.book_new();
-      const ws1 = XLSX.utils.aoa_to_sheet([
-        ['Date (YYYY-MM-DD)', 'Description', 'Type', 'Category', 'Amount (INR)'],
-        ['2026-11-01', 'Monthly Salary Credit', 'Income', 'Salary & Bonus', 162000],
-        ['2026-11-05', 'House Rent', 'Expense', 'Housing/Rent', 28000]
-      ]);
-      const ws2 = XLSX.utils.aoa_to_sheet([
-        ['Kind', 'Fund / Asset Name', 'Category', 'Invested Amount (INR)', 'Current Value (INR)'],
-        ['Asset', 'Parag Parikh Flexi Cap Fund', 'Equity & Mutual Funds', 500000, 640000],
-        ['Asset', 'HDFC Savings & FD', 'Bank & Fixed Deposits', 300000, 315000]
-      ]);
-      XLSX.utils.book_append_sheet(wb, ws1, 'Cash & Bank Entries');
-      XLSX.utils.book_append_sheet(wb, ws2, 'Mutual Funds & Assets');
-      XLSX.writeFile(wb, 'WealthPulse_Data_Template.xlsx');
-    });
-
-    /*************************************************************************
-     * 6. FORMATTING & UI RENDERING
-     *************************************************************************/
-    function formatINR(num) {
-      return '₹' + Math.round(Number(num) || 0).toLocaleString('en-IN');
-    }
-
+    function formatINR(num) { return '₹' + Math.round(Number(num) || 0).toLocaleString('en-IN'); }
     function formatCompactINR(num) {
       const n = Number(num) || 0;
       if (Math.abs(n) >= 10000000) return '₹' + (n / 10000000).toFixed(2) + ' Cr';
       if (Math.abs(n) >= 100000) return '₹' + (n / 100000).toFixed(2) + ' L';
       return formatINR(n);
     }
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
     function refreshAllUI() {
-      const isEmpty = vaultData.transactions.length === 0 && vaultData.netWorthItems.length === 0;
-      document.getElementById('empty-vault-banner').classList.toggle('hidden', !isEmpty);
+      const isEmpty = vaultData.transactions.length === 0 && vaultData.netWorthItems.length === 0 && vaultData.recurringRules.length === 0;
+      document.getElementById('empty-vault-card').classList.toggle('hidden', !isEmpty);
 
-      const income = vaultData.transactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+      const periodTx = getFilteredTransactionsByPeriod();
+      const periodNames = { 'this-month': 'This Month', 'last-month': 'Last Month', 'all': 'All Time' };
+      const pLabel = periodNames[activePeriod];
 
-      const expenses = vaultData.transactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+      const income = periodTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+      const expenses = periodTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+      const sipTotal = periodTx.filter(t => t.type === 'expense' && t.category === 'Investments/SIP').reduce((s, t) => s + Number(t.amount), 0);
+      const savedPlusSip = Math.max(0, income - expenses) + sipTotal;
+      const rate = income > 0 ? ((savedPlusSip / income) * 100).toFixed(0) : '0';
 
-      const sipTotal = vaultData.transactions
-        .filter(t => t.type === 'expense' && t.category === 'Investments/SIP')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-
-      const effectiveSavings = Math.max(0, income - expenses) + sipTotal;
-      const savingsRate = income > 0 ? ((effectiveSavings / income) * 100).toFixed(1) : '0.0';
-
-      const totalAssets = vaultData.netWorthItems
-        .filter(i => i.kind === 'asset')
-        .reduce((sum, i) => sum + Number(i.value), 0);
-
-      const totalLiabilities = vaultData.netWorthItems
-        .filter(i => i.kind === 'liability')
-        .reduce((sum, i) => sum + Number(i.value), 0);
-
-      const netWorth = totalAssets - totalLiabilities;
+      const assets = vaultData.netWorthItems.filter(i => i.kind === 'asset').reduce((s, i) => s + Number(i.value), 0);
+      const debt = vaultData.netWorthItems.filter(i => i.kind === 'liability').reduce((s, i) => s + Number(i.value), 0);
+      const netWorth = assets - debt;
 
       document.getElementById('kpi-net-worth').textContent = formatINR(netWorth);
-      document.getElementById('kpi-net-worth-sub').textContent = `${formatCompactINR(totalAssets)} Assets – ${formatCompactINR(totalLiabilities)} Debt`;
+      document.getElementById('kpi-net-worth-sub').textContent = `${formatCompactINR(assets)} Assets – ${formatCompactINR(debt)} Debt`;
       document.getElementById('kpi-income').textContent = formatINR(income);
+      document.getElementById('kpi-income-sub').textContent = pLabel;
       document.getElementById('kpi-expenses').textContent = formatINR(expenses);
-      document.getElementById('kpi-savings').textContent = formatINR(effectiveSavings);
-      document.getElementById('kpi-savings-rate').textContent = `${savingsRate}%`;
+      document.getElementById('kpi-expenses-sub').textContent = pLabel;
+      document.getElementById('kpi-savings').textContent = formatINR(savedPlusSip);
+      document.getElementById('kpi-savings-rate').textContent = `${rate}%`;
+      document.getElementById('chart-period-label').textContent = pLabel;
 
-      document.getElementById('nw-total-assets').textContent = formatINR(totalAssets);
-      document.getElementById('nw-total-liabilities').textContent = formatINR(totalLiabilities);
+      document.getElementById('nw-assets-total').textContent = formatINR(assets);
+      document.getElementById('nw-debt-total').textContent = formatINR(debt);
       document.getElementById('nw-net-total').textContent = formatINR(netWorth);
-      document.getElementById('tx-count-badge').textContent = vaultData.transactions.length;
+      document.getElementById('tx-total-count').textContent = vaultData.transactions.length;
 
-      const simCorpusEl = document.getElementById('sim-corpus');
-      if (!simCorpusEl.dataset.edited) {
-        simCorpusEl.value = Math.max(0, netWorth);
-        document.getElementById('sim-corpus-label').textContent = formatINR(netWorth);
-      }
-
-      renderRecentTransactions();
+      renderRecurringUI();
+      renderRecentList(periodTx);
       renderTransactionsTable();
       renderNetWorthLists();
-      renderDashboardCharts();
-      runSimulator();
+      renderDonutChart();
+      runSimulator(netWorth);
     }
 
-    function getSortedTransactions() {
-      return [...vaultData.transactions].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
-    }
+    function renderRecurringUI() {
+      const rules = vaultData.recurringRules || [];
+      const stripEl = document.getElementById('home-recurring-strip');
+      const gridEl = document.getElementById('recurring-rules-grid');
 
-    function renderRecentTransactions() {
-      const container = document.getElementById('recent-transactions-list');
-      const items = getSortedTransactions().slice(0, 6);
-      if (!items.length) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">No entries yet. Upload your Excel/CSV file or click <strong>+ Quick Add</strong>.</div>`;
+      if (!rules.length) {
+        const emptyHtml = `<div class="col-span-full text-xs text-slate-400 py-3">No monthly rules yet. Add your Salary, Rent, or SIP once and toggle <strong>Repeat Every Month</strong>.</div>`;
+        stripEl.innerHTML = emptyHtml;
+        gridEl.innerHTML = emptyHtml;
         return;
       }
-      container.innerHTML = items.map(t => {
+
+      stripEl.innerHTML = rules.map(r => {
+        const isInc = r.type === 'income';
+        return `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 ${r.paused ? 'opacity-50' : ''}">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(r.title)}</div>
+              <div class="text-[11px] text-slate-400">Every month on day ${r.dayOfMonth}</div>
+            </div>
+            <span class="text-xs font-bold shrink-0 ${isInc ? 'text-emerald-600' : 'text-slate-800'}">
+              ${isInc ? '+' : '-'}${formatINR(r.amount)}
+            </span>
+          </div>
+        `;
+      }).join('');
+
+      gridEl.innerHTML = rules.map(r => {
+        const isInc = r.type === 'income';
+        return `
+          <div class="p-3.5 rounded-xl border ${r.paused ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-indigo-50/30 border-indigo-100'} flex flex-col justify-between gap-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold text-slate-800">${escapeHtml(r.title)}</div>
+                <div class="text-[11px] text-slate-500">${escapeHtml(r.category)} • Day ${r.dayOfMonth}</div>
+              </div>
+              <span class="text-xs font-extrabold ${isInc ? 'text-emerald-600' : 'text-rose-600'}">${isInc ? '+' : '-'}${formatINR(r.amount)}</span>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 text-[11px]">
+              <button type="button" data-toggle-rec="${r.id}" class="toggle-rec-btn font-semibold text-indigo-600 hover:underline">${r.paused ? 'Resume' : 'Pause'}</button>
+              <button type="button" data-del-rec="${r.id}" class="del-rec-btn font-semibold text-rose-500 hover:underline">Remove Rule</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.toggle-rec-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const rule = vaultData.recurringRules.find(x => x.id === btn.dataset.toggleRec);
+          if (rule) {
+            rule.paused = !rule.paused;
+            refreshAllUI();
+            await saveVaultToCloud();
+          }
+        });
+      });
+
+      document.querySelectorAll('.del-rec-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          vaultData.recurringRules = vaultData.recurringRules.filter(x => x.id !== btn.dataset.delRec);
+          refreshAllUI();
+          await saveVaultToCloud();
+        });
+      });
+    }
+
+    function renderRecentList(periodTx) {
+      const container = document.getElementById('recent-list');
+      const sorted = [...periodTx].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 6);
+      if (!sorted.length) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">No entries in this period.</div>`;
+        return;
+      }
+      container.innerHTML = sorted.map(t => {
         const isInc = t.type === 'income';
+        const autoTag = t.isAuto ? `<span class="ml-1 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 text-[10px] font-semibold">Auto</span>` : '';
         return `
           <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/80 border border-slate-100">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${isInc ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
-                ${isInc ? '↓' : '↑'}
-              </span>
-              <div class="min-w-0">
-                <div class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(t.title)}</div>
-                <div class="text-[11px] text-slate-400">${escapeHtml(t.category)} • ${escapeHtml(t.date)}</div>
-              </div>
+            <div class="min-w-0">
+              <div class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(t.title)}${autoTag}</div>
+              <div class="text-[11px] text-slate-400">${escapeHtml(t.category)} • ${escapeHtml(t.date)}</div>
             </div>
             <div class="text-xs font-bold shrink-0 ${isInc ? 'text-emerald-600' : 'text-slate-800'}">
               ${isInc ? '+' : '-'}${formatINR(t.amount)}
@@ -1257,20 +991,23 @@
     }
 
     function renderTransactionsTable() {
-      const filter = document.getElementById('tx-filter').value;
+      const filter = document.getElementById('tx-type-filter').value;
       const tbody = document.getElementById('tx-table-body');
-      const filtered = getSortedTransactions().filter(t => filter === 'all' || t.type === filter);
+      const sorted = [...vaultData.transactions]
+        .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+        .filter(t => filter === 'all' || t.type === filter);
 
-      if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-xs text-slate-400">No entries match this filter.</td></tr>`;
+      if (!sorted.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-xs text-slate-400">No entries yet.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = filtered.map(t => {
+      tbody.innerHTML = sorted.map(t => {
         const isInc = t.type === 'income';
+        const autoTag = t.isAuto ? `<span class="ml-1.5 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 text-[10px] font-semibold">🔄 Auto</span>` : '';
         return `
           <tr class="hover:bg-slate-50/70">
-            <td class="py-3 px-2 font-semibold text-slate-800 text-xs">${escapeHtml(t.title)}</td>
+            <td class="py-3 px-2 font-semibold text-slate-800 text-xs">${escapeHtml(t.title)}${autoTag}</td>
             <td class="py-3 px-2 text-xs text-slate-500">${escapeHtml(t.category)}</td>
             <td class="py-3 px-2 text-xs text-slate-400">${escapeHtml(t.date)}</td>
             <td class="py-3 px-2 text-right font-bold text-xs ${isInc ? 'text-emerald-600' : 'text-slate-800'}">${isInc ? '+' : '-'}${formatINR(t.amount)}</td>
@@ -1283,7 +1020,7 @@
 
       document.querySelectorAll('.del-tx-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
-          vaultData.transactions = vaultData.transactions.filter(item => item.id !== btn.dataset.delTx);
+          vaultData.transactions = vaultData.transactions.filter(i => i.id !== btn.dataset.delTx);
           refreshAllUI();
           await saveVaultToCloud();
         });
@@ -1294,24 +1031,21 @@
       const assets = vaultData.netWorthItems.filter(i => i.kind === 'asset');
       const liabilities = vaultData.netWorthItems.filter(i => i.kind === 'liability');
 
-      const renderList = (arr, colorClass) => {
-        if (!arr.length) return `<div class="text-xs text-slate-400 py-6 text-center">No items added yet.</div>`;
-        return arr.map(item => {
+      const buildHtml = (list, cls) => {
+        if (!list.length) return `<div class="text-xs text-slate-400 py-5 text-center">Nothing added yet.</div>`;
+        return list.map(item => {
           const inv = Number(item.invested) || 0;
           const cur = Number(item.value) || 0;
           const gain = inv > 0 ? cur - inv : 0;
-          const gainBadge = inv > 0
-            ? `<span class="text-[10px] font-semibold ${gain >= 0 ? 'text-emerald-600' : 'text-rose-600'}">(${gain >= 0 ? '+' : ''}${formatCompactINR(gain)})</span>`
-            : '';
-
+          const gainStr = inv > 0 ? `<span class="text-[10px] font-semibold ${gain >= 0 ? 'text-emerald-600' : 'text-rose-600'}">(${gain >= 0 ? '+' : ''}${formatCompactINR(gain)})</span>` : '';
           return `
             <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 gap-2">
               <div class="min-w-0">
                 <div class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(item.name)}</div>
-                <div class="text-[11px] text-slate-400">${escapeHtml(item.category)} ${gainBadge}</div>
+                <div class="text-[11px] text-slate-400">${escapeHtml(item.category)} ${gainStr}</div>
               </div>
               <div class="flex items-center gap-2.5 shrink-0">
-                <button type="button" data-edit-nw="${item.id}" class="edit-nw-btn text-xs font-bold ${colorClass} hover:underline" title="Click to update value">${formatINR(item.value)}</button>
+                <button type="button" data-edit-nw="${item.id}" class="edit-nw-btn text-xs font-bold ${cls} hover:underline">${formatINR(item.value)}</button>
                 <button type="button" data-del-nw="${item.id}" class="del-nw-btn text-xs text-slate-400 hover:text-rose-600">✕</button>
               </div>
             </div>
@@ -1319,18 +1053,16 @@
         }).join('');
       };
 
-      document.getElementById('assets-list').innerHTML = renderList(assets, 'text-emerald-600');
-      document.getElementById('liabilities-list').innerHTML = renderList(liabilities, 'text-rose-600');
+      document.getElementById('assets-list').innerHTML = buildHtml(assets, 'text-emerald-600');
+      document.getElementById('liabilities-list').innerHTML = buildHtml(liabilities, 'text-rose-600');
 
       document.querySelectorAll('.edit-nw-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
           const item = vaultData.netWorthItems.find(i => i.id === btn.dataset.editNw);
           if (!item) return;
-          const nextVal = prompt(`Update current value (₹) for ${item.name}:`, item.value);
-          if (nextVal === null) return;
-          const parsed = parseNumericAmount(nextVal);
-          if (parsed >= 0) {
-            item.value = parsed;
+          const next = prompt(`Update current value (₹) for ${item.name}:`, item.value);
+          if (next !== null && !isNaN(parseFloat(next))) {
+            item.value = Math.max(0, parseFloat(next));
             refreshAllUI();
             await saveVaultToCloud();
           }
@@ -1346,23 +1078,24 @@
       });
     }
 
-    function renderDashboardCharts() {
-      const expMap = {};
-      vaultData.transactions.filter(t => t.type === 'expense').forEach(t => {
-        expMap[t.category] = (expMap[t.category] || 0) + Number(t.amount);
+    function renderDonutChart() {
+      const periodTx = getFilteredTransactionsByPeriod();
+      const map = {};
+      periodTx.filter(t => t.type === 'expense').forEach(t => {
+        map[t.category] = (map[t.category] || 0) + Number(t.amount);
       });
-      const donutLabels = Object.keys(expMap);
-      const donutValues = Object.values(expMap);
+      const labels = Object.keys(map);
+      const vals = Object.values(map);
       const palette = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6', '#f97316', '#14b8a6', '#ef4444'];
 
       if (charts.donut) charts.donut.destroy();
       charts.donut = new Chart(document.getElementById('chart-expense-donut'), {
         type: 'doughnut',
         data: {
-          labels: donutLabels.length ? donutLabels : ['No Expenses'],
+          labels: labels.length ? labels : ['No Expenses'],
           datasets: [{
-            data: donutValues.length ? donutValues : [1],
-            backgroundColor: donutValues.length ? palette : ['#e2e8f0'],
+            data: vals.length ? vals : [1],
+            backgroundColor: vals.length ? palette : ['#e2e8f0'],
             borderWidth: 2,
             borderColor: '#ffffff'
           }]
@@ -1370,154 +1103,56 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '64%',
-          plugins: {
-            legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } }
-          }
-        }
-      });
-
-      const totalAssets = vaultData.netWorthItems.filter(i => i.kind === 'asset').reduce((s, i) => s + Number(i.value), 0);
-      const totalLiabilities = vaultData.netWorthItems.filter(i => i.kind === 'liability').reduce((s, i) => s + Number(i.value), 0);
-      const netWorth = totalAssets - totalLiabilities;
-
-      if (charts.balance) charts.balance.destroy();
-      charts.balance = new Chart(document.getElementById('chart-balance-bar'), {
-        type: 'bar',
-        data: {
-          labels: ['Total Assets', 'Total Liabilities', 'Net Worth'],
-          datasets: [{
-            data: [totalAssets, totalLiabilities, netWorth],
-            backgroundColor: ['#10b981', '#f43f5e', '#6366f1'],
-            borderRadius: 8,
-            barThickness: 42
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              ticks: { callback: v => formatCompactINR(v), font: { size: 11 } },
-              grid: { color: '#f1f5f9' }
-            },
-            x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } }
-          }
-        }
-      });
-
-      const monthlySip = vaultData.transactions
-        .filter(t => t.type === 'expense' && t.category === 'Investments/SIP')
-        .reduce((s, t) => s + Number(t.amount), 0) || 25000;
-
-      const startYear = new Date().getFullYear();
-      const years = [];
-      const values = [];
-      let corpus = Math.max(0, netWorth);
-      for (let y = 0; y <= 10; y++) {
-        years.push(String(startYear + y));
-        values.push(Math.round(corpus));
-        corpus = (corpus + monthlySip * 12) * 1.12;
-      }
-
-      document.getElementById('preview-10yr-sub').textContent = `Projected 10-year trajectory at 12% p.a. (${formatCompactINR(values[10])} by ${startYear + 10})`;
-
-      if (charts.preview) charts.preview.destroy();
-      charts.preview = new Chart(document.getElementById('chart-preview-line'), {
-        type: 'line',
-        data: {
-          labels: years,
-          datasets: [{
-            label: 'Projected Net Worth',
-            data: values,
-            borderColor: '#6366f1',
-            backgroundColor: 'rgba(99, 102, 241, 0.12)',
-            fill: true,
-            tension: 0.35,
-            pointRadius: 3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { ticks: { callback: v => formatCompactINR(v), font: { size: 10 } }, grid: { color: '#f1f5f9' } },
-            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-          }
+          cutout: '65%',
+          plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } }
         }
       });
     }
 
-    function runSimulator() {
-      const corpusStart = Math.max(0, Number(document.getElementById('sim-corpus').value) || 0);
-      let monthlySip = Number(document.getElementById('sim-sip').value) || 0;
+    function runSimulator(startingNetWorth) {
+      const assets = vaultData.netWorthItems.filter(i => i.kind === 'asset').reduce((s, i) => s + Number(i.value), 0);
+      const debt = vaultData.netWorthItems.filter(i => i.kind === 'liability').reduce((s, i) => s + Number(i.value), 0);
+      const baseCorpus = typeof startingNetWorth === 'number' ? Math.max(0, startingNetWorth) : Math.max(0, assets - debt);
+
+      const monthlySip = Number(document.getElementById('sim-sip').value) || 0;
       const annualRate = (Number(document.getElementById('sim-rate').value) || 12) / 100;
-      const stepUp = (Number(document.getElementById('sim-stepup').value) || 0) / 100;
       const years = Number(document.getElementById('sim-years').value) || 15;
 
-      document.getElementById('sim-corpus-label').textContent = formatINR(corpusStart);
       document.getElementById('sim-sip-label').textContent = formatINR(monthlySip);
       document.getElementById('sim-rate-label').textContent = `${(annualRate * 100).toFixed(1).replace(/\.0$/, '')}%`;
-      document.getElementById('sim-stepup-label').textContent = `${Math.round(stepUp * 100)}%`;
-      document.getElementById('sim-years-label').textContent = `${years} Years`;
+      document.getElementById('sim-years-label').textContent = `${years} Yrs`;
 
       const labels = [];
-      const corpusSeries = [];
-      const investedSeries = [];
-
-      let currentCorpus = corpusStart;
-      let totalInvested = corpusStart;
-      const monthlyRate = annualRate / 12;
+      const series = [];
+      let corpus = baseCorpus;
+      const mRate = annualRate / 12;
 
       for (let y = 0; y <= years; y++) {
-        labels.push(`Year ${y}`);
-        corpusSeries.push(Math.round(currentCorpus));
-        investedSeries.push(Math.round(totalInvested));
-
-        for (let m = 0; m < 12; m++) {
-          currentCorpus = (currentCorpus + monthlySip) * (1 + monthlyRate);
-          totalInvested += monthlySip;
-        }
-        monthlySip = monthlySip * (1 + stepUp);
+        labels.push(`Yr ${y}`);
+        series.push(Math.round(corpus));
+        for (let m = 0; m < 12; m++) corpus = (corpus + monthlySip) * (1 + mRate);
       }
 
-      const finalCorpus = corpusSeries[years];
-      const finalInvested = investedSeries[years];
-      const gain = Math.max(0, finalCorpus - finalInvested);
-
-      document.getElementById('sim-total-invested').textContent = formatCompactINR(finalInvested);
-      document.getElementById('sim-wealth-gain').textContent = formatCompactINR(gain);
-      document.getElementById('sim-final-corpus').textContent = formatCompactINR(finalCorpus);
+      document.getElementById('sim-final-corpus').textContent = formatCompactINR(series[years]);
 
       if (charts.simulator) charts.simulator.destroy();
       charts.simulator = new Chart(document.getElementById('chart-simulator-line'), {
         type: 'line',
         data: {
           labels,
-          datasets: [
-            {
-              label: 'Projected Corpus',
-              data: corpusSeries,
-              borderColor: '#4f46e5',
-              backgroundColor: 'rgba(79, 70, 229, 0.12)',
-              fill: true,
-              tension: 0.3
-            },
-            {
-              label: 'Total Principal Invested',
-              data: investedSeries,
-              borderColor: '#94a3b8',
-              borderDash: [5, 5],
-              fill: false,
-              tension: 0.3
-            }
-          ]
+          datasets: [{
+            label: 'Projected Wealth',
+            data: series,
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            fill: true,
+            tension: 0.35
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
           scales: {
             y: { ticks: { callback: v => formatCompactINR(v) }, grid: { color: '#f1f5f9' } },
             x: { grid: { display: false } }
@@ -1526,33 +1161,28 @@
       });
     }
 
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
     /*************************************************************************
-     * 7. QUICK ENTRY MODAL & FORM LISTENERS
+     * MODAL & FORM EVENTS
      *************************************************************************/
     const todayStr = new Date().toISOString().slice(0, 10);
-    document.getElementById('tx-date').value = todayStr;
     document.getElementById('q-date').value = todayStr;
 
-    document.querySelectorAll('.open-quick-modal-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('q-amount').value = '';
-        document.getElementById('q-title').value = '';
-        document.getElementById('quick-modal').classList.remove('hidden');
-        document.getElementById('q-amount').focus();
-      });
-    });
+    function openAddModal(defaultRecurring = false) {
+      document.getElementById('q-amount').value = '';
+      document.getElementById('q-title').value = '';
+      document.getElementById('smart-cat-hint').textContent = '';
+      document.getElementById('q-recurring-cb').checked = defaultRecurring;
+      document.getElementById('q-recurring-options').classList.toggle('hidden', !defaultRecurring);
+      document.getElementById('q-recurring-day').value = new Date().getDate() <= 28 ? new Date().getDate() : 1;
+      updateAutoMfVisibility();
+      document.getElementById('quick-modal').classList.remove('hidden');
+      document.getElementById('q-amount').focus();
+    }
 
-    document.getElementById('close-quick-modal').addEventListener('click', () => {
-      document.getElementById('quick-modal').classList.add('hidden');
-    });
+    document.querySelectorAll('.open-quick-btn').forEach(b => b.addEventListener('click', () => openAddModal(false)));
+    document.getElementById('add-recurring-shortcut').addEventListener('click', () => openAddModal(true));
+    document.getElementById('open-recurring-modal-btn').addEventListener('click', () => openAddModal(true));
+    document.getElementById('close-quick-modal').addEventListener('click', () => document.getElementById('quick-modal').classList.add('hidden'));
 
     document.querySelectorAll('.q-chip').forEach(chip => {
       chip.addEventListener('click', () => {
@@ -1568,48 +1198,49 @@
       const title = document.getElementById('q-title').value.trim();
       const category = document.getElementById('q-category').value;
       const date = document.getElementById('q-date').value;
+      const isRecurring = document.getElementById('q-recurring-cb').checked;
+
       if (!title || amount <= 0) return;
 
-      vaultData.transactions.push({
-        id: 'tx_' + Date.now(),
-        type,
-        title,
-        amount,
-        date,
-        category
-      });
+      if (isRecurring) {
+        const dayOfMonth = Math.min(28, Math.max(1, Number(document.getElementById('q-recurring-day').value) || 1));
+        const autoAddToMF = document.getElementById('q-auto-mf-cb').checked && category === 'Investments/SIP';
+        const startMonth = date ? date.slice(0, 7) : todayStr.slice(0, 7);
 
-      document.getElementById('quick-modal').classList.add('hidden');
-      refreshAllUI();
-      await saveVaultToCloud();
-      showToast(`Saved ${title} (${formatINR(amount)})`);
+        vaultData.recurringRules.push({
+          id: 'rule_' + Date.now(),
+          type,
+          title,
+          amount,
+          category,
+          dayOfMonth,
+          startMonth,
+          autoAddToMF,
+          paused: false
+        });
+
+        document.getElementById('quick-modal').classList.add('hidden');
+        await processRecurringRules();
+        refreshAllUI();
+        await saveVaultToCloud();
+        showToast(`Saved monthly rule: ${title} (${formatINR(amount)}/mo)`);
+      } else {
+        vaultData.transactions.push({
+          id: 'tx_' + Date.now(),
+          type,
+          title,
+          amount,
+          date,
+          category
+        });
+        document.getElementById('quick-modal').classList.add('hidden');
+        refreshAllUI();
+        await saveVaultToCloud();
+        showToast(`Saved ${title} (${formatINR(amount)})`);
+      }
     });
 
-    document.getElementById('tx-filter').addEventListener('change', renderTransactionsTable);
-
-    document.getElementById('tx-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const type = document.querySelector('input[name="tx-type"]:checked').value;
-      const title = document.getElementById('tx-title').value.trim();
-      const amount = Number(document.getElementById('tx-amount').value);
-      const date = document.getElementById('tx-date').value;
-      const category = document.getElementById('tx-category').value;
-      if (!title || amount <= 0) return;
-
-      vaultData.transactions.push({
-        id: 'tx_' + Date.now(),
-        type,
-        title,
-        amount,
-        date,
-        category
-      });
-
-      document.getElementById('tx-title').value = '';
-      document.getElementById('tx-amount').value = '';
-      refreshAllUI();
-      await saveVaultToCloud();
-    });
+    document.getElementById('tx-type-filter').addEventListener('change', renderTransactionsTable);
 
     document.getElementById('nw-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1620,15 +1251,7 @@
       const value = Number(document.getElementById('nw-value').value);
       if (!name || value < 0) return;
 
-      vaultData.netWorthItems.push({
-        id: 'nw_' + Date.now(),
-        kind,
-        name,
-        category,
-        invested,
-        value
-      });
-
+      vaultData.netWorthItems.push({ id: 'nw_' + Date.now(), kind, name, category, invested, value });
       document.getElementById('nw-name').value = '';
       document.getElementById('nw-invested').value = '';
       document.getElementById('nw-value').value = '';
@@ -1636,192 +1259,243 @@
       await saveVaultToCloud();
     });
 
-    ['sim-corpus', 'sim-sip', 'sim-rate', 'sim-stepup', 'sim-years'].forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
-        if (id === 'sim-corpus') e.target.dataset.edited = 'true';
-        runSimulator();
-      });
+    ['sim-sip', 'sim-rate', 'sim-years'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => runSimulator());
     });
 
-    // Export Encrypted Backup JSON
+    // Excel / CSV Import
+    document.querySelectorAll('.open-import-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        stagedImportData = null;
+        document.getElementById('import-file-input').value = '';
+        document.getElementById('import-preview-box').classList.add('hidden');
+        document.getElementById('import-modal').classList.remove('hidden');
+      });
+    });
+    document.getElementById('close-import-modal').addEventListener('click', () => document.getElementById('import-modal').classList.add('hidden'));
+
+    function normalizeDate(raw) {
+      if (!raw) return todayStr;
+      if (typeof raw === 'number') {
+        const d = new Date(Math.floor(raw - 25569) * 86400 * 1000);
+        if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+      }
+      const s = String(raw).trim();
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+      const p = new Date(s);
+      return !isNaN(p.getTime()) ? p.toISOString().slice(0, 10) : todayStr;
+    }
+
+    function parseNum(v) {
+      if (typeof v === 'number') return v;
+      const n = parseFloat(String(v || '').replace(/[₹,\s]/g, ''));
+      return isNaN(n) ? 0 : n;
+    }
+
+    document.getElementById('import-file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+        const txs = [];
+        const nws = [];
+
+        wb.SheetNames.forEach(sheetName => {
+          const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+          let hIdx = rows.findIndex(r => r.some(c => /description|fund|asset|amount|current value/i.test(String(c))));
+          if (hIdx === -1) return;
+          const headers = rows[hIdx].map(h => String(h).toLowerCase().trim());
+          const isNW = headers.some(h => h.includes('fund') || h.includes('current value') || h.includes('kind'));
+
+          for (let r = hIdx + 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (!row || row.every(c => String(c).trim() === '')) continue;
+            if (isNW) {
+              const iKind = headers.findIndex(h => h.includes('kind') || h.includes('type'));
+              const iName = headers.findIndex(h => h.includes('fund') || h.includes('name') || h.includes('asset'));
+              const iCat = headers.findIndex(h => h.includes('category'));
+              const iInv = headers.findIndex(h => h.includes('invested'));
+              const iVal = headers.findIndex(h => h.includes('current') || h.includes('value'));
+              const name = iName >= 0 ? String(row[iName]).trim() : '';
+              if (!name || name.toLowerCase().startsWith('total')) continue;
+              const kind = (iKind >= 0 && /liab|loan|debt/i.test(String(row[iKind]))) ? 'liability' : 'asset';
+              const category = (iCat >= 0 && String(row[iCat]).trim()) ? String(row[iCat]).trim() : 'Equity & Mutual Funds';
+              const invested = iInv >= 0 ? parseNum(row[iInv]) : 0;
+              const value = iVal >= 0 ? parseNum(row[iVal]) : 0;
+              if (value > 0 || invested > 0) {
+                nws.push({ id: 'nw_imp_' + Date.now() + '_' + r, kind, name, category, invested, value: value || invested });
+              }
+            } else {
+              const iDate = headers.findIndex(h => h.includes('date'));
+              const iDesc = headers.findIndex(h => h.includes('desc') || h.includes('title') || h.includes('narration'));
+              const iType = headers.findIndex(h => h.includes('type'));
+              const iCat = headers.findIndex(h => h.includes('category'));
+              const iAmt = headers.findIndex(h => h.includes('amount') || h.includes('inr'));
+              const title = iDesc >= 0 ? String(row[iDesc]).trim() : '';
+              const amount = iAmt >= 0 ? Math.abs(parseNum(row[iAmt])) : 0;
+              if (!title || amount <= 0) continue;
+              const type = (iType >= 0 && /inc|credit/i.test(String(row[iType]))) ? 'income' : 'expense';
+              const category = (iCat >= 0 && String(row[iCat]).trim()) ? String(row[iCat]).trim() : (type === 'income' ? 'Salary & Bonus' : 'Food & Dining');
+              const date = iDate >= 0 ? normalizeDate(row[iDate]) : todayStr;
+              txs.push({ id: 'tx_imp_' + Date.now() + '_' + r, type, title, amount, category, date });
+            }
+          }
+        });
+
+        stagedImportData = { transactions: txs, netWorthItems: nws };
+        document.getElementById('import-preview-summary').innerHTML = `
+          <div>• <strong>${txs.length}</strong> Cash / Bank entries</div>
+          <div>• <strong>${nws.length}</strong> Mutual Fund / Asset items</div>
+        `;
+        document.getElementById('import-preview-box').classList.remove('hidden');
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('confirm-import-btn').addEventListener('click', async () => {
+      if (!stagedImportData) return;
+      const mode = document.querySelector('input[name="import-mode"]:checked').value;
+      if (mode === 'replace') {
+        vaultData.transactions = stagedImportData.transactions;
+        vaultData.netWorthItems = stagedImportData.netWorthItems;
+      } else {
+        vaultData.transactions.push(...stagedImportData.transactions);
+        vaultData.netWorthItems.push(...stagedImportData.netWorthItems);
+      }
+      document.getElementById('import-modal').classList.add('hidden');
+      refreshAllUI();
+      await saveVaultToCloud();
+      showToast(`Imported ${stagedImportData.transactions.length + stagedImportData.netWorthItems.length} entries!`);
+    });
+
+    document.getElementById('download-template-btn').addEventListener('click', () => {
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+        ['Date (YYYY-MM-DD)', 'Description', 'Type', 'Category', 'Amount (INR)'],
+        ['2026-11-01', 'Salary Credit', 'Income', 'Salary & Bonus', 162000],
+        ['2026-11-05', 'House Rent', 'Expense', 'Housing/Rent', 28000]
+      ]), 'Cash & Bank Entries');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+        ['Kind', 'Fund / Asset Name', 'Category', 'Invested Amount (INR)', 'Current Value (INR)'],
+        ['Asset', 'Parag Parikh Flexi Cap Fund', 'Equity & Mutual Funds', 500000, 640000]
+      ]), 'Mutual Funds & Assets');
+      XLSX.writeFile(wb, 'WealthPulse_Data_Template.xlsx');
+    });
+
     document.getElementById('btn-export-backup').addEventListener('click', async () => {
       if (!vaultKey || !vaultSaltB64) return;
       const encrypted = await encryptVault(vaultData, vaultKey);
-      const backupObj = {
-        app: 'WealthPulse',
-        encryption: 'PBKDF2-SHA256-150k + AES-256-GCM',
-        exportedAt: new Date().toISOString(),
-        salt: vaultSaltB64,
-        iv: encrypted.iv,
-        ciphertext: encrypted.ciphertext
-      };
-      const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({ app: 'WealthPulse', salt: vaultSaltB64, ...encrypted }, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `wealthpulse-encrypted-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `wealthpulse-backup-${todayStr}.json`;
       a.click();
       URL.revokeObjectURL(url);
     });
 
-    // Data Tools Modal
-    document.getElementById('btn-data-tools').addEventListener('click', () => {
-      document.getElementById('data-modal').classList.remove('hidden');
-    });
-    document.getElementById('close-data-modal').addEventListener('click', () => {
-      document.getElementById('data-modal').classList.add('hidden');
-    });
-    document.getElementById('modal-open-import').addEventListener('click', () => {
-      document.getElementById('data-modal').classList.add('hidden');
-      document.getElementById('import-modal').classList.remove('hidden');
-    });
-    document.getElementById('modal-load-demo').addEventListener('click', async () => {
-      vaultData = getDemoDataset();
-      document.getElementById('data-modal').classList.add('hidden');
-      refreshAllUI();
-      await saveVaultToCloud();
-    });
-    document.getElementById('modal-clear-vault').addEventListener('click', async () => {
-      vaultData = { transactions: [], netWorthItems: [] };
-      document.getElementById('data-modal').classList.add('hidden');
-      refreshAllUI();
-      await saveVaultToCloud();
-    });
-
-    async function handleSignOut() {
+    document.getElementById('btn-sign-out').addEventListener('click', async () => {
       vaultKey = null;
       vaultSaltB64 = null;
-      vaultData = { transactions: [], netWorthItems: [] };
+      vaultData = { transactions: [], netWorthItems: [], recurringRules: [] };
       localStorage.removeItem('wp_cached_passphrase');
       await signOut(auth);
       document.getElementById('app-shell').classList.add('hidden');
       document.getElementById('auth-screen').classList.remove('hidden');
-    }
-
-    document.getElementById('btn-sign-out').addEventListener('click', handleSignOut);
-    document.getElementById('mobile-signout-btn').addEventListener('click', handleSignOut);
+    });
 
     /*************************************************************************
-     * 8. AUTHENTICATION, VAULT UNLOCK & DEVICE REMEMBER FLOW
+     * AUTHENTICATION & UNLOCK
      *************************************************************************/
     const modeSigninBtn = document.getElementById('mode-signin-btn');
     const modeSignupBtn = document.getElementById('mode-signup-btn');
     const confirmGroup = document.getElementById('confirm-passphrase-group');
-    const starterGroup = document.getElementById('starter-data-group');
     const submitText = document.getElementById('auth-submit-text');
     const errorBox = document.getElementById('auth-error');
 
     function setAuthMode(mode) {
       authMode = mode;
       errorBox.classList.add('hidden');
-      if (mode === 'signup') {
-        modeSignupBtn.className = 'py-2 text-sm font-semibold rounded-lg bg-white text-indigo-600 shadow-sm transition';
-        modeSigninBtn.className = 'py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
-        confirmGroup.classList.remove('hidden');
-        starterGroup.classList.remove('hidden');
-        submitText.textContent = 'Create Encrypted Account';
-      } else {
-        modeSigninBtn.className = 'py-2 text-sm font-semibold rounded-lg bg-white text-indigo-600 shadow-sm transition';
-        modeSignupBtn.className = 'py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
-        confirmGroup.classList.add('hidden');
-        starterGroup.classList.add('hidden');
-        submitText.textContent = 'Sign In & Open Vault';
-      }
+      const isUp = mode === 'signup';
+      modeSignupBtn.className = isUp ? 'py-2 text-xs font-semibold rounded-lg bg-white text-indigo-600 shadow-sm transition' : 'py-2 text-xs font-semibold rounded-lg text-slate-600 transition';
+      modeSigninBtn.className = !isUp ? 'py-2 text-xs font-semibold rounded-lg bg-white text-indigo-600 shadow-sm transition' : 'py-2 text-xs font-semibold rounded-lg text-slate-600 transition';
+      confirmGroup.classList.toggle('hidden', !isUp);
+      submitText.textContent = isUp ? 'Create Private Vault' : 'Open My Vault';
     }
 
     modeSigninBtn.addEventListener('click', () => setAuthMode('signin'));
     modeSignupBtn.addEventListener('click', () => setAuthMode('signup'));
 
-    function showAuthError(msg) {
-      errorBox.textContent = msg;
-      errorBox.classList.remove('hidden');
-    }
-
-    async function unlockUserVault(user, passphrase, initModeIfNew = 'empty') {
+    async function unlockVaultForUser(user, passphrase) {
       currentUser = user;
       const snap = await getDoc(getUserDocRef(user.uid));
       if (snap.exists() && snap.data().salt && snap.data().ciphertext) {
-        const docData = snap.data();
-        vaultSaltB64 = docData.salt;
+        const d = snap.data();
+        vaultSaltB64 = d.salt;
         vaultKey = await deriveKey(passphrase, b64ToBuf(vaultSaltB64));
-        vaultData = await decryptVault(docData, vaultKey);
+        const decrypted = await decryptVault(d, vaultKey);
+        vaultData = {
+          transactions: decrypted.transactions || [],
+          netWorthItems: decrypted.netWorthItems || [],
+          recurringRules: decrypted.recurringRules || []
+        };
       } else {
         const saltBytes = crypto.getRandomValues(new Uint8Array(16));
         vaultSaltB64 = bufToB64(saltBytes);
         vaultKey = await deriveKey(passphrase, saltBytes);
-        vaultData = initModeIfNew === 'demo' ? getDemoDataset() : { transactions: [], netWorthItems: [] };
+        vaultData = { transactions: [], netWorthItems: [], recurringRules: [] };
         await saveVaultToCloud();
       }
 
-      document.getElementById('sidebar-user-email').textContent = currentUser.email;
       document.getElementById('auth-screen').classList.add('hidden');
       document.getElementById('app-shell').classList.remove('hidden');
-      switchTab('dashboard');
+      await processRecurringRules();
+      switchTab('home');
       refreshAllUI();
     }
 
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       errorBox.classList.add('hidden');
-
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
       const passphrase = document.getElementById('vault-passphrase').value;
-      const rememberDevice = document.getElementById('remember-vault-cb').checked;
-      const submitBtn = document.getElementById('auth-submit-btn');
+      const remember = document.getElementById('remember-vault-cb').checked;
 
-      if (authMode === 'signup') {
-        const confirmPass = document.getElementById('vault-passphrase-confirm').value;
-        if (passphrase !== confirmPass) {
-          showAuthError('Vault Encryption Passphrases do not match.');
-          return;
-        }
+      if (authMode === 'signup' && passphrase !== document.getElementById('vault-passphrase-confirm').value) {
+        errorBox.textContent = 'Vault passphrases do not match.';
+        errorBox.classList.remove('hidden');
+        return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-70');
-
       try {
-        let userObj = null;
-        let initMode = 'empty';
-        if (authMode === 'signup') {
-          const cred = await createUserWithEmailAndPassword(auth, email, password);
-          userObj = cred.user;
-          initMode = document.querySelector('input[name="init-mode"]:checked').value;
-        } else {
-          const cred = await signInWithEmailAndPassword(auth, email, password);
-          userObj = cred.user;
-        }
+        const cred = authMode === 'signup'
+          ? await createUserWithEmailAndPassword(auth, email, password)
+          : await signInWithEmailAndPassword(auth, email, password);
 
         try {
-          await unlockUserVault(userObj, passphrase, initMode);
-          if (rememberDevice) {
-            localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(passphrase))));
-          } else {
-            localStorage.removeItem('wp_cached_passphrase');
-          }
+          await unlockVaultForUser(cred.user, passphrase);
+          if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(passphrase))));
+          else localStorage.removeItem('wp_cached_passphrase');
         } catch {
           await signOut(auth);
-          localStorage.removeItem('wp_cached_passphrase');
-          showAuthError('Incorrect Vault Encryption Passphrase. Unable to decrypt your vault.');
+          errorBox.textContent = 'Wrong Vault PIN / Passphrase.';
+          errorBox.classList.remove('hidden');
         }
       } catch (err) {
-        showAuthError(err.message || 'Authentication failed.');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-70');
+        errorBox.textContent = err.message;
+        errorBox.classList.remove('hidden');
       }
     });
 
-    // Auto-unlock on reload if user checked "Remember Vault on This Device"
     onAuthStateChanged(auth, async (user) => {
       if (user && !vaultKey) {
         document.getElementById('auth-email').value = user.email || '';
-        const cachedB64 = localStorage.getItem('wp_cached_passphrase');
-        if (cachedB64) {
+        const cached = localStorage.getItem('wp_cached_passphrase');
+        if (cached) {
           try {
-            const savedPass = decodeURIComponent(escape(atob(cachedB64)));
-            await unlockUserVault(user, savedPass);
+            await unlockVaultForUser(user, decodeURIComponent(escape(atob(cached))));
             return;
           } catch {
             localStorage.removeItem('wp_cached_passphrase');
