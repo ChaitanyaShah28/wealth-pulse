@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WealthPulse — Live Personal Finance</title>
+  <title>CS Wealth Lab — Personal Finance & Live Portfolio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -27,13 +27,11 @@
   <div id="auth-screen" class="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-slate-100">
     <div class="w-full max-w-sm">
       <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-indigo-200 mb-3">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-          </svg>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-indigo-200 mb-3 font-extrabold tracking-tight text-lg">
+          CS
         </div>
-        <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">WealthPulse</h1>
-        <p class="text-xs text-slate-500 mt-1">Live mutual funds, gold, silver &amp; cashflow tracker</p>
+        <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">CS Wealth Lab</h1>
+        <p class="text-xs text-slate-500 mt-1">By Chaitanya Shah • Live MF, Gold, Silver &amp; Cashflow</p>
       </div>
 
       <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/70 border border-slate-200/80 p-6">
@@ -86,10 +84,10 @@
     <!-- Mobile Top Header -->
     <header class="md:hidden flex items-center justify-between bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-extrabold text-xs tracking-tight">
+          CS
         </div>
-        <span class="font-bold text-slate-900 text-sm">WealthPulse</span>
+        <span class="font-bold text-slate-900 text-sm">CS Wealth Lab</span>
       </div>
       <div class="flex items-center gap-2">
         <button type="button" class="refresh-market-btn px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">↻ Live</button>
@@ -100,14 +98,12 @@
     <!-- Desktop Sidebar -->
     <aside class="hidden md:flex md:flex-col w-60 bg-white border-r border-slate-200 min-h-screen shrink-0">
       <div class="flex items-center gap-3 px-5 py-5 border-b border-slate-100">
-        <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-          </svg>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-sm font-extrabold text-sm tracking-tight">
+          CS
         </div>
         <div>
-          <div class="font-bold text-slate-900 text-base leading-tight">WealthPulse</div>
-          <div class="text-[11px] text-emerald-600 font-medium">🔒 Live Market Vault</div>
+          <div class="font-bold text-slate-900 text-base leading-tight">CS Wealth Lab</div>
+          <div class="text-[11px] text-emerald-600 font-medium">🔒 By Chaitanya Shah</div>
         </div>
       </div>
 
@@ -125,6 +121,11 @@
         <button type="button" data-tab="wealth" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
           <span>Portfolio (MF, Gold, Silver)</span>
+        </button>
+
+        <button type="button" data-tab="advisor" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <span>Smart Plan &amp; Projections</span>
         </button>
       </nav>
 
@@ -145,8 +146,8 @@
       </div>
     </aside>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 grid grid-cols-3 py-2 z-30">
+    <!-- Mobile Bottom Navigation (4 Clean Tabs) -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 grid grid-cols-4 py-2 z-30">
       <button type="button" data-tab="home" class="mob-nav-btn active flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span>Overview</span>
@@ -158,6 +159,10 @@
       <button type="button" data-tab="wealth" class="mob-nav-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
         <span>Portfolio</span>
+      </button>
+      <button type="button" data-tab="advisor" class="mob-nav-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <span>Smart Plan</span>
       </button>
     </nav>
 
@@ -183,7 +188,7 @@
         </div>
       </div>
 
-      <!-- Live Market Ticker Strip (Gold 24K/22K, Silver, Market Status) -->
+      <!-- Live Market Ticker Strip -->
       <div class="rounded-2xl bg-white border border-slate-200/80 px-4 py-3 shadow-2xs flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-4 text-xs">
           <div class="flex items-center gap-1.5">
@@ -260,7 +265,21 @@
           </div>
         </div>
 
-        <!-- Live Portfolio Snapshot (Mutual Funds + Gold + Silver) -->
+        <!-- Smart Plan Teaser Banner on Home -->
+        <div class="rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+          <div class="space-y-1">
+            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-300">
+              <span>💡 Personalized Wealth Plan Ready</span>
+            </div>
+            <h3 id="home-advisor-headline" class="font-bold text-sm md:text-base">See how your live net worth can grow over 10–15 years</h3>
+            <p id="home-advisor-sub" class="text-xs text-slate-300">Auto-calculated action plan, Mutual Funds vs. Stocks guide, and 15-year projections from your live data.</p>
+          </div>
+          <button type="button" data-goto="advisor" class="goto-btn px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-bold shrink-0 transition shadow-sm">
+            Open Smart Plan →
+          </button>
+        </div>
+
+        <!-- Live Portfolio Snapshot -->
         <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
           <div class="flex items-center justify-between mb-3">
             <div>
@@ -300,7 +319,7 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 class="font-bold text-slate-900 text-sm">Recurring Monthly Rules (Salary, Rent, SIPs, Bills)</h3>
-              <p class="text-xs text-slate-400">Add once — WealthPulse auto-logs them every month and buys Mutual Fund units at that day's NAV</p>
+              <p class="text-xs text-slate-400">Add once — CS Wealth Lab auto-logs them every month and buys Mutual Fund units at that day's NAV</p>
             </div>
             <button type="button" id="open-recurring-modal-btn" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition">+ New Monthly Rule</button>
           </div>
@@ -340,9 +359,8 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 3: PORTFOLIO (MF, GOLD, SILVER & GOALS) ==================== -->
+      <!-- ==================== TAB 3: PORTFOLIO (MF, GOLD, SILVER & DEBT) ==================== -->
       <section id="view-wealth" class="view-section space-y-6">
-        <!-- Balance Sheet Top Summary -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
             <div class="text-xs font-semibold text-slate-400 uppercase">Live Portfolio Value</div>
@@ -359,7 +377,6 @@
           </div>
         </div>
 
-        <!-- Smart Asset Builder + Holdings Lists -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs h-fit space-y-3.5">
             <div class="flex items-center justify-between">
@@ -367,7 +384,6 @@
               <button type="button" class="open-import-btn text-xs font-semibold text-emerald-600">Import Excel ↑</button>
             </div>
 
-            <!-- Asset Type Selector -->
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1">What do you want to add?</label>
               <select id="asset-mode-select" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-300 bg-white text-slate-800">
@@ -448,7 +464,6 @@
             </form>
           </div>
 
-          <!-- Assets & Liabilities Lists -->
           <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
               <div class="flex items-center justify-between mb-3">
@@ -467,46 +482,137 @@
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Future Wealth Simulator -->
+      <!-- ==================== TAB 4: SMART PLAN & PROJECTIONS ==================== -->
+      <section id="view-advisor" class="view-section space-y-6">
+        <!-- 1. Dynamic Personalized Action Plan Cards -->
         <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 class="font-bold text-slate-900 text-sm">Future Wealth Projection</h3>
-              <p class="text-xs text-slate-400">See how your live net worth + monthly SIP grows over time</p>
+              <h3 class="font-bold text-slate-900 text-base">Your Personalized Wealth Action Plan</h3>
+              <p class="text-xs text-slate-500">Automatically generated from your live Net Worth, Income, Debt, Gold/Silver, and SIPs</p>
             </div>
-            <div class="text-right">
-              <span class="text-[11px] text-slate-400 block">Projected Value</span>
-              <span id="sim-final-corpus" class="text-lg font-extrabold text-indigo-600">₹0</span>
+            <span id="advisor-health-badge" class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">Analyzing...</span>
+          </div>
+          <div id="advisor-action-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- 2. Interactive 10- & 15-Year Projection Simulator (Auto-Seeded from User's Vault) -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">10-Year &amp; 15-Year Wealth Projection</h3>
+              <p id="advisor-seed-note" class="text-xs text-slate-500">Pre-filled with your live Net Worth and monthly investable surplus</p>
+            </div>
+            <button type="button" id="reset-sim-to-vault-btn" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">↻ Sync My Live Numbers</button>
+          </div>
+
+          <!-- Sliders -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-600">Starting Net Worth</span>
+                <span id="sim-pv-label" class="text-indigo-600">₹0</span>
+              </div>
+              <input type="number" id="sim-pv" step="50000" class="w-full px-2.5 py-1.5 text-xs font-bold rounded-lg border border-slate-300 bg-white" />
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-600">Monthly Investment</span>
+                <span id="sim-sip-label" class="text-indigo-600">₹0</span>
+              </div>
+              <input type="range" id="sim-sip" min="0" max="300000" step="2000" value="50000" class="w-full accent-indigo-600" />
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-600">Annual SIP Step-Up</span>
+                <span id="sim-stepup-label" class="text-indigo-600">10%</span>
+              </div>
+              <input type="range" id="sim-stepup" min="0" max="20" step="1" value="10" class="w-full accent-indigo-600" />
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-600">Horizon (Years)</span>
+                <span id="sim-years-label" class="text-indigo-600">15 Years</span>
+              </div>
+              <input type="range" id="sim-years" min="5" max="25" step="1" value="15" class="w-full accent-indigo-600" />
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Monthly SIP</span>
-                <span id="sim-sip-label" class="text-indigo-600">₹25,000</span>
-              </div>
-              <input type="range" id="sim-sip" min="0" max="300000" step="2500" value="25000" class="w-full accent-indigo-600" />
+          <!-- 3 Strategy Comparison Cards (Conservative 9% vs Mutual Funds 12% vs Aggressive Stocks/MidCap 15%) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70">
+              <div class="text-[11px] font-bold uppercase text-slate-500">Conservative (9% p.a.)</div>
+              <div class="text-[11px] text-slate-400">FDs, Debt, Gold &amp; Silver mix</div>
+              <div id="proj-9pct-val" class="text-xl font-extrabold text-slate-800 mt-2">₹0</div>
+              <div id="proj-9pct-sub" class="text-[11px] text-slate-500 mt-0.5">Low volatility, slower compounding</div>
             </div>
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Annual Return</span>
-                <span id="sim-rate-label" class="text-indigo-600">12%</span>
-              </div>
-              <input type="range" id="sim-rate" min="6" max="20" step="0.5" value="12" class="w-full accent-indigo-600" />
+
+            <div class="p-4 rounded-xl border-2 border-indigo-500 bg-indigo-50/40 relative">
+              <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold">RECOMMENDED</span>
+              <div class="text-[11px] font-bold uppercase text-indigo-700">Mutual Funds (12% p.a.)</div>
+              <div class="text-[11px] text-indigo-600/80">Flexi Cap + Nifty 50 + Mid Cap SIPs</div>
+              <div id="proj-12pct-val" class="text-xl font-extrabold text-indigo-950 mt-2">₹0</div>
+              <div id="proj-12pct-sub" class="text-[11px] text-indigo-700 mt-0.5">Optimal risk-adjusted wealth builder</div>
             </div>
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="text-slate-600">Years</span>
-                <span id="sim-years-label" class="text-indigo-600">15 Yrs</span>
-              </div>
-              <input type="range" id="sim-years" min="3" max="30" step="1" value="15" class="w-full accent-indigo-600" />
+
+            <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/40">
+              <div class="text-[11px] font-bold uppercase text-amber-800">Stocks / High-Growth (15% p.a.)</div>
+              <div class="text-[11px] text-amber-700/80">Direct Stocks + Small Cap (Higher Risk)</div>
+              <div id="proj-15pct-val" class="text-xl font-extrabold text-amber-950 mt-2">₹0</div>
+              <div id="proj-15pct-sub" class="text-[11px] text-amber-700 mt-0.5">High upside, 30–50% drawdown risk</div>
             </div>
           </div>
 
-          <div class="h-56">
+          <!-- Multi-Line Comparison Chart -->
+          <div class="h-64">
             <canvas id="chart-simulator-line"></canvas>
+          </div>
+        </div>
+
+        <!-- 3. Mutual Funds vs. Direct Stocks Comparison Guide -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Mutual Funds vs. Direct Stocks — Which Should You Choose?</h3>
+            <p class="text-xs text-slate-500">Recommended split: <strong>80–85% Equity Mutual Funds</strong> as your core engine + <strong>15–20% Direct Stocks</strong> only if you enjoy company research</p>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-500 uppercase text-[11px]">
+                  <th class="py-2.5 px-3">Factor</th>
+                  <th class="py-2.5 px-3 text-indigo-700">Equity Mutual Funds (SIPs)</th>
+                  <th class="py-2.5 px-3 text-amber-800">Direct Stocks</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                <tr>
+                  <td class="py-3 px-3 font-semibold">Expected Return</td>
+                  <td class="py-3 px-3 font-semibold text-emerald-700">12% – 14% p.a. (Consistent)</td>
+                  <td class="py-3 px-3">14% – 18%+ p.a. (or &lt;8% if mistimed)</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-3 font-semibold">Risk &amp; Drawdowns</td>
+                  <td class="py-3 px-3">Moderate-High — 40–60 stocks cushion single-company crashes</td>
+                  <td class="py-3 px-3 text-rose-600 font-medium">High — single stock can drop 30%–60%</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-3 font-semibold">Time &amp; Effort</td>
+                  <td class="py-3 px-3">Zero daily effort — fully automated monthly SIPs</td>
+                  <td class="py-3 px-3">5–10+ hrs/week tracking earnings &amp; valuations</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-3 font-semibold">Tax Efficiency (India)</td>
+                  <td class="py-3 px-3 text-emerald-700 font-medium">High — no tax on internal rebalancing until you redeem</td>
+                  <td class="py-3 px-3">Lower if churning — every sale triggers STCG/LTCG tax</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -664,7 +770,7 @@
       setDoc
     } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'wealthpulse-default';
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'cs-wealth-lab-default';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
       apiKey: "AIzaSyA_RjSDOTJVcI-7nwnFIF9Pb0U12dCUqJ4",
       authDomain: "wealth-pulse-73d76.firebaseapp.com",
@@ -685,6 +791,7 @@
     let activePeriod = 'this-month';
     let stagedImportData = null;
     let selectedMfScheme = null;
+    let simUserEdited = false;
 
     let liveRates = {
       gold24PerGram: 0,
@@ -771,7 +878,6 @@
       statusLabel.textContent = 'Refreshing market prices...';
 
       try {
-        // 1. Fetch Live Gold (XAU) & Silver (XAG) spot in USD + USD->INR exchange rate
         const [goldRes, silverRes, fxRes] = await Promise.all([
           fetch('https://api.gold-api.com/price/XAU').then(r => r.json()),
           fetch('https://api.gold-api.com/price/XAG').then(r => r.json()),
@@ -780,7 +886,6 @@
 
         const usdToInr = fxRes?.rates?.INR || 84.5;
         if (goldRes?.price) {
-          // Include standard Indian import duty/GST parity factor (~1.06) so rates align closely with domestic retail bullion
           const raw24g = (Number(goldRes.price) / TROY_OZ_TO_GRAMS) * usdToInr * 1.06;
           liveRates.gold24PerGram = Math.round(raw24g);
           liveRates.gold22PerGram = Math.round(raw24g * (22 / 24));
@@ -794,7 +899,6 @@
         document.getElementById('live-gold-22k').textContent = liveRates.gold22PerGram ? `₹${liveRates.gold22PerGram.toLocaleString('en-IN')}` : 'N/A';
         document.getElementById('live-silver-1g').textContent = liveRates.silverPerGram ? `₹${liveRates.silverPerGram.toLocaleString('en-IN')}` : 'N/A';
 
-        // 2. Revalue all live Gold & Silver items in user's vault
         let updatedAnyAsset = false;
         for (const item of vaultData.netWorthItems) {
           if (item.liveType === 'gold24' && liveRates.gold24PerGram > 0) {
@@ -812,7 +916,6 @@
           }
         }
 
-        // 3. Fetch latest daily NAV for all linked Mutual Fund schemes from MFapi.in
         const mfItems = vaultData.netWorthItems.filter(i => i.liveType === 'mf' && i.schemeCode);
         await Promise.all(mfItems.map(async (mf) => {
           try {
@@ -822,7 +925,6 @@
             if (!isNaN(latestNav) && latestNav > 0) {
               mf.latestNav = latestNav;
               mf.navDate = navDate;
-              // If user entered invested amount without units initially, derive units from initial NAV
               if (!mf.units || mf.units <= 0) {
                 mf.units = Number((Number(mf.invested || mf.value) / latestNav).toFixed(4));
               }
@@ -854,7 +956,7 @@
     });
 
     /*************************************************************************
-     * MONTHLY RECURRING AUTOMATION ENGINE (WITH LIVE MF UNIT ALLOTMENT)
+     * MONTHLY RECURRING AUTOMATION ENGINE
      *************************************************************************/
     async function processRecurringRules() {
       if (!Array.isArray(vaultData.recurringRules)) vaultData.recurringRules = [];
@@ -894,7 +996,6 @@
             });
             generatedCount++;
 
-            // Auto-buy units in target Mutual Fund if configured
             if (rule.autoAddToMF && rule.type === 'expense') {
               let mfItem = rule.targetMfId
                 ? vaultData.netWorthItems.find(i => i.id === rule.targetMfId)
@@ -954,7 +1055,6 @@
 
     document.getElementById('metal-grams-input').addEventListener('input', updateMetalPreview);
 
-    // Live Mutual Fund Search via MFapi.in
     let mfSearchTimer = null;
     const mfSearchInput = document.getElementById('mf-search-input');
     const mfResultsBox = document.getElementById('mf-search-results');
@@ -1145,7 +1245,8 @@
     const tabInfo = {
       home: ['Overview', 'Live market valuation across Mutual Funds, Gold, Silver & Cashflow'],
       activity: ['Cashflow & Auto-Pay', 'Manage automatic monthly rules and transaction history'],
-      wealth: ['Portfolio (MF, Gold, Silver)', 'Daily market-linked Mutual Funds, Gold, Silver & Liabilities']
+      wealth: ['Portfolio (MF, Gold, Silver)', 'Daily market-linked Mutual Funds, Gold, Silver & Liabilities'],
+      advisor: ['Smart Plan & Projections', 'Personalized wealth roadmap, Mutual Funds vs. Stocks & 15-year projections']
     };
 
     function switchTab(tabName) {
@@ -1159,7 +1260,7 @@
       document.getElementById('page-title').textContent = tabInfo[tabName][0];
       document.getElementById('page-subtitle').textContent = tabInfo[tabName][1];
       if (tabName === 'home') renderDonutChart();
-      if (tabName === 'wealth') runSimulator();
+      if (tabName === 'advisor') renderAdvisorAndProjections();
     }
 
     document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
@@ -1189,6 +1290,219 @@
         return true;
       });
     }
+
+    function getCurrentMonthMetrics() {
+      const now = new Date();
+      const thisYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const monthTx = vaultData.transactions.filter(t => String(t.date || '').startsWith(thisYM));
+
+      // Fallback to recurring rules if current month has no entries yet
+      let income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+      let expenses = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+      let sipTotal = monthTx.filter(t => t.type === 'expense' && t.category === 'Investments/SIP').reduce((s, t) => s + Number(t.amount), 0);
+
+      if (income === 0 && vaultData.recurringRules.length > 0) {
+        income = vaultData.recurringRules.filter(r => !r.paused && r.type === 'income').reduce((s, r) => s + Number(r.amount), 0);
+      }
+      if (expenses === 0 && vaultData.recurringRules.length > 0) {
+        expenses = vaultData.recurringRules.filter(r => !r.paused && r.type === 'expense').reduce((s, r) => s + Number(r.amount), 0);
+        sipTotal = vaultData.recurringRules.filter(r => !r.paused && r.type === 'expense' && r.category === 'Investments/SIP').reduce((s, r) => s + Number(r.amount), 0);
+      }
+
+      const uninvestedSurplus = Math.max(0, income - expenses);
+      const totalInvestable = uninvestedSurplus + sipTotal;
+      return { income, expenses, sipTotal, uninvestedSurplus, totalInvestable };
+    }
+
+    /*************************************************************************
+     * SMART ADVISOR & MULTI-SCENARIO PROJECTION ENGINE
+     *************************************************************************/
+    function calcCompoundSeries(pv, monthlyPmt, annualRate, years, stepUpRate) {
+      const series = [];
+      let val = Math.max(0, pv);
+      let pmt = Math.max(0, monthlyPmt);
+      const mRate = annualRate / 12;
+
+      for (let y = 0; y <= years; y++) {
+        series.push(Math.round(val));
+        for (let m = 0; m < 12; m++) {
+          val = (val + pmt) * (1 + mRate);
+        }
+        pmt = pmt * (1 + stepUpRate);
+      }
+      return series;
+    }
+
+    function renderAdvisorAndProjections() {
+      const assetItems = vaultData.netWorthItems.filter(i => i.kind === 'asset');
+      const debtItems = vaultData.netWorthItems.filter(i => i.kind === 'liability');
+      const totalAssets = assetItems.reduce((s, i) => s + Number(i.value), 0);
+      const totalDebt = debtItems.reduce((s, i) => s + Number(i.value), 0);
+      const netWorth = totalAssets - totalDebt;
+
+      const metalVal = assetItems
+        .filter(i => ['gold24', 'gold22', 'silver'].includes(i.liveType) || /gold|silver/i.test(i.category))
+        .reduce((s, i) => s + Number(i.value), 0);
+      const equityVal = assetItems
+        .filter(i => i.liveType === 'mf' || /equity|mutual/i.test(i.category))
+        .reduce((s, i) => s + Number(i.value), 0);
+
+      const { income, expenses, sipTotal, uninvestedSurplus, totalInvestable } = getCurrentMonthMetrics();
+
+      // Seed simulator from user's live numbers unless user manually moved sliders
+      if (!simUserEdited) {
+        document.getElementById('sim-pv').value = Math.max(0, netWorth);
+        const defaultMonthly = totalInvestable > 0 ? Math.min(300000, Math.round(totalInvestable / 1000) * 1000) : 25000;
+        document.getElementById('sim-sip').value = defaultMonthly;
+      }
+
+      const pv = Math.max(0, Number(document.getElementById('sim-pv').value) || 0);
+      const sip = Math.max(0, Number(document.getElementById('sim-sip').value) || 0);
+      const stepUp = (Number(document.getElementById('sim-stepup').value) || 0) / 100;
+      const years = Number(document.getElementById('sim-years').value) || 15;
+
+      document.getElementById('sim-pv-label').textContent = formatCompactINR(pv);
+      document.getElementById('sim-sip-label').textContent = formatINR(sip);
+      document.getElementById('sim-stepup-label').textContent = `${Math.round(stepUp * 100)}%`;
+      document.getElementById('sim-years-label').textContent = `${years} Years`;
+
+      const labels = Array.from({ length: years + 1 }, (_, i) => `Yr ${i}`);
+      const s9 = calcCompoundSeries(pv, sip, 0.09, years, stepUp);
+      const s12 = calcCompoundSeries(pv, sip, 0.12, years, stepUp);
+      const s15 = calcCompoundSeries(pv, sip, 0.15, years, stepUp);
+
+      document.getElementById('proj-9pct-val').textContent = formatCompactINR(s9[years]);
+      document.getElementById('proj-12pct-val').textContent = formatCompactINR(s12[years]);
+      document.getElementById('proj-15pct-val').textContent = formatCompactINR(s15[years]);
+
+      // Update Home Teaser Banner dynamically
+      document.getElementById('home-advisor-headline').textContent =
+        `Projected ${years}-Year Wealth: ${formatCompactINR(s12[years])} (at 12% Mutual Fund CAGR)`;
+      document.getElementById('home-advisor-sub').textContent =
+        `Based on ${formatCompactINR(netWorth)} live net worth + ${formatINR(sip)}/mo invested with ${Math.round(stepUp * 100)}% annual step-up.`;
+
+      if (charts.simulator) charts.simulator.destroy();
+      charts.simulator = new Chart(document.getElementById('chart-simulator-line'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Mutual Funds (12% p.a.)',
+              data: s12,
+              borderColor: '#4f46e5',
+              backgroundColor: 'rgba(79, 70, 229, 0.10)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2.5
+            },
+            {
+              label: 'Stocks / High-Growth (15% p.a.)',
+              data: s15,
+              borderColor: '#d97706',
+              borderDash: [5, 4],
+              fill: false,
+              tension: 0.35,
+              borderWidth: 2
+            },
+            {
+              label: 'Conservative Debt/Gold (9% p.a.)',
+              data: s9,
+              borderColor: '#94a3b8',
+              fill: false,
+              tension: 0.35,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { ticks: { callback: v => formatCompactINR(v), font: { size: 11 } }, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Generate Dynamic Action Cards tailored to user's actual vault numbers
+      const cards = [];
+
+      if (totalDebt > 0) {
+        cards.push({
+          tag: 'PRIORITY 1 • DEBT OPTIMIZATION',
+          tagCls: 'bg-rose-50 text-rose-700',
+          title: `Clear ${formatCompactINR(totalDebt)} in Loans / Credit Debt`,
+          desc: `Paying off high-interest credit cards or loans (>9.5% p.a.) gives an immediate, risk-free return before locking extra cash into volatile assets.`
+        });
+      } else {
+        cards.push({
+          tag: 'DEBT-FREE ADVANTAGE',
+          tagCls: 'bg-emerald-50 text-emerald-700',
+          title: 'Zero Debt — 100% of Returns Compound for You',
+          desc: 'With no active liabilities dragging down your net worth, channel every monthly surplus rupee directly into growth assets.'
+        });
+      }
+
+      if (uninvestedSurplus > 5000) {
+        cards.push({
+          tag: 'DEPLOY IDLE CASH',
+          tagCls: 'bg-indigo-50 text-indigo-700',
+          title: `Automate ${formatINR(uninvestedSurplus)}/mo Uninvested Surplus`,
+          desc: `You currently have ${formatINR(uninvestedSurplus)}/mo sitting unallocated after expenses & SIPs. Moving this into a Flexi Cap or Nifty 50 SIP prevents cash drag.`
+        });
+      } else {
+        cards.push({
+          tag: 'SIP DISCIPLINE',
+          tagCls: 'bg-indigo-50 text-indigo-700',
+          title: `Keep Stepping Up Your ${formatINR(sipTotal)}/mo SIP by 10%/yr`,
+          desc: `Increasing your SIP by 10% each year turns a ${formatCompactINR(calcCompoundSeries(pv, sip, 0.12, years, 0)[years])} flat outcome into ${formatCompactINR(s12[years])}.`
+        });
+      }
+
+      const metalPct = totalAssets > 0 ? ((metalVal / totalAssets) * 100).toFixed(1) : '0.0';
+      cards.push({
+        tag: `GOLD & SILVER ALLOCATION (${metalPct}%)`,
+        tagCls: 'bg-amber-50 text-amber-800',
+        title: Number(metalPct) > 20
+          ? 'Rebalance Excess Gold/Silver into Equity Mutual Funds'
+          : 'Maintain 10%–15% Gold & Silver as Inflation Hedge',
+        desc: `You hold ${formatCompactINR(metalVal)} (${metalPct}% of assets) in Gold/Silver vs. ${formatCompactINR(equityVal)} in Equity Mutual Funds. Keep metals around 10–15% for stability.`
+      });
+
+      const savingsRate = income > 0 ? Math.round((totalInvestable / income) * 100) : 0;
+      document.getElementById('advisor-health-badge').textContent = income > 0
+        ? `Savings Rate: ${savingsRate}%`
+        : 'Live Vault Connected';
+
+      cards.push({
+        tag: 'EQUITY STRATEGY',
+        tagCls: 'bg-emerald-50 text-emerald-700',
+        title: '85% Core Mutual Funds + Max 15% Direct Stocks',
+        desc: 'Use diversified Flexi Cap, Nifty 50 Index, and Mid Cap SIPs as your wealth engine; cap direct stock bets at 15% so single-stock drops never hurt your goals.'
+      });
+
+      document.getElementById('advisor-action-cards').innerHTML = cards.map(c => `
+        <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/60 space-y-1.5">
+          <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold ${c.tagCls}">${c.tag}</span>
+          <h4 class="font-bold text-slate-900 text-sm">${c.title}</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">${c.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    ['sim-pv', 'sim-sip', 'sim-stepup', 'sim-years'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        simUserEdited = true;
+        renderAdvisorAndProjections();
+      });
+    });
+
+    document.getElementById('reset-sim-to-vault-btn').addEventListener('click', () => {
+      simUserEdited = false;
+      renderAdvisorAndProjections();
+      showToast('Synced simulator with your live Net Worth & monthly surplus!');
+    });
 
     /*************************************************************************
      * RENDERING UI
@@ -1254,7 +1568,7 @@
       renderTransactionsTable();
       renderNetWorthLists();
       renderDonutChart();
-      runSimulator(netWorth);
+      renderAdvisorAndProjections();
     }
 
     function renderHomeHoldings() {
@@ -1507,58 +1821,6 @@
       });
     }
 
-    function runSimulator(startingNetWorth) {
-      const assets = vaultData.netWorthItems.filter(i => i.kind === 'asset').reduce((s, i) => s + Number(i.value), 0);
-      const debt = vaultData.netWorthItems.filter(i => i.kind === 'liability').reduce((s, i) => s + Number(i.value), 0);
-      const baseCorpus = typeof startingNetWorth === 'number' ? Math.max(0, startingNetWorth) : Math.max(0, assets - debt);
-
-      const monthlySip = Number(document.getElementById('sim-sip').value) || 0;
-      const annualRate = (Number(document.getElementById('sim-rate').value) || 12) / 100;
-      const years = Number(document.getElementById('sim-years').value) || 15;
-
-      document.getElementById('sim-sip-label').textContent = formatINR(monthlySip);
-      document.getElementById('sim-rate-label').textContent = `${(annualRate * 100).toFixed(1).replace(/\.0$/, '')}%`;
-      document.getElementById('sim-years-label').textContent = `${years} Yrs`;
-
-      const labels = [];
-      const series = [];
-      let corpus = baseCorpus;
-      const mRate = annualRate / 12;
-
-      for (let y = 0; y <= years; y++) {
-        labels.push(`Yr ${y}`);
-        series.push(Math.round(corpus));
-        for (let m = 0; m < 12; m++) corpus = (corpus + monthlySip) * (1 + mRate);
-      }
-
-      document.getElementById('sim-final-corpus').textContent = formatCompactINR(series[years]);
-
-      if (charts.simulator) charts.simulator.destroy();
-      charts.simulator = new Chart(document.getElementById('chart-simulator-line'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Projected Wealth',
-            data: series,
-            borderColor: '#4f46e5',
-            backgroundColor: 'rgba(79, 70, 229, 0.1)',
-            fill: true,
-            tension: 0.35
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { ticks: { callback: v => formatCompactINR(v) }, grid: { color: '#f1f5f9' } },
-            x: { grid: { display: false } }
-          }
-        }
-      });
-    }
-
     /*************************************************************************
      * MODAL & FORM EVENTS
      *************************************************************************/
@@ -1633,7 +1895,6 @@
     });
 
     document.getElementById('tx-type-filter').addEventListener('change', renderTransactionsTable);
-    ['sim-sip', 'sim-rate', 'sim-years'].forEach(id => document.getElementById(id).addEventListener('input', () => runSimulator()));
 
     // Excel / CSV Import
     document.querySelectorAll('.open-import-btn').forEach(btn => {
@@ -1752,17 +2013,17 @@
         ['Kind', 'Fund / Asset Name', 'Category', 'Invested Amount (INR)', 'Current Value (INR)'],
         ['Asset', 'Parag Parikh Flexi Cap Fund', 'Equity & Mutual Funds', 500000, 640000]
       ]), 'Mutual Funds & Assets');
-      XLSX.writeFile(wb, 'WealthPulse_Data_Template.xlsx');
+      XLSX.writeFile(wb, 'CS_Wealth_Lab_Data_Template.xlsx');
     });
 
     document.getElementById('btn-export-backup').addEventListener('click', async () => {
       if (!vaultKey || !vaultSaltB64) return;
       const encrypted = await encryptVault(vaultData, vaultKey);
-      const blob = new Blob([JSON.stringify({ app: 'WealthPulse', salt: vaultSaltB64, ...encrypted }, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({ app: 'CS Wealth Lab', owner: 'Chaitanya Shah', salt: vaultSaltB64, ...encrypted }, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `wealthpulse-backup-${todayStr}.json`;
+      a.download = `cs-wealth-lab-backup-${todayStr}.json`;
       a.click();
       URL.revokeObjectURL(url);
     });
