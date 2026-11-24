@@ -250,6 +250,73 @@
           </div>
         </div>
 
+        <!-- 1-Tap Daily Spend Log (Petrol, Diesel, Tea/Food, Groceries, Custom) -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-4 md:p-5 shadow-2xs space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">⚡ Quick Daily Spend (1-Tap Log)</h3>
+              <p class="text-xs text-slate-400">Today: <strong id="today-spent-val" class="text-slate-800">₹0</strong> • This Week: <strong id="week-spent-val" class="text-slate-800">₹0</strong></p>
+            </div>
+            <button type="button" class="open-quick-btn px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-semibold transition">+ Custom Entry</button>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+            <button type="button" data-preset-title="Petrol" data-preset-cat="Transport & Fuel" data-preset-amt="500" class="daily-preset-btn flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200/80 hover:border-indigo-300 transition text-left">
+              <span class="text-base">⛽</span>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Petrol</div>
+                <div class="text-[10px] text-slate-400">₹500 • Tap to log</div>
+              </div>
+            </button>
+            <button type="button" data-preset-title="Diesel" data-preset-cat="Transport & Fuel" data-preset-amt="1000" class="daily-preset-btn flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200/80 hover:border-indigo-300 transition text-left">
+              <span class="text-base">🚛</span>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Diesel</div>
+                <div class="text-[10px] text-slate-400">₹1,000 • Tap to log</div>
+              </div>
+            </button>
+            <button type="button" data-preset-title="Tea & Snacks" data-preset-cat="Food & Dining" data-preset-amt="100" class="daily-preset-btn flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200/80 hover:border-indigo-300 transition text-left">
+              <span class="text-base">☕</span>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Tea / Snacks</div>
+                <div class="text-[10px] text-slate-400">₹100 • Tap to log</div>
+              </div>
+            </button>
+            <button type="button" data-preset-title="Lunch / Dinner" data-preset-cat="Food & Dining" data-preset-amt="300" class="daily-preset-btn flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200/80 hover:border-indigo-300 transition text-left">
+              <span class="text-base">🍽️</span>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Meal / Food</div>
+                <div class="text-[10px] text-slate-400">₹300 • Tap to log</div>
+              </div>
+            </button>
+            <button type="button" data-preset-title="Groceries & Milk" data-preset-cat="Food & Dining" data-preset-amt="400" class="daily-preset-btn flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200/80 hover:border-indigo-300 transition text-left">
+              <span class="text-base">🛒</span>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Groceries</div>
+                <div class="text-[10px] text-slate-400">₹400 • Tap to log</div>
+              </div>
+            </button>
+            <button type="button" data-preset-title="Bike / Car Care & Toll" data-preset-cat="Transport & Fuel" data-preset-amt="250" class="daily-preset-btn flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200/80 hover:border-indigo-300 transition text-left">
+              <span class="text-base">🏍️</span>
+              <div>
+                <div class="text-xs font-bold text-slate-800">Toll / Care</div>
+                <div class="text-[10px] text-slate-400">₹250 • Tap to log</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Money Given / Lent Reminders Strip (Counts toward Net Worth) -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">🤝 Money Given / To Receive Back (<span id="home-lent-total" class="text-amber-700">₹0</span>)</h3>
+              <p class="text-xs text-slate-400">Pending amounts you lent to someone • Automatically counted in your Net Worth</p>
+            </div>
+            <button type="button" id="open-lent-modal-btn" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 text-xs font-semibold transition">+ Add Reminder</button>
+          </div>
+          <div id="home-lent-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+
         <!-- Monthly Spending Budgets + Goal Progress Preview -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <!-- Monthly Budget Limits -->
@@ -303,6 +370,43 @@
 
       <!-- ==================== TAB 2: DAILY MONEY, BUDGETS & TAX SAVER ==================== -->
       <section id="view-activity" class="view-section space-y-5">
+        <!-- Fast Inline Daily Expense Logger -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">⚡ Log Daily Expense or Income</h3>
+              <p class="text-xs text-slate-400">Pick a quick tag or enter any amount (Petrol, Diesel, Food, Bills)</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" data-fill-title="Petrol" data-fill-cat="Transport & Fuel" class="inline-tag-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-xs font-semibold text-slate-700">⛽ Petrol</button>
+            <button type="button" data-fill-title="Diesel" data-fill-cat="Transport & Fuel" class="inline-tag-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-xs font-semibold text-slate-700">🚛 Diesel</button>
+            <button type="button" data-fill-title="Tea & Snacks" data-fill-cat="Food & Dining" class="inline-tag-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-xs font-semibold text-slate-700">☕ Tea/Snacks</button>
+            <button type="button" data-fill-title="Groceries" data-fill-cat="Food & Dining" class="inline-tag-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-xs font-semibold text-slate-700">🛒 Groceries</button>
+            <button type="button" data-fill-title="Lunch / Dinner" data-fill-cat="Food & Dining" class="inline-tag-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-xs font-semibold text-slate-700">🍽️ Food</button>
+            <button type="button" data-fill-title="Electricity / WiFi Bill" data-fill-cat="Utilities" class="inline-tag-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-xs font-semibold text-slate-700">💡 Bills</button>
+          </div>
+          <form id="inline-daily-form" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
+            <select id="in-type" class="sm:col-span-2 px-3 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white">
+              <option value="expense">Expense (-)</option>
+              <option value="income">Income (+)</option>
+            </select>
+            <input type="text" id="in-title" required placeholder="What for? (e.g. Petrol, Diesel)" class="sm:col-span-3 px-3 py-2 text-xs rounded-xl border border-slate-300" />
+            <input type="number" id="in-amount" required min="1" step="any" placeholder="Amount ₹" class="sm:col-span-2 px-3 py-2 text-xs font-bold rounded-xl border border-slate-300" />
+            <select id="in-cat" class="sm:col-span-3 px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white">
+              <option value="Transport & Fuel">Transport &amp; Fuel</option>
+              <option value="Food & Dining">Food &amp; Dining</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Investments/SIP">Investments/SIP</option>
+              <option value="Housing/Rent">Housing/Rent</option>
+              <option value="Health">Health &amp; Insurance</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Salary & Bonus">Salary &amp; Bonus</option>
+            </select>
+            <button type="submit" class="sm:col-span-2 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition">Save</button>
+          </form>
+        </div>
         <!-- Tax Saver 80C / 80D Progress Card -->
         <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -410,10 +514,12 @@
               <select id="asset-mode-select" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-300 bg-white text-slate-800">
                 <option value="mf">📈 Mutual Fund (Live Daily NAV)</option>
                 <option value="stock">📊 Indian Stock NSE/BSE (Live Price)</option>
+                <option value="pf">🏛️ EPF / PF / PPF Balance</option>
+                <option value="lent">🤝 Money Given / Lent to Someone</option>
                 <option value="gold24">🪙 Gold 24K (Live Daily Rate)</option>
                 <option value="gold22">💍 Gold 22K Jewelry (Live Daily Rate)</option>
                 <option value="silver">🥈 Silver (Live Daily Rate)</option>
-                <option value="fixed">🏦 Bank / FD / PPF / Property</option>
+                <option value="fixed">🏦 Bank / FD / Property</option>
                 <option value="liability">💳 Loan / Credit Card Debt</option>
               </select>
             </div>
@@ -494,6 +600,49 @@
               </div>
 
               <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition">Add Gold / Silver</button>
+            </form>
+
+            <!-- FORM C2: EPF / PF / PPF BALANCE -->
+            <form id="pf-live-form" class="hidden space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">PF / PPF Account Name</label>
+                <input type="text" id="pf-name-input" required value="EPF / PF Balance" placeholder="e.g. EPF Employer PF, PPF Account" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-600 mb-1">Current PF Balance (₹)</label>
+                  <input type="number" id="pf-value-input" required min="0" step="any" placeholder="350000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-600 mb-1">Monthly PF Add (₹, opt.)</label>
+                  <input type="number" id="pf-monthly-input" min="0" step="any" placeholder="3600" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-400">Included directly in your Total Assets, Net Worth &amp; Section 80C tracker.</p>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">Save PF to Net Worth</button>
+            </form>
+
+            <!-- FORM C3: MONEY GIVEN / LENT TO SOMEONE (REMINDER + NET WORTH) -->
+            <form id="lent-live-form" class="hidden space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Person's Name</label>
+                <input type="text" id="lent-person-input" required placeholder="e.g. Rahul, Amit, Friend" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-600 mb-1">Amount Given (₹)</label>
+                  <input type="number" id="lent-amount-input" required min="1" step="any" placeholder="15000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-600 mb-1">Return Due Date</label>
+                  <input type="date" id="lent-due-input" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Note / Reason (optional)</label>
+                <input type="text" id="lent-note-input" placeholder="e.g. Emergency help, Trip split" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+              </div>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition">Save Reminder &amp; Add to Net Worth</button>
             </form>
 
             <!-- FORM D: FIXED ASSET OR LOAN -->
@@ -649,7 +798,13 @@
             <label class="text-xs font-semibold text-slate-700">Note</label>
             <span id="smart-cat-hint" class="text-[11px] text-indigo-600 font-medium"></span>
           </div>
-          <input type="text" id="q-title" required placeholder="e.g. Lunch, Petrol, Salary, Nifty SIP" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          <input type="text" id="q-title" required placeholder="e.g. Petrol, Diesel, Lunch, Salary, SIP" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          <div class="flex flex-wrap gap-1.5 mt-2">
+            <button type="button" data-qtitle="Petrol" data-qcat="Transport & Fuel" class="q-tag-chip px-2 py-0.5 rounded-md bg-slate-100 hover:bg-indigo-50 text-[11px] font-medium text-slate-600">⛽ Petrol</button>
+            <button type="button" data-qtitle="Diesel" data-qcat="Transport & Fuel" class="q-tag-chip px-2 py-0.5 rounded-md bg-slate-100 hover:bg-indigo-50 text-[11px] font-medium text-slate-600">🚛 Diesel</button>
+            <button type="button" data-qtitle="Tea & Snacks" data-qcat="Food & Dining" class="q-tag-chip px-2 py-0.5 rounded-md bg-slate-100 hover:bg-indigo-50 text-[11px] font-medium text-slate-600">☕ Tea/Food</button>
+            <button type="button" data-qtitle="Groceries" data-qcat="Food & Dining" class="q-tag-chip px-2 py-0.5 rounded-md bg-slate-100 hover:bg-indigo-50 text-[11px] font-medium text-slate-600">🛒 Groceries</button>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -690,6 +845,40 @@
         </div>
 
         <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Save Entry</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MONEY GIVEN / LENT REMINDER MODAL ==================== -->
+  <div id="lent-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Money Given / Receivable Reminder</h3>
+          <p class="text-xs text-slate-400">Automatically added to your Net Worth until marked received</p>
+        </div>
+        <button type="button" id="close-lent-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+      </div>
+      <form id="lent-modal-form" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Person's Name</label>
+          <input type="text" id="lm-person" required placeholder="e.g. Rahul, Divyesh, Cousin" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Amount Given (₹)</label>
+            <input type="number" id="lm-amount" required min="1" step="any" placeholder="10000" class="w-full px-3.5 py-2 text-sm font-bold rounded-xl border border-slate-300" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Return Date Reminder</label>
+            <input type="date" id="lm-due" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Note / Reason (optional)</label>
+          <input type="text" id="lm-note" placeholder="e.g. Ticket booking, Personal loan" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition">Save Reminder &amp; Add to Net Worth</button>
       </form>
     </div>
   </div>
@@ -1040,6 +1229,8 @@
     const assetModeSelect = document.getElementById('asset-mode-select');
     const mfLiveForm = document.getElementById('mf-live-form');
     const stockLiveForm = document.getElementById('stock-live-form');
+    const pfLiveForm = document.getElementById('pf-live-form');
+    const lentLiveForm = document.getElementById('lent-live-form');
     const metalLiveForm = document.getElementById('metal-live-form');
     const nwManualForm = document.getElementById('nw-form');
 
@@ -1047,9 +1238,109 @@
       const mode = assetModeSelect.value;
       mfLiveForm.classList.toggle('hidden', mode !== 'mf');
       stockLiveForm.classList.toggle('hidden', mode !== 'stock');
+      pfLiveForm.classList.toggle('hidden', mode !== 'pf');
+      lentLiveForm.classList.toggle('hidden', mode !== 'lent');
       metalLiveForm.classList.toggle('hidden', !['gold24', 'gold22', 'silver'].includes(mode));
       nwManualForm.classList.toggle('hidden', !['fixed', 'liability'].includes(mode));
       if (['gold24', 'gold22', 'silver'].includes(mode)) updateMetalPreview();
+    });
+
+    // Save EPF / PF / PPF Balance into Net Worth
+    pfLiveForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('pf-name-input').value.trim() || 'EPF / PF Balance';
+      const value = Number(document.getElementById('pf-value-input').value) || 0;
+      const monthly = Number(document.getElementById('pf-monthly-input').value) || 0;
+      if (value < 0) return;
+
+      // Update existing PF item if same name exists, else add new
+      const existing = vaultData.netWorthItems.find(i => i.kind === 'asset' && i.category === 'EPF / PPF / NPS' && i.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.value = value;
+        existing.invested = value;
+      } else {
+        vaultData.netWorthItems.push({
+          id: 'nw_pf_' + Date.now(),
+          kind: 'asset',
+          name,
+          category: 'EPF / PPF / NPS',
+          invested: value,
+          value
+        });
+      }
+
+      if (monthly > 0) {
+        vaultData.recurringRules.push({
+          id: 'rule_pf_' + Date.now(),
+          type: 'expense',
+          title: `${name} Monthly Contribution`,
+          amount: monthly,
+          category: 'Investments/SIP',
+          dayOfMonth: 1,
+          startMonth: new Date().toISOString().slice(0, 7),
+          paused: false
+        });
+      }
+
+      document.getElementById('pf-value-input').value = '';
+      document.getElementById('pf-monthly-input').value = '';
+      recordMonthlyNetWorthSnapshot();
+      refreshAllUI();
+      await saveVaultToCloud();
+      showToast(`Saved ${name} (${formatINR(value)}) to Net Worth!`);
+    });
+
+    async function addLentMoneyEntry(person, amount, dueDate, note) {
+      vaultData.netWorthItems.push({
+        id: 'nw_lent_' + Date.now(),
+        kind: 'asset',
+        isLent: true,
+        personName: person,
+        dueDate: dueDate || '',
+        note: note || '',
+        name: `Given to ${person}`,
+        category: 'Money Given / Receivable',
+        invested: amount,
+        value: amount
+      });
+      recordMonthlyNetWorthSnapshot();
+      refreshAllUI();
+      await saveVaultToCloud();
+      showToast(`Added ₹${Math.round(amount).toLocaleString('en-IN')} given to ${person} (included in Net Worth)!`);
+    }
+
+    lentLiveForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const person = document.getElementById('lent-person-input').value.trim();
+      const amount = Number(document.getElementById('lent-amount-input').value);
+      const dueDate = document.getElementById('lent-due-input').value;
+      const note = document.getElementById('lent-note-input').value.trim();
+      if (!person || amount <= 0) return;
+      await addLentMoneyEntry(person, amount, dueDate, note);
+      document.getElementById('lent-person-input').value = '';
+      document.getElementById('lent-amount-input').value = '';
+      document.getElementById('lent-due-input').value = '';
+      document.getElementById('lent-note-input').value = '';
+    });
+
+    document.getElementById('open-lent-modal-btn').addEventListener('click', () => {
+      document.getElementById('lm-person').value = '';
+      document.getElementById('lm-amount').value = '';
+      document.getElementById('lm-due').value = '';
+      document.getElementById('lm-note').value = '';
+      document.getElementById('lent-modal').classList.remove('hidden');
+      document.getElementById('lm-person').focus();
+    });
+    document.getElementById('close-lent-modal').addEventListener('click', () => document.getElementById('lent-modal').classList.add('hidden'));
+    document.getElementById('lent-modal-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const person = document.getElementById('lm-person').value.trim();
+      const amount = Number(document.getElementById('lm-amount').value);
+      const dueDate = document.getElementById('lm-due').value;
+      const note = document.getElementById('lm-note').value.trim();
+      if (!person || amount <= 0) return;
+      document.getElementById('lent-modal').classList.add('hidden');
+      await addLentMoneyEntry(person, amount, dueDate, note);
     });
 
     function updateMetalPreview() {
@@ -1319,6 +1610,8 @@
       document.getElementById('nw-net-total').textContent = formatINR(netWorth);
       document.getElementById('tx-total-count').textContent = vaultData.transactions.length;
 
+      renderDailySpendSummary();
+      renderLentReminders();
       renderBudgets();
       renderTaxTracker();
       renderGoals(netWorth, savedPlusSip);
@@ -1328,6 +1621,85 @@
       renderNetWorthLists();
       renderHistoryChart();
       renderProjectionsAndIdeas(netWorth, savedPlusSip, expenses, income);
+    }
+
+    function renderDailySpendSummary() {
+      const now = new Date();
+      const todayIso = now.toISOString().slice(0, 10);
+      const sevenDaysAgo = new Date(now.getTime() - 6 * 86400000).toISOString().slice(0, 10);
+
+      const dailyExps = vaultData.transactions.filter(t => t.type === 'expense' && t.category !== 'Investments/SIP');
+      const todaySpent = dailyExps.filter(t => t.date === todayIso).reduce((s, t) => s + Number(t.amount), 0);
+      const weekSpent = dailyExps.filter(t => t.date >= sevenDaysAgo && t.date <= todayIso).reduce((s, t) => s + Number(t.amount), 0);
+
+      const tEl = document.getElementById('today-spent-val');
+      const wEl = document.getElementById('week-spent-val');
+      if (tEl) tEl.textContent = formatINR(todaySpent);
+      if (wEl) wEl.textContent = formatINR(weekSpent);
+    }
+
+    function renderLentReminders() {
+      const lentItems = vaultData.netWorthItems.filter(i => i.kind === 'asset' && (i.isLent || i.category === 'Money Given / Receivable'));
+      const totalLent = lentItems.reduce((s, i) => s + Number(i.value), 0);
+      const totalEl = document.getElementById('home-lent-total');
+      if (totalEl) totalEl.textContent = formatINR(totalLent);
+
+      const container = document.getElementById('home-lent-list');
+      if (!container) return;
+
+      if (!lentItems.length) {
+        container.innerHTML = `<div class="col-span-full text-xs text-slate-400 py-2">No pending money lent to anyone. Tap <strong>+ Add Reminder</strong> whenever you lend money so you never forget—and it stays counted in your Net Worth.</div>`;
+        return;
+      }
+
+      const today = new Date().toISOString().slice(0, 10);
+      container.innerHTML = lentItems.map(item => {
+        const person = item.personName || item.name.replace(/^Given to\s+/i, '');
+        const isOverdue = item.dueDate && item.dueDate < today;
+        const isDueToday = item.dueDate && item.dueDate === today;
+        const dueBadge = item.dueDate
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isOverdue ? 'bg-rose-100 text-rose-700' : (isDueToday ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600')}">${isOverdue ? 'Overdue: ' : 'Due: '}${escapeHtml(item.dueDate)}</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500">No due date</span>`;
+
+        return `
+          <div class="p-3.5 rounded-xl bg-amber-50/40 border border-amber-200/70 flex flex-col justify-between gap-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-xs font-bold text-slate-900 truncate">🤝 ${escapeHtml(person)}</div>
+                <div class="text-[11px] text-slate-500 truncate">${escapeHtml(item.note || 'Personal receivable')}</div>
+              </div>
+              <span class="text-sm font-extrabold text-amber-800 shrink-0">${formatINR(item.value)}</span>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-amber-200/50">
+              ${dueBadge}
+              <button type="button" data-received-id="${item.id}" class="mark-received-btn px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold transition">✓ Received</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.mark-received-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const item = vaultData.netWorthItems.find(i => i.id === btn.dataset.receivedId);
+          if (!item) return;
+          const person = item.personName || item.name;
+          const receivedStr = prompt(`How much did ${person} return? (Full amount: ₹${item.value})`, item.value);
+          if (receivedStr === null) return;
+          const got = parseFloat(receivedStr);
+          if (isNaN(got) || got <= 0) return;
+
+          if (got >= Number(item.value)) {
+            vaultData.netWorthItems = vaultData.netWorthItems.filter(i => i.id !== item.id);
+            showToast(`Marked ₹${Math.round(got).toLocaleString('en-IN')} received from ${person}!`);
+          } else {
+            item.value = Math.round(Number(item.value) - got);
+            showToast(`Updated! Remaining from ${person}: ${formatINR(item.value)}`);
+          }
+          recordMonthlyNetWorthSnapshot();
+          refreshAllUI();
+          await saveVaultToCloud();
+        });
+      });
     }
 
     function renderBudgets() {
@@ -1686,6 +2058,57 @@
     document.querySelectorAll('.q-chip').forEach(c => c.addEventListener('click', () => {
       document.getElementById('q-amount').value = (Number(document.getElementById('q-amount').value) || 0) + Number(c.dataset.amt);
     }));
+
+    document.querySelectorAll('.q-tag-chip').forEach(c => c.addEventListener('click', () => {
+      document.getElementById('q-title').value = c.dataset.qtitle;
+      document.getElementById('q-category').value = c.dataset.qcat;
+      document.querySelector('input[name="q-type"][value="expense"]').checked = true;
+    }));
+
+    // 1-Tap Daily Spend Preset Cards (Petrol, Diesel, Tea/Snacks, Meal, Groceries, Toll)
+    document.querySelectorAll('.daily-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openAddModal(false);
+        document.querySelector('input[name="q-type"][value="expense"]').checked = true;
+        document.getElementById('q-title').value = btn.dataset.presetTitle;
+        document.getElementById('q-category').value = btn.dataset.presetCat;
+        document.getElementById('q-amount').value = btn.dataset.presetAmt;
+        document.getElementById('q-amount').select();
+      });
+    });
+
+    // Inline Quick Tag Pills & Inline Daily Form on Tab 2
+    document.querySelectorAll('.inline-tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('in-type').value = 'expense';
+        document.getElementById('in-title').value = btn.dataset.fillTitle;
+        document.getElementById('in-cat').value = btn.dataset.fillCat;
+        document.getElementById('in-amount').focus();
+      });
+    });
+
+    document.getElementById('inline-daily-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const type = document.getElementById('in-type').value;
+      const title = document.getElementById('in-title').value.trim();
+      const amount = Number(document.getElementById('in-amount').value);
+      const category = document.getElementById('in-cat').value;
+      if (!title || amount <= 0) return;
+
+      vaultData.transactions.push({
+        id: 'tx_' + Date.now(),
+        type,
+        title,
+        amount,
+        date: new Date().toISOString().slice(0, 10),
+        category
+      });
+      document.getElementById('in-title').value = '';
+      document.getElementById('in-amount').value = '';
+      refreshAllUI();
+      await saveVaultToCloud();
+      showToast(`Saved ${title} (${formatINR(amount)})`);
+    });
 
     document.getElementById('quick-form').addEventListener('submit', async (e) => {
       e.preventDefault();
