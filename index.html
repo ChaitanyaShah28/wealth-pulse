@@ -95,6 +95,7 @@
       </div>
       <div class="flex items-center gap-1.5">
         <button type="button" class="privacy-toggle-btn w-7 h-7 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center" title="Hide/Show ₹ amounts">👁️</button>
+        <button type="button" class="export-readable-trigger w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold flex items-center justify-center" title="Export Excel">↓</button>
         <button type="button" id="mob-help-btn" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold">?</button>
         <button type="button" class="open-quick-btn px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">+ Add</button>
       </div>
@@ -133,6 +134,9 @@
       <div class="p-3 border-t border-slate-100 space-y-2">
         <button type="button" id="desk-help-btn" class="w-full py-2 px-3 rounded-xl bg-indigo-50/70 hover:bg-indigo-100/70 text-indigo-700 text-xs font-semibold transition">
           💡 Quick 30-Sec Guide
+        </button>
+        <button type="button" id="btn-export-readable-xlsx" class="w-full py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">
+          ↓ Export Readable Excel
         </button>
         <button type="button" class="open-import-btn w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">
           ↑ Upload Excel / CSV
@@ -1160,30 +1164,38 @@
      *************************************************************************/
     const TROY_OZ_TO_GRAMS = 31.1034768;
 
+    function fetchWithTimeout(url, ms = 2500) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+    }
+
     async function fetchStockQuoteINR(symbol) {
       const clean = symbol.trim().toUpperCase().replace(/\.NS$|\.BO$/i, '');
-      const proxies = [
-        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-        (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-        (u) => u
+      if (!clean) return null;
+
+      // Race fast endpoints with strict 2.5s timeout so it never hangs
+      const candidates = [
+        { exchange: 'NSE', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
+        { exchange: 'NSE', url: `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
+        { exchange: 'BSE', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.BO?interval=1d&range=1d`)}` }
       ];
-      for (const suffix of ['.NS', '.BO']) {
-        const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(clean + suffix)}?interval=1d&range=1d`;
-        for (const makeUrl of proxies) {
-          try {
-            const res = await fetch(makeUrl(targetUrl));
-            if (!res.ok) continue;
-            const text = await res.text();
-            const data = JSON.parse(text);
-            const meta = data?.chart?.result?.[0]?.meta;
-            const price = meta?.regularMarketPrice || meta?.previousClose;
-            if (price && Number(price) > 0) {
-              return { symbol: clean, exchange: suffix === '.NS' ? 'NSE' : 'BSE', price: Number(price) };
-            }
-          } catch {}
-        }
+
+      const attempts = candidates.map(async (c) => {
+        const res = await fetchWithTimeout(c.url, 2500);
+        if (!res.ok) throw new Error('bad status');
+        const data = JSON.parse(await res.text());
+        const meta = data?.chart?.result?.[0]?.meta;
+        const price = Number(meta?.regularMarketPrice || meta?.previousClose);
+        if (!price || price <= 0) throw new Error('no price');
+        return { symbol: clean, exchange: c.exchange, price };
+      });
+
+      try {
+        return await Promise.any(attempts);
+      } catch {
+        return null;
       }
-      return null;
     }
 
     async function fetchLiveMarketData(showNotification = false) {
@@ -1240,14 +1252,16 @@
         }));
 
         const stockItems = vaultData.netWorthItems.filter(i => i.liveType === 'stock' && i.symbol);
-        await Promise.all(stockItems.map(async (st) => {
-          const quote = await fetchStockQuoteINR(st.symbol);
-          if (quote && quote.price > 0) {
-            st.unitPrice = quote.price;
-            st.value = Math.round(Number(st.qty) * quote.price);
-            updatedAny = true;
-          }
-        }));
+        if (stockItems.length > 0) {
+          await Promise.all(stockItems.map(async (st) => {
+            const quote = await fetchStockQuoteINR(st.symbol);
+            if (quote && quote.price > 0) {
+              st.unitPrice = quote.price;
+              st.value = Math.round(Number(st.qty) * quote.price);
+              updatedAny = true;
+            }
+          }));
+        }
 
         updateMetalPreview();
         if (updatedAny) {
@@ -1536,9 +1550,28 @@
       const manualLive = Number(document.getElementById('stock-live-price-input').value) || 0;
       if (!rawSym || qty <= 0) return;
 
-      const q = manualLive > 0 ? null : await fetchStockQuoteINR(rawSym);
-      const price = q ? q.price : (manualLive > 0 ? manualLive : avg);
-      if (!price || price <= 0) return alert('Could not fetch live price automatically. Please enter the current share price in the "Live ₹" box.');
+      const submitBtn = stockLiveForm.querySelector('button[type="submit"]');
+      const prevBtnText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
+
+      let price = manualLive > 0 ? manualLive : 0;
+      let exchange = 'NSE';
+      if (!price) {
+        const q = await fetchStockQuoteINR(rawSym);
+        if (q && q.price > 0) {
+          price = q.price;
+          exchange = q.exchange;
+        } else if (avg > 0) {
+          price = avg;
+        }
+      }
+
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = prevBtnText || 'Add Live Stock'; }
+
+      if (!price || price <= 0) {
+        document.getElementById('stock-live-price-input').focus();
+        return alert('Live price lookup timed out. Type the current price in "Live ₹" and tap Add Live Stock.');
+      }
 
       vaultData.netWorthItems.push({
         id: 'nw_st_' + Date.now(),
@@ -2565,6 +2598,78 @@
       await saveVaultToCloud();
       showToast('Imported successfully!');
     });
+
+    function exportReadableWorkbook() {
+      if (!vaultData) return;
+      const wb = XLSX.utils.book_new();
+      const stamp = new Date().toISOString().slice(0, 10);
+
+      // Sheet 1: Readable Cash & Bank Transactions
+      const txRows = [
+        ['Date', 'Type', 'Category', 'Note / Description', 'Amount (INR)', 'Auto-Recurring']
+      ];
+      const sortedTx = [...(vaultData.transactions || [])].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+      for (const t of sortedTx) {
+        txRows.push([
+          t.date || '',
+          t.type === 'income' ? 'Income' : 'Expense / SIP',
+          t.category || '',
+          t.title || '',
+          Number(t.amount) || 0,
+          t.isAuto ? 'Yes' : 'No'
+        ]);
+      }
+      const wsTx = XLSX.utils.aoa_to_sheet(txRows);
+      wsTx['!cols'] = [{ wch: 14 }, { wch: 14 }, { wch: 22 }, { wch: 32 }, { wch: 16 }, { wch: 14 }];
+      XLSX.utils.book_append_sheet(wb, wsTx, 'Transactions');
+
+      // Sheet 2: Readable Holdings, PF, Lent & Loans
+      const nwRows = [
+        ['Kind', 'Category', 'Name / Scheme', 'Units / Grams / Qty', 'Live Rate / NAV (INR)', 'Invested Cost (INR)', 'Current Value (INR)', 'Gain / Loss (INR)', 'Due Date / Note']
+      ];
+      for (const item of (vaultData.netWorthItems || [])) {
+        const inv = Number(item.invested) || 0;
+        const cur = Number(item.value) || 0;
+        const pnl = item.kind === 'asset' ? (cur - inv) : 0;
+        const qtyOrGrams = item.liveType === 'mf' ? (item.units || '') : (item.liveType === 'stock' ? (item.qty || '') : (item.grams || ''));
+        const rate = item.liveType === 'mf' ? (item.latestNav || '') : (item.unitPrice || '');
+        const extra = item.dueDate ? `Due: ${item.dueDate}${item.note ? ' — ' + item.note : ''}` : (item.note || '');
+        nwRows.push([
+          item.kind === 'liability' ? 'Loan / Debt' : 'Asset / Holding',
+          item.category || '',
+          item.name || '',
+          qtyOrGrams,
+          rate,
+          inv,
+          cur,
+          pnl,
+          extra
+        ]);
+      }
+      const wsNw = XLSX.utils.aoa_to_sheet(nwRows);
+      wsNw['!cols'] = [{ wch: 14 }, { wch: 24 }, { wch: 38 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 16 }, { wch: 28 }];
+      XLSX.utils.book_append_sheet(wb, wsNw, 'Holdings & Net Worth');
+
+      // Sheet 3: Goals & Monthly Rules
+      const extraRows = [
+        ['Section', 'Title', 'Amount (INR)', 'Schedule / Target']
+      ];
+      for (const g of (vaultData.goals || [])) {
+        extraRows.push(['Goal', g.name || '', Number(g.target) || 0, 'Target Milestone']);
+      }
+      for (const r of (vaultData.recurringRules || [])) {
+        extraRows.push(['Monthly Rule', r.title || '', Number(r.amount) || 0, `Day ${r.dayOfMonth || 1} (${r.type || 'expense'})`]);
+      }
+      const wsExtra = XLSX.utils.aoa_to_sheet(extraRows);
+      wsExtra['!cols'] = [{ wch: 16 }, { wch: 34 }, { wch: 16 }, { wch: 24 }];
+      XLSX.utils.book_append_sheet(wb, wsExtra, 'Goals & Auto-Pay');
+
+      XLSX.writeFile(wb, `CS_Wealth_Lab_Report_${stamp}.xlsx`);
+      showToast('Downloaded readable Excel workbook (.xlsx)!');
+    }
+
+    document.getElementById('btn-export-readable-xlsx')?.addEventListener('click', exportReadableWorkbook);
+    document.querySelectorAll('.export-readable-trigger').forEach(b => b.addEventListener('click', exportReadableWorkbook));
 
     document.getElementById('download-template-btn').addEventListener('click', () => {
       const wb = XLSX.utils.book_new();
