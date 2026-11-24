@@ -23,6 +23,7 @@
     .view-section.active { display: block; }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    body.privacy-masked .money-val { filter: blur(6px); user-select: none; transition: filter 0.15s ease; }
   </style>
 </head>
 <body class="antialiased selection:bg-indigo-100 selection:text-indigo-900 pb-24 md:pb-0">
@@ -92,7 +93,8 @@
         </div>
         <span class="font-bold text-slate-900 text-sm">CS Wealth Lab</span>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5">
+        <button type="button" class="privacy-toggle-btn w-7 h-7 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center" title="Hide/Show ₹ amounts">👁️</button>
         <button type="button" id="mob-help-btn" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold">?</button>
         <button type="button" class="open-quick-btn px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">+ Add</button>
       </div>
@@ -173,6 +175,11 @@
             <button type="button" data-period="last-month" class="period-pill px-3 py-1 rounded-lg text-slate-600 transition">Last Month</button>
             <button type="button" data-period="all" class="period-pill px-3 py-1 rounded-lg text-slate-600 transition">All Time</button>
           </div>
+
+          <button type="button" class="privacy-toggle-btn hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition" title="Hide/Show all ₹ figures">
+            <span class="privacy-icon">👁️</span>
+            <span class="privacy-label">Hide ₹</span>
+          </button>
 
           <button type="button" class="open-quick-btn hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
             <span>+ Add Entry</span>
@@ -664,23 +671,103 @@
             </form>
           </div>
 
-          <!-- Assets & Liabilities Lists -->
-          <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Assets & Liabilities Lists (Minimizable / Collapsible) -->
+          <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
             <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="font-bold text-emerald-700 text-sm">What You Own (Assets)</h3>
-                <span class="text-[11px] text-slate-400">Tap ₹ to edit</span>
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-emerald-700 text-sm">What You Own (Assets)</h3>
+                  <span id="assets-count-badge" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-slate-400 hidden sm:inline">Tap ₹ to edit</span>
+                  <button type="button" data-collapse-target="assets-list-wrap" class="collapse-list-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold">Minimize −</button>
+                </div>
               </div>
-              <div id="assets-list" class="space-y-2.5"></div>
+              <div id="assets-list-wrap" class="mt-3">
+                <div id="assets-list" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1"></div>
+              </div>
             </div>
 
             <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="font-bold text-rose-700 text-sm">What You Owe (Loans)</h3>
-                <span class="text-[11px] text-slate-400">Tap ₹ to edit</span>
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-rose-700 text-sm">What You Owe (Loans)</h3>
+                  <span id="liabilities-count-badge" class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-bold">0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-slate-400 hidden sm:inline">Tap ₹ to edit</span>
+                  <button type="button" data-collapse-target="liabilities-list-wrap" class="collapse-list-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold">Minimize −</button>
+                </div>
               </div>
-              <div id="liabilities-list" class="space-y-2.5"></div>
+              <div id="liabilities-list-wrap" class="mt-3">
+                <div id="liabilities-list" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1"></div>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Sector & Asset Allocation Breakdown + Safety vs Growth + Rebalancing Meter -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Left: Where Your Money Is Invested (Sectors + Safe vs High-Growth) -->
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">📊 Where Your Money Is Invested</h3>
+                <p class="text-xs text-slate-500">Live split across Mutual Funds, Stocks, Metals, PF/FD &amp; Safe vs. Growth</p>
+              </div>
+            </div>
+
+            <!-- Safe vs Growth Pill Bar -->
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+              <div class="flex items-center justify-between text-xs font-semibold">
+                <span class="text-emerald-700">🛡️ Safe &amp; Fixed (<span id="safe-pct-label">0%</span>)</span>
+                <span class="text-indigo-700">🚀 Growth &amp; Market (<span id="growth-pct-label">0%</span>)</span>
+              </div>
+              <div class="w-full h-2.5 bg-indigo-100 rounded-full overflow-hidden flex">
+                <div id="safe-vs-growth-bar" class="h-full bg-emerald-500 transition-all" style="width: 50%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-500">
+                <span>PF, FD, Gold/Silver, Lent: <strong id="safe-amt-label" class="money-val">₹0</strong></span>
+                <span>Mutual Funds &amp; Stocks: <strong id="growth-amt-label" class="money-val">₹0</strong></span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+              <div class="h-48 flex items-center justify-center">
+                <canvas id="chart-sector-donut"></canvas>
+              </div>
+              <div id="sector-breakdown-list" class="space-y-2 text-xs"></div>
+            </div>
+
+            <!-- Future Potential & Risk Guide per Sector -->
+            <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[11px]">
+              <div class="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                <div class="font-bold text-emerald-900">🛡️ Safest Buckets (7%–9% p.a.)</div>
+                <div class="text-emerald-800/80 mt-0.5">EPF/PPF, Bank FDs &amp; Gold/Silver protect capital and beat inflation steadily.</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-indigo-50/60 border border-indigo-100">
+                <div class="font-bold text-indigo-900">🚀 Wealth Engines (12%–15%+ p.a.)</div>
+                <div class="text-indigo-800/80 mt-0.5">Equity Mutual Funds &amp; Direct Stocks drive 5–15 yr compounding potential.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Asset Allocation & Rebalancing Meter -->
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">⚖️ Asset Allocation &amp; Rebalancing Meter</h3>
+                <p class="text-xs text-slate-500">Compares your actual mix against an ideal balanced wealth target</p>
+              </div>
+              <button type="button" id="edit-target-alloc-btn" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">Edit Target %</button>
+            </div>
+
+            <div id="rebalance-advice-banner" class="p-3 rounded-xl bg-indigo-50 border border-indigo-200/80 text-xs text-indigo-950 font-medium">
+              Calculating your ideal next investment bucket...
+            </div>
+
+            <div id="rebalance-bars-list" class="space-y-3"></div>
           </div>
         </div>
 
@@ -1002,10 +1089,11 @@
       recurringRules: [],
       goals: [],
       budgets: { food: 12000, shop: 10000, fuel: 6000 },
+      targetAlloc: { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
       nwHistory: []
     };
 
-    let charts = { history: null, simulator: null };
+    let charts = { history: null, simulator: null, sector: null };
     const enc = new TextEncoder();
     const dec = new TextDecoder();
 
@@ -1592,6 +1680,23 @@
       if (Math.abs(n) >= 100000) return '₹' + (n / 100000).toFixed(2) + ' L';
       return formatINR(n);
     }
+    function applyPrivacyMaskToDom() {
+      const isMasked = document.body.classList.contains('privacy-masked');
+      document.querySelectorAll('.privacy-icon').forEach(el => el.textContent = isMasked ? '🙈' : '👁️');
+      document.querySelectorAll('.privacy-label').forEach(el => el.textContent = isMasked ? 'Show ₹' : 'Hide ₹');
+      // Tag key KPI & list elements containing ₹ with money-val class
+      const ids = ['kpi-net-worth', 'kpi-net-worth-sub', 'kpi-income', 'kpi-expenses', 'kpi-savings',
+        'today-spent-val', 'week-spent-val', 'home-lent-total', 'nw-assets-total', 'nw-total-gain-sub',
+        'nw-debt-total', 'nw-net-total', 'proj-9pct-val', 'proj-12pct-val', 'proj-15pct-val',
+        'tax-80c-text', 'tax-80d-text', 'safe-amt-label', 'growth-amt-label'];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('money-val');
+      });
+      document.querySelectorAll('#assets-list, #liabilities-list, #recent-list, #tx-table-body, #home-lent-list, #home-budgets-list, #sector-breakdown-list, #rebalance-bars-list').forEach(box => {
+        box.classList.add('money-val');
+      });
+    }
     function escapeHtml(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
@@ -1639,8 +1744,10 @@
       renderRecentList(periodTx);
       renderTransactionsTable();
       renderNetWorthLists();
+      renderSectorAndRebalance();
       renderHistoryChart();
       renderProjectionsAndIdeas(netWorth, savedPlusSip, expenses, income);
+      applyPrivacyMaskToDom();
     }
 
     function renderDailySpendSummary() {
@@ -1817,6 +1924,173 @@
         });
       });
     }
+
+    function renderSectorAndRebalance() {
+      const assets = vaultData.netWorthItems.filter(i => i.kind === 'asset');
+      const total = assets.reduce((s, i) => s + Number(i.value), 0);
+
+      let mfVal = 0, stockVal = 0, metalVal = 0, pfDebtVal = 0, lentCashVal = 0;
+      for (const item of assets) {
+        const v = Number(item.value) || 0;
+        const cat = String(item.category || '');
+        if (item.liveType === 'mf' || /mutual/i.test(cat)) mfVal += v;
+        else if (item.liveType === 'stock' || /stock/i.test(cat)) stockVal += v;
+        else if (['gold24', 'gold22', 'silver'].includes(item.liveType) || /gold|silver/i.test(cat)) metalVal += v;
+        else if (item.isLent || /given|receivable/i.test(cat)) lentCashVal += v;
+        else pfDebtVal += v; // EPF, PPF, FD, Bank, Property
+      }
+
+      // Safe vs Growth bar
+      const safeTotal = pfDebtVal + metalVal + lentCashVal;
+      const growthTotal = mfVal + stockVal;
+      const safePct = total > 0 ? Math.round((safeTotal / total) * 100) : 0;
+      const growthPct = total > 0 ? (100 - safePct) : 0;
+
+      document.getElementById('safe-pct-label').textContent = `${safePct}%`;
+      document.getElementById('growth-pct-label').textContent = `${growthPct}%`;
+      document.getElementById('safe-amt-label').textContent = formatCompactINR(safeTotal);
+      document.getElementById('growth-amt-label').textContent = formatCompactINR(growthTotal);
+      document.getElementById('safe-vs-growth-bar').style.width = `${total > 0 ? safePct : 50}%`;
+
+      const sectors = [
+        { label: 'Equity Mutual Funds', val: mfVal, color: '#4f46e5', key: 'mf', tag: 'Core Growth' },
+        { label: 'Direct Stocks', val: stockVal, color: '#f59e0b', key: 'stocks', tag: 'High Upside' },
+        { label: 'EPF / PF / FD / Fixed', val: pfDebtVal, color: '#10b981', key: 'pfDebt', tag: 'Safe Fixed' },
+        { label: 'Gold & Silver (Metals)', val: metalVal, color: '#eab308', key: 'metals', tag: 'Inflation Hedge' },
+        { label: 'Lent / Receivables', val: lentCashVal, color: '#06b6d4', key: 'lentCash', tag: 'Short-Term' }
+      ];
+
+      // Sector Donut Chart
+      const sectorCanvas = document.getElementById('chart-sector-donut');
+      if (sectorCanvas) {
+        if (charts.sector) charts.sector.destroy();
+        const nonZero = sectors.filter(s => s.val > 0);
+        charts.sector = new Chart(sectorCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: nonZero.length ? nonZero.map(s => s.label) : ['No Assets Yet'],
+            datasets: [{
+              data: nonZero.length ? nonZero.map(s => s.val) : [1],
+              backgroundColor: nonZero.length ? nonZero.map(s => s.color) : ['#e2e8f0'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '64%',
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      // Sector List
+      document.getElementById('sector-breakdown-list').innerHTML = sectors.map(s => {
+        const pct = total > 0 ? ((s.val / total) * 100).toFixed(1) : '0.0';
+        return `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${s.color}"></span>
+              <span class="truncate font-medium text-slate-700">${s.label}</span>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-bold text-slate-900">${formatCompactINR(s.val)}</span>
+              <span class="text-[10px] text-slate-400 ml-1">(${pct}%)</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Asset Allocation & Rebalancing Meter
+      const target = vaultData.targetAlloc || { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 };
+      let biggestGap = { label: 'Equity Mutual Funds', diffPct: 0, neededAmt: 0 };
+
+      const barsHtml = sectors.map(s => {
+        const actualPct = total > 0 ? (s.val / total) * 100 : 0;
+        const tgtPct = Number(target[s.key]) || 0;
+        const diffPct = tgtPct - actualPct; // positive = underweight
+        const targetAmt = (tgtPct / 100) * total;
+        const gapAmt = Math.round(targetAmt - s.val);
+
+        if (diffPct > biggestGap.diffPct) {
+          biggestGap = { label: s.label, diffPct, neededAmt: gapAmt };
+        }
+
+        const statusBadge = total === 0
+          ? `<span class="text-slate-400">Target ${tgtPct}%</span>`
+          : (Math.abs(diffPct) <= 3
+            ? `<span class="text-emerald-600 font-bold">✓ On Target (${actualPct.toFixed(0)}% / ${tgtPct}%)</span>`
+            : (diffPct > 0
+              ? `<span class="text-indigo-600 font-bold">Underweight by ${diffPct.toFixed(0)}% (+${formatCompactINR(gapAmt)})</span>`
+              : `<span class="text-amber-700 font-bold">Overweight by ${Math.abs(diffPct).toFixed(0)}%</span>`));
+
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="font-semibold text-slate-700">${s.label}</span>
+              <span class="text-[11px]">${statusBadge}</span>
+            </div>
+            <div class="relative w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all" style="width:${Math.min(100, actualPct)}%; background:${s.color}"></div>
+              <div class="absolute top-0 bottom-0 w-0.5 bg-slate-900" style="left:${Math.min(99, tgtPct)}%" title="Target ${tgtPct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('rebalance-bars-list').innerHTML = barsHtml;
+
+      const banner = document.getElementById('rebalance-advice-banner');
+      if (total === 0) {
+        banner.textContent = 'Add your Mutual Funds, Stocks, Gold, or PF above to see live rebalancing recommendations.';
+      } else if (biggestGap.diffPct > 3) {
+        banner.innerHTML = `💡 <strong>Next Best Move:</strong> Your <strong>${biggestGap.label}</strong> bucket is underweight by <strong>${biggestGap.diffPct.toFixed(1)}%</strong>. Direct your next <strong>${formatCompactINR(biggestGap.neededAmt)}</strong> here to stay balanced.`;
+      } else {
+        banner.innerHTML = `🎉 <strong>Well Balanced!</strong> All your asset classes are within ±3% of your target allocation.`;
+      }
+    }
+
+    // Privacy Eye Toggle
+    if (localStorage.getItem('cs_privacy_masked') === '1') {
+      document.body.classList.add('privacy-masked');
+    }
+    document.querySelectorAll('.privacy-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.classList.toggle('privacy-masked');
+        localStorage.setItem('cs_privacy_masked', document.body.classList.contains('privacy-masked') ? '1' : '0');
+        applyPrivacyMaskToDom();
+      });
+    });
+
+    // Minimize / Expand What You Own (Assets) & What You Owe (Loans)
+    document.querySelectorAll('.collapse-list-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.collapseTarget);
+        if (!target) return;
+        const isHidden = target.classList.toggle('hidden');
+        btn.textContent = isHidden ? 'Expand +' : 'Minimize −';
+      });
+    });
+
+    // Edit Target Allocation %
+    document.getElementById('edit-target-alloc-btn').addEventListener('click', async () => {
+      const t = vaultData.targetAlloc || { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 };
+      const inp = prompt(
+        'Enter Target % for: Mutual Funds, Stocks, PF/FD, Gold/Silver, Lent/Cash (comma-separated, must total 100):',
+        `${t.mf}, ${t.stocks}, ${t.pfDebt}, ${t.metals}, ${t.lentCash}`
+      );
+      if (!inp) return;
+      const parts = inp.split(',').map(x => parseFloat(x.trim()));
+      if (parts.length !== 5 || parts.some(isNaN)) {
+        alert('Please enter 5 numbers separated by commas, e.g.: 50, 15, 20, 10, 5');
+        return;
+      }
+      vaultData.targetAlloc = { mf: parts[0], stocks: parts[1], pfDebt: parts[2], metals: parts[3], lentCash: parts[4] };
+      renderSectorAndRebalance();
+      await saveVaultToCloud();
+      showToast('Updated target asset allocation!');
+    });
 
     function renderHistoryChart() {
       const hist = vaultData.nwHistory || [];
@@ -2013,6 +2287,8 @@
         `;
       }).join('') : `<div class="text-xs text-slate-400 py-5 text-center">Nothing added yet.</div>`;
 
+      document.getElementById('assets-count-badge').textContent = assets.length;
+      document.getElementById('liabilities-count-badge').textContent = liabilities.length;
       document.getElementById('assets-list').innerHTML = buildHtml(assets, 'text-emerald-600');
       document.getElementById('liabilities-list').innerHTML = buildHtml(liabilities, 'text-rose-600');
 
