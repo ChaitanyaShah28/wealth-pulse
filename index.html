@@ -1208,8 +1208,20 @@
 
     async function fetchStockQuoteINR(symbol) {
       const clean = symbol.trim().toUpperCase().replace(/\.NS$|\.BO$/i, '');
-      if (!clean) return null;
+      if (!clean || clean === 'NSE' || clean === 'BSE') return null;
 
+      // 1. Primary: First-party Vercel serverless endpoint (/api/quote) — fast & CORS-free
+      try {
+        const res = await fetchWithTimeout(`/api/quote?symbol=${encodeURIComponent(clean)}`, 4000);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Number(data.price) > 0) {
+            return { symbol: data.symbol || clean, exchange: data.exchange || 'NSE', price: Number(data.price) };
+          }
+        }
+      } catch {}
+
+      // 2. Fallback: Direct client-side race if opened locally without Vercel backend
       try {
         return await Promise.any([
           fetchGoogleFinanceINR(clean, 'NSE'),
@@ -1553,11 +1565,16 @@
 
     // Live Stock Check & Add
     document.getElementById('check-stock-btn').addEventListener('click', async () => {
-      const sym = document.getElementById('stock-symbol-input').value.trim();
+      const sym = document.getElementById('stock-symbol-input').value.trim().toUpperCase();
       if (!sym) return;
       const prev = document.getElementById('stock-quote-preview');
+      if (sym === 'NSE' || sym === 'BSE') {
+        prev.textContent = 'Enter a company ticker symbol like RELIANCE, TCS, or HDFCBANK (not "NSE").';
+        document.getElementById('stock-symbol-input').focus();
+        return;
+      }
       const chkBtn = document.getElementById('check-stock-btn');
-      prev.textContent = 'Checking NSE/BSE...';
+      prev.textContent = 'Checking live NSE/BSE price...';
       chkBtn.disabled = true;
       const q = await fetchStockQuoteINR(sym);
       chkBtn.disabled = false;
@@ -1565,7 +1582,7 @@
         prev.textContent = `✓ ${q.symbol} (${q.exchange}): ₹${q.price.toLocaleString('en-IN')}`;
         document.getElementById('stock-live-price-input').value = q.price;
       } else {
-        prev.textContent = 'Type current share price in "Live ₹" below and tap Add Live Stock';
+        prev.textContent = 'Live price unavailable — type price in "Live ₹" below or use Buy ₹';
         document.getElementById('stock-live-price-input').focus();
       }
     });
