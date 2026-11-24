@@ -1164,48 +1164,59 @@
      *************************************************************************/
     const TROY_OZ_TO_GRAMS = 31.1034768;
 
-    function fetchWithTimeout(url, ms = 2200) {
+    function fetchWithTimeout(url, ms = 3000) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), ms);
       return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
     }
 
-    function extractQuotePrice(jsonObj) {
-      if (!jsonObj) return 0;
-      const meta = jsonObj?.chart?.result?.[0]?.meta;
-      const p1 = Number(meta?.regularMarketPrice || meta?.previousClose || 0);
-      if (p1 > 0) return p1;
-      const p2 = Number(jsonObj?.price?.regularMarketPrice?.raw || jsonObj?.price?.regularMarketPrice || 0);
-      if (p2 > 0) return p2;
-      const p3 = Number(jsonObj?.c || jsonObj?.price || 0);
-      return p3 > 0 ? p3 : 0;
+    async function fetchGoogleFinanceINR(clean, exchange = 'NSE') {
+      const gfUrl = `https://www.google.com/finance/quote/${encodeURIComponent(clean)}:${exchange}`;
+      const proxyUrls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(gfUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(gfUrl)}`
+      ];
+      return Promise.any(proxyUrls.map(async (pUrl) => {
+        const res = await fetchWithTimeout(pUrl, 3000);
+        if (!res.ok) throw new Error('gf status');
+        const htmlText = await res.text();
+        const m = htmlText.match(/data-last-price="([0-9.]+)"/);
+        const price = m ? parseFloat(m[1]) : 0;
+        if (!price || price <= 0) throw new Error('gf parse');
+        return { symbol: clean, exchange, price };
+      }));
+    }
+
+    async function fetchYahooQuoteINR(clean, exchange = 'NSE') {
+      const suffix = exchange === 'BSE' ? '.BO' : '.NS';
+      const yUrl = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(clean + suffix)}?interval=1d&range=1d`;
+      const proxyUrls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(yUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yUrl)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(yUrl)}`
+      ];
+      return Promise.any(proxyUrls.map(async (pUrl) => {
+        const res = await fetchWithTimeout(pUrl, 3000);
+        if (!res.ok) throw new Error('yf status');
+        const parsed = JSON.parse(await res.text());
+        const meta = parsed?.chart?.result?.[0]?.meta;
+        const price = Number(meta?.regularMarketPrice || meta?.previousClose || 0);
+        if (!price || price <= 0) throw new Error('yf parse');
+        return { symbol: clean, exchange, price };
+      }));
     }
 
     async function fetchStockQuoteINR(symbol) {
       const clean = symbol.trim().toUpperCase().replace(/\.NS$|\.BO$/i, '');
       if (!clean) return null;
 
-      // Try multiple public CORS/quote endpoints in parallel with strict timeout
-      const endpoints = [
-        { exchange: 'NSE', url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
-        { exchange: 'NSE', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
-        { exchange: 'NSE', url: `https://thingproxy.freeboard.io/fetch/https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d` },
-        { exchange: 'BSE', url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.BO?interval=1d&range=1d`)}` },
-        { exchange: 'BSE', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.BO?interval=1d&range=1d`)}` }
-      ];
-
-      const attempts = endpoints.map(async (ep) => {
-        const res = await fetchWithTimeout(ep.url, 2200);
-        if (!res.ok) throw new Error('status');
-        const txt = await res.text();
-        const parsed = JSON.parse(txt);
-        const price = extractQuotePrice(parsed);
-        if (!price || price <= 0) throw new Error('price');
-        return { symbol: clean, exchange: ep.exchange, price };
-      });
-
       try {
-        return await Promise.any(attempts);
+        return await Promise.any([
+          fetchGoogleFinanceINR(clean, 'NSE'),
+          fetchYahooQuoteINR(clean, 'NSE'),
+          fetchGoogleFinanceINR(clean, 'BSE'),
+          fetchYahooQuoteINR(clean, 'BSE')
+        ]);
       } catch {
         return null;
       }
@@ -1587,7 +1598,8 @@
 
       if (!price || price <= 0) {
         document.getElementById('stock-live-price-input').focus();
-        return alert('Live price lookup timed out. Type the current price in "Live ₹" and tap Add Live Stock.');
+        document.getElementById('stock-quote-preview').textContent = 'Enter either "Buy ₹" or "Live ₹" above to add this stock.';
+        return;
       }
 
       vaultData.netWorthItems.push({
