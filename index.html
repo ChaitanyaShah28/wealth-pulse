@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WealthPulse — Zero-Knowledge Encrypted Personal Finance OS</title>
+  <title>WealthPulse — Personal Finance OS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
     .tab-btn.active { background-color: #eef2ff; color: #4f46e5; font-weight: 600; }
     .tab-btn.active svg { color: #4f46e5; }
+    .mob-tab-btn.active { color: #4f46e5; font-weight: 700; }
     .view-section { display: none; }
     .view-section.active { display: block; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
   </style>
 </head>
-<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900 pb-20 md:pb-0">
 
   <!-- ==================== AUTH & VAULT UNLOCK OVERLAY ==================== -->
   <div id="auth-screen" class="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-slate-100">
@@ -68,7 +70,7 @@
               <span class="text-[11px] font-semibold text-emerald-600">Client-Side Key</span>
             </div>
             <input type="password" id="vault-passphrase" required minlength="4" placeholder="Secret passphrase to encrypt/decrypt vault" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-            <p class="text-[11px] text-slate-400 mt-1">Derived locally via PBKDF2 (150k iterations). Never leaves your browser.</p>
+            <p class="text-[11px] text-slate-400 mt-1">Encrypts your data locally before syncing to the cloud.</p>
           </div>
 
           <div id="confirm-passphrase-group" class="hidden">
@@ -76,26 +78,35 @@
             <input type="password" id="vault-passphrase-confirm" placeholder="Re-enter vault passphrase" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
           </div>
 
+          <!-- Remember Vault Key Toggle -->
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+            <input type="checkbox" id="remember-vault-cb" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500" />
+            <div>
+              <div class="text-xs font-semibold text-slate-700">Remember Vault on This Device</div>
+              <div class="text-[11px] text-slate-400">Skip re-typing passphrase on reloads (uncheck on shared PCs)</div>
+            </div>
+          </label>
+
           <div id="starter-data-group" class="hidden space-y-2 pt-1">
             <label class="block text-xs font-semibold text-slate-700">Initial Vault Setup</label>
             <label class="flex items-start gap-2.5 p-3 rounded-xl border border-indigo-200 bg-indigo-50/40 cursor-pointer">
-              <input type="radio" name="init-mode" value="demo" checked class="mt-0.5 text-indigo-600" />
+              <input type="radio" name="init-mode" value="empty" checked class="mt-0.5 text-indigo-600" />
               <div>
-                <div class="text-xs font-semibold text-slate-800">Load Indian Rupee (₹) Starter Demo Data</div>
-                <div class="text-[11px] text-slate-500">Pre-filled salary, SIPs, mutual funds, and net worth to explore immediately.</div>
+                <div class="text-xs font-semibold text-slate-800">Start with Clean Empty Vault (Recommended for Excel Upload)</div>
+                <div class="text-[11px] text-slate-500">Upload your own Excel/CSV cash &amp; mutual fund entries right away.</div>
               </div>
             </label>
             <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
-              <input type="radio" name="init-mode" value="empty" class="mt-0.5 text-indigo-600" />
+              <input type="radio" name="init-mode" value="demo" class="mt-0.5 text-indigo-600" />
               <div>
-                <div class="text-xs font-semibold text-slate-800">Start with Clean Empty Vault</div>
-                <div class="text-[11px] text-slate-500">Begin from scratch with your own private income, expenses, and assets.</div>
+                <div class="text-xs font-semibold text-slate-800">Load Indian Rupee (₹) Starter Demo Data</div>
+                <div class="text-[11px] text-slate-500">Pre-filled salary, SIPs, mutual funds, and net worth to explore first.</div>
               </div>
             </label>
           </div>
 
           <button type="submit" id="auth-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md shadow-indigo-200 transition flex items-center justify-center gap-2">
-            <span id="auth-submit-text">Sign In & Decrypt Vault</span>
+            <span id="auth-submit-text">Sign In &amp; Open Vault</span>
           </button>
         </form>
       </div>
@@ -112,15 +123,17 @@
         </div>
         <span class="font-bold text-slate-900 text-sm">WealthPulse</span>
       </div>
-      <button type="button" id="mobile-menu-btn" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
+      <div class="flex items-center gap-2">
+        <button type="button" class="open-import-btn px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">Import Excel</button>
+        <button type="button" class="open-quick-modal-btn px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">+ Add</button>
+        <button type="button" id="mobile-signout-btn" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 text-xs font-semibold">Exit</button>
+      </div>
     </div>
 
-    <!-- Left Sidebar -->
-    <aside id="sidebar" class="hidden md:flex md:flex-col w-full md:w-64 bg-white border-r border-slate-200 md:min-h-screen shrink-0 z-20">
+    <!-- Desktop Left Sidebar -->
+    <aside id="sidebar" class="hidden md:flex md:flex-col w-64 bg-white border-r border-slate-200 min-h-screen shrink-0 z-20">
       <!-- Brand -->
-      <div class="hidden md:flex items-center gap-3 px-5 py-5 border-b border-slate-100">
+      <div class="flex items-center gap-3 px-5 py-5 border-b border-slate-100">
         <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -152,7 +165,7 @@
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
-          <span>Net Worth</span>
+          <span>Net Worth &amp; MF</span>
         </button>
 
         <button type="button" data-tab="projection" class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition text-left">
@@ -161,6 +174,15 @@
           </svg>
           <span>Wealth Projection</span>
         </button>
+
+        <div class="pt-3 mt-3 border-t border-slate-100">
+          <button type="button" class="open-import-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50/80 hover:bg-emerald-100/80 border border-emerald-200/70 transition text-left">
+            <svg class="w-4 h-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>Import Excel / CSV</span>
+          </button>
+        </div>
       </nav>
 
       <!-- Sidebar Footer: Sync Status, Export, Data Tools, Sign Out -->
@@ -185,25 +207,67 @@
       </div>
     </aside>
 
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 grid grid-cols-4 py-2 z-30">
+      <button type="button" data-tab="dashboard" class="mob-tab-btn active flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <span>Home</span>
+      </button>
+      <button type="button" data-tab="transactions" class="mob-tab-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span>Cashflow</span>
+      </button>
+      <button type="button" data-tab="networth" class="mob-tab-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        <span>Net Worth</span>
+      </button>
+      <button type="button" data-tab="projection" class="mob-tab-btn flex flex-col items-center gap-0.5 text-[11px] text-slate-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Project</span>
+      </button>
+    </nav>
+
     <!-- Main Content Area -->
     <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
-      <!-- Top Encryption Status Banner -->
+      <!-- Top Header Bar -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 id="page-title" class="text-xl font-bold text-slate-900">Financial Overview</h2>
           <p id="page-subtitle" class="text-xs text-slate-500">Real-time encrypted cashflow, net worth, and wealth trajectory</p>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+        <div class="hidden md:flex items-center gap-2.5">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            AES-256-GCM Encrypted
+            AES-256 Encrypted
           </span>
-          <button type="button" id="top-quick-add-btn" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">+ Add Entry</button>
+          <button type="button" class="open-import-btn px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Upload Excel / CSV
+          </button>
+          <button type="button" class="open-quick-modal-btn px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">+ Quick Entry</button>
         </div>
+      </div>
+
+      <!-- Toast Notification Banner -->
+      <div id="toast-banner" class="hidden p-3.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-lg flex items-center justify-between">
+        <span id="toast-text">Imported successfully!</span>
+        <button type="button" onclick="document.getElementById('toast-banner').classList.add('hidden')" class="text-white/80 hover:text-white ml-4">✕</button>
       </div>
 
       <!-- ==================== TAB 1: DASHBOARD ==================== -->
       <section id="view-dashboard" class="view-section active space-y-6">
+        <!-- Empty Vault Onboarding Callout (Shown automatically when vault is empty) -->
+        <div id="empty-vault-banner" class="hidden rounded-2xl bg-gradient-to-r from-indigo-50 via-white to-emerald-50 border border-indigo-200/80 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Bring Your Finances Up to Date in One Click</h3>
+            <p class="text-xs text-slate-600 mt-1">Upload your filled <strong>WealthPulse_Data_Template.xlsx</strong> (or CSV) to import all historical cash/bank entries and mutual fund holdings at once.</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" class="open-import-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Upload Excel / CSV File</button>
+            <button type="button" class="open-quick-modal-btn px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition">+ Single Entry</button>
+          </div>
+        </div>
+
         <!-- 4 KPI Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5 shadow-lg shadow-indigo-200/60">
@@ -217,25 +281,25 @@
 
           <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
             <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
-              <span>Monthly Income</span>
+              <span>Total Inflows</span>
               <span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">↗</span>
             </div>
             <div id="kpi-income" class="text-2xl font-extrabold text-slate-900 mt-2">₹0</div>
-            <div class="text-xs text-emerald-600 font-medium mt-1">Active inflows</div>
+            <div class="text-xs text-emerald-600 font-medium mt-1">Income &amp; credits logged</div>
           </div>
 
           <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
             <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
-              <span>Monthly Expenses</span>
+              <span>Total Outflows</span>
               <span class="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">↘</span>
             </div>
             <div id="kpi-expenses" class="text-2xl font-extrabold text-slate-900 mt-2">₹0</div>
-            <div class="text-xs text-rose-500 font-medium mt-1">Outflows &amp; SIPs tracked</div>
+            <div class="text-xs text-rose-500 font-medium mt-1">Expenses &amp; SIPs tracked</div>
           </div>
 
           <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
             <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider">
-              <span>Monthly Savings</span>
+              <span>Net Savings + SIP</span>
               <span id="kpi-savings-rate" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">0%</span>
             </div>
             <div id="kpi-savings" class="text-2xl font-extrabold text-slate-900 mt-2">₹0</div>
@@ -262,7 +326,7 @@
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h3 class="font-bold text-slate-900 text-sm">Assets vs. Liabilities</h3>
-                <p class="text-xs text-slate-400">Balance sheet health overview</p>
+                <p class="text-xs text-slate-400">Mutual funds, savings, and debt overview</p>
               </div>
               <button type="button" data-goto="networth" class="goto-btn text-xs font-semibold text-indigo-600 hover:text-indigo-700">Manage →</button>
             </div>
@@ -293,7 +357,7 @@
                 <h3 class="font-bold text-slate-900 text-sm">Recent Transactions</h3>
                 <p class="text-xs text-slate-400">Latest income &amp; expense entries</p>
               </div>
-              <button type="button" id="card-quick-add-btn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">+ Quick Add</button>
+              <button type="button" class="open-quick-modal-btn text-xs font-semibold text-indigo-600 hover:text-indigo-700">+ Quick Add</button>
             </div>
             <div id="recent-transactions-list" class="space-y-2.5 max-h-56 overflow-y-auto pr-1"></div>
           </div>
@@ -304,8 +368,11 @@
       <section id="view-transactions" class="view-section space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Add Transaction Form -->
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm h-fit">
-            <h3 class="font-bold text-slate-900 text-sm mb-4">Record Income or Expense</h3>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm h-fit space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-slate-900 text-sm">Record Cash / Bank Entry</h3>
+              <button type="button" class="open-import-btn text-xs font-semibold text-emerald-600 hover:text-emerald-700">Bulk Upload ↑</button>
+            </div>
             <form id="tx-form" class="space-y-3.5">
               <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
                 <label class="text-center cursor-pointer">
@@ -337,15 +404,15 @@
               <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
                 <select id="tx-category" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                  <option value="Housing/Rent">Housing/Rent</option>
-                  <option value="Investments/SIP">Investments/SIP</option>
                   <option value="Food & Dining">Food &amp; Dining</option>
-                  <option value="EMI/Debt Payment">EMI/Debt Payment</option>
-                  <option value="Utilities">Utilities</option>
+                  <option value="Investments/SIP">Investments/SIP</option>
+                  <option value="Housing/Rent">Housing/Rent</option>
                   <option value="Transport & Fuel">Transport &amp; Fuel</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="EMI/Debt Payment">EMI/Debt Payment</option>
                   <option value="Health">Health</option>
                   <option value="Entertainment">Entertainment</option>
-                  <option value="Shopping">Shopping</option>
                   <option value="Salary & Bonus">Salary &amp; Bonus</option>
                   <option value="Freelance & Dividends">Freelance &amp; Dividends</option>
                 </select>
@@ -359,8 +426,8 @@
           <div class="lg:col-span-2 rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
-                <h3 class="font-bold text-slate-900 text-sm">All Encrypted Transactions</h3>
-                <p class="text-xs text-slate-400">Stored as AES-256 ciphertext in Firestore</p>
+                <h3 class="font-bold text-slate-900 text-sm">All Cash &amp; Bank Entries (<span id="tx-count-badge">0</span>)</h3>
+                <p class="text-xs text-slate-400">Sorted newest first • Encrypted end-to-end</p>
               </div>
               <select id="tx-filter" class="px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
                 <option value="all">All Entries</option>
@@ -368,9 +435,9 @@
                 <option value="expense">Expenses &amp; SIPs Only</option>
               </select>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto max-h-[540px] overflow-y-auto">
               <table class="w-full text-left border-collapse">
-                <thead>
+                <thead class="sticky top-0 bg-white">
                   <tr class="border-b border-slate-100 text-[11px] font-semibold uppercase text-slate-400">
                     <th class="py-2.5 px-2">Entry</th>
                     <th class="py-2.5 px-2">Category</th>
@@ -386,11 +453,11 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 3: NET WORTH ==================== -->
+      <!-- ==================== TAB 3: NET WORTH & MUTUAL FUNDS ==================== -->
       <section id="view-networth" class="view-section space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-            <div class="text-xs font-semibold text-slate-400 uppercase">Total Assets</div>
+            <div class="text-xs font-semibold text-slate-400 uppercase">Total Assets &amp; Mutual Funds</div>
             <div id="nw-total-assets" class="text-2xl font-extrabold text-emerald-600 mt-1">₹0</div>
           </div>
           <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
@@ -405,13 +472,16 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Add Asset / Liability Form -->
-          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm h-fit">
-            <h3 class="font-bold text-slate-900 text-sm mb-4">Add Asset or Liability</h3>
+          <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm h-fit space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-slate-900 text-sm">Add Mutual Fund / Asset</h3>
+              <button type="button" class="open-import-btn text-xs font-semibold text-emerald-600 hover:text-emerald-700">Bulk Upload ↑</button>
+            </div>
             <form id="nw-form" class="space-y-3.5">
               <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
                 <label class="text-center cursor-pointer">
                   <input type="radio" name="nw-kind" value="asset" checked class="sr-only peer" />
-                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-600">Asset (+)</div>
+                  <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-600">Asset / MF (+)</div>
                 </label>
                 <label class="text-center cursor-pointer">
                   <input type="radio" name="nw-kind" value="liability" class="sr-only peer" />
@@ -420,8 +490,8 @@
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Item Name</label>
-                <input type="text" id="nw-name" required placeholder="e.g., Mutual Funds, PPF, Car Loan" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Fund / Asset Name</label>
+                <input type="text" id="nw-name" required placeholder="e.g., Parag Parikh Flexi Cap Fund" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
               </div>
 
               <div>
@@ -437,23 +507,35 @@
                 </select>
               </div>
 
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Current Value (₹)</label>
-                <input type="number" id="nw-value" required min="0" step="any" placeholder="250000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Invested (₹, opt.)</label>
+                  <input type="number" id="nw-invested" min="0" step="any" placeholder="200000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Current Value (₹)</label>
+                  <input type="number" id="nw-value" required min="0" step="any" placeholder="250000" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                </div>
               </div>
 
-              <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Add to Balance Sheet</button>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Add to Portfolio</button>
             </form>
           </div>
 
           <!-- Assets & Liabilities Lists -->
           <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-              <h3 class="font-bold text-emerald-700 text-sm mb-3">Assets</h3>
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold text-emerald-700 text-sm">Mutual Funds &amp; Assets</h3>
+                <span class="text-[11px] text-slate-400">Click ₹ to edit value</span>
+              </div>
               <div id="assets-list" class="space-y-2.5"></div>
             </div>
             <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-sm">
-              <h3 class="font-bold text-rose-700 text-sm mb-3">Liabilities</h3>
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold text-rose-700 text-sm">Liabilities</h3>
+                <span class="text-[11px] text-slate-400">Click ₹ to edit value</span>
+              </div>
               <div id="liabilities-list" class="space-y-2.5"></div>
             </div>
           </div>
@@ -537,6 +619,119 @@
     </main>
   </div>
 
+  <!-- ==================== 1-TAP QUICK ENTRY MODAL ==================== -->
+  <div id="quick-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-slate-900 text-base">Quick Entry</h3>
+        <button type="button" id="close-quick-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+      </div>
+
+      <form id="quick-form" class="space-y-3.5">
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+          <label class="text-center cursor-pointer">
+            <input type="radio" name="q-type" value="expense" checked class="sr-only peer" />
+            <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-600">Expense / SIP</div>
+          </label>
+          <label class="text-center cursor-pointer">
+            <input type="radio" name="q-type" value="income" class="sr-only peer" />
+            <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-600">Income</div>
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Amount (₹)</label>
+          <input type="number" id="q-amount" required min="1" step="any" placeholder="500" class="w-full px-3.5 py-2.5 text-base font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          <div class="flex flex-wrap gap-1.5 mt-2">
+            <button type="button" data-amt="100" class="q-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-semibold text-slate-600">+₹100</button>
+            <button type="button" data-amt="500" class="q-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-semibold text-slate-600">+₹500</button>
+            <button type="button" data-amt="1000" class="q-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-semibold text-slate-600">+₹1,000</button>
+            <button type="button" data-amt="5000" class="q-chip px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-semibold text-slate-600">+₹5,000</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Note / Description</label>
+          <input type="text" id="q-title" required placeholder="e.g., Tea & Snacks, Petrol, SIP" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+            <select id="q-category" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white">
+              <option value="Food & Dining">Food &amp; Dining</option>
+              <option value="Transport & Fuel">Transport &amp; Fuel</option>
+              <option value="Investments/SIP">Investments/SIP</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Housing/Rent">Housing/Rent</option>
+              <option value="Utilities">Utilities</option>
+              <option value="EMI/Debt Payment">EMI/Debt Payment</option>
+              <option value="Health">Health</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Salary & Bonus">Salary &amp; Bonus</option>
+              <option value="Freelance & Dividends">Freelance &amp; Dividends</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
+            <input type="date" id="q-date" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300" />
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">Save Entry</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== EXCEL / CSV BULK IMPORT MODAL ==================== -->
+  <div id="import-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Upload Cash &amp; Mutual Fund Entries</h3>
+          <p class="text-xs text-slate-400">Supports <strong>.xlsx</strong> (WealthPulse template) or <strong>.csv</strong> files</p>
+        </div>
+        <button type="button" id="close-import-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Import Mode Selector -->
+      <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+        <label class="text-center cursor-pointer">
+          <input type="radio" name="import-mode" value="append" checked class="sr-only peer" />
+          <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm text-slate-600">Add to Existing Data</div>
+        </label>
+        <label class="text-center cursor-pointer">
+          <input type="radio" name="import-mode" value="replace" class="sr-only peer" />
+          <div class="py-1.5 text-xs font-semibold rounded-lg peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-600">Replace Vault Data</div>
+        </label>
+      </div>
+
+      <!-- File Drop Zone -->
+      <label class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-indigo-200 hover:border-indigo-400 rounded-2xl bg-indigo-50/30 cursor-pointer transition text-center">
+        <svg class="w-8 h-8 text-indigo-500 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <span class="text-xs font-bold text-slate-800">Click to choose your .xlsx or .csv file</span>
+        <span class="text-[11px] text-slate-400 mt-1">Reads both "Cash &amp; Bank Entries" and "Mutual Funds &amp; Assets" tabs automatically</span>
+        <input type="file" id="import-file-input" accept=".xlsx,.xls,.csv" class="hidden" />
+      </label>
+
+      <!-- Preview Box -->
+      <div id="import-preview-box" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+        <div class="text-xs font-bold text-slate-800" id="import-preview-title">File Ready to Import</div>
+        <div class="text-xs text-slate-600 space-y-1" id="import-preview-summary"></div>
+        <button type="button" id="confirm-import-btn" class="w-full mt-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+          Encrypt &amp; Import All Entries Now
+        </button>
+      </div>
+
+      <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">Need a blank Excel template?</span>
+        <button type="button" id="download-template-btn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">Download .xlsx Template ↓</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== DATA TOOLS MODAL ==================== -->
   <div id="data-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
@@ -545,9 +740,10 @@
         <button type="button" id="close-data-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
       </div>
       <p class="text-xs text-slate-500 leading-relaxed">
-        Your vault is encrypted locally using <strong>PBKDF2 (150,000 iterations)</strong> + <strong>AES-256-GCM</strong> before syncing to Firestore.
+        Your vault is encrypted locally using <strong>AES-256-GCM</strong> before syncing to Firestore.
       </p>
       <div class="space-y-2.5 pt-1">
+        <button type="button" id="modal-open-import" class="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">Upload Excel / CSV File</button>
         <button type="button" id="modal-load-demo" class="w-full py-2.5 px-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">Load Indian Rupee (₹) Demo Dataset</button>
         <button type="button" id="modal-clear-vault" class="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition">Reset Vault to Empty</button>
       </div>
@@ -594,7 +790,8 @@
     let currentUser = null;
     let vaultKey = null;
     let vaultSaltB64 = null;
-    let authMode = 'signin'; // 'signin' | 'signup'
+    let authMode = 'signin';
+    let stagedImportData = null;
 
     let vaultData = {
       transactions: [],
@@ -657,6 +854,13 @@
       return JSON.parse(dec.decode(plainBuf));
     }
 
+    function showToast(msg) {
+      const banner = document.getElementById('toast-banner');
+      document.getElementById('toast-text').textContent = msg;
+      banner.classList.remove('hidden');
+      setTimeout(() => banner.classList.add('hidden'), 5000);
+    }
+
     function getDemoDataset() {
       const today = new Date().toISOString().slice(0, 10);
       return {
@@ -667,18 +871,13 @@
           { id: 't4', type: 'expense', title: 'Apartment Rent & Maintenance', amount: 28000, category: 'Housing/Rent', date: today },
           { id: 't5', type: 'expense', title: 'Vehicle EMI', amount: 18500, category: 'EMI/Debt Payment', date: today },
           { id: 't6', type: 'expense', title: 'Groceries & Dining Out', amount: 14600, category: 'Food & Dining', date: today },
-          { id: 't7', type: 'expense', title: 'Fuel & Commute', amount: 6500, category: 'Transport & Fuel', date: today },
-          { id: 't8', type: 'expense', title: 'Apparel & Home Essentials', amount: 7500, category: 'Shopping', date: today },
-          { id: 't9', type: 'expense', title: 'Electricity, Fiber & Mobile', amount: 4200, category: 'Utilities', date: today },
-          { id: 't10', type: 'expense', title: 'Weekend Movies & Streaming', amount: 3800, category: 'Entertainment', date: today }
+          { id: 't7', type: 'expense', title: 'Fuel & Commute', amount: 6500, category: 'Transport & Fuel', date: today }
         ],
         netWorthItems: [
-          { id: 'n1', kind: 'asset', name: 'Equity Mutual Funds (SIP Portfolio)', category: 'Equity & Mutual Funds', value: 2150000 },
-          { id: 'n2', kind: 'asset', name: 'EPF & PPF Retirement Corpus', category: 'EPF / PPF / NPS', value: 1240000 },
-          { id: 'n3', kind: 'asset', name: 'Emergency FD & Liquid Savings', category: 'Bank & Fixed Deposits', value: 780000 },
-          { id: 'n4', kind: 'asset', name: 'Sovereign Gold Bonds (SGB)', category: 'Gold & Sovereign Bonds', value: 440000 },
-          { id: 'n5', kind: 'liability', name: 'Auto Loan Remaining Principal', category: 'Home / Auto Loan', value: 485000 },
-          { id: 'n6', kind: 'liability', name: 'Monthly Credit Card Statement', category: 'Credit Card / Personal Loan', value: 27000 }
+          { id: 'n1', kind: 'asset', name: 'Equity Mutual Funds (SIP Portfolio)', category: 'Equity & Mutual Funds', invested: 1750000, value: 2150000 },
+          { id: 'n2', kind: 'asset', name: 'EPF & PPF Retirement Corpus', category: 'EPF / PPF / NPS', invested: 1050000, value: 1240000 },
+          { id: 'n3', kind: 'asset', name: 'Emergency FD & Liquid Savings', category: 'Bank & Fixed Deposits', invested: 750000, value: 780000 },
+          { id: 'n4', kind: 'liability', name: 'Auto Loan Remaining Principal', category: 'Home / Auto Loan', invested: 0, value: 485000 }
         ]
       };
     }
@@ -712,20 +911,19 @@
     }
 
     /*************************************************************************
-     * 4. NAVIGATION (FIXED: BOUND DIRECTLY VIA EVENT LISTENERS + GLOBAL WINDOW)
+     * 4. NAVIGATION (DESKTOP SIDEBAR + MOBILE BOTTOM BAR)
      *************************************************************************/
     const tabTitles = {
       dashboard: ['Financial Overview', 'Real-time encrypted cashflow, net worth, and wealth trajectory'],
-      transactions: ['Expenses & Income', 'Log and manage your encrypted monthly cashflows'],
-      networth: ['Net Worth & Balance Sheet', 'Track assets, investments, and outstanding liabilities'],
+      transactions: ['Expenses & Income', 'Log and manage your encrypted cash & bank entries'],
+      networth: ['Net Worth & Mutual Funds', 'Track mutual funds, savings, and outstanding liabilities'],
       projection: ['Wealth Projection Simulator', 'Model long-term compounding with annual SIP step-ups']
     };
 
     function switchTab(tabName) {
       if (!tabTitles[tabName]) return;
 
-      // Update active button state in sidebar
-      document.querySelectorAll('.tab-btn').forEach(btn => {
+      document.querySelectorAll('.tab-btn, .mob-tab-btn').forEach(btn => {
         if (btn.dataset.tab === tabName) {
           btn.classList.add('active');
         } else {
@@ -733,7 +931,6 @@
         }
       });
 
-      // Switch visible view section
       document.querySelectorAll('.view-section').forEach(sec => {
         if (sec.id === `view-${tabName}`) {
           sec.classList.add('active');
@@ -742,17 +939,9 @@
         }
       });
 
-      // Update top header title
       document.getElementById('page-title').textContent = tabTitles[tabName][0];
       document.getElementById('page-subtitle').textContent = tabTitles[tabName][1];
 
-      // Close mobile drawer if open
-      const sidebar = document.getElementById('sidebar');
-      if (window.innerWidth < 768) {
-        sidebar.classList.add('hidden');
-      }
-
-      // Re-render charts when switching views so canvas sizes are exact
       if (tabName === 'dashboard') {
         renderDashboardCharts();
       } else if (tabName === 'projection') {
@@ -760,10 +949,9 @@
       }
     }
 
-    // Expose globally AND attach clean event listeners to every sidebar & card shortcut button
     window.switchTab = switchTab;
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.tab-btn, .mob-tab-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         switchTab(btn.dataset.tab);
@@ -777,12 +965,199 @@
       });
     });
 
-    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('hidden');
+    /*************************************************************************
+     * 5. EXCEL / CSV PARSER & BULK IMPORTER
+     *************************************************************************/
+    function normalizeExcelDate(rawVal) {
+      if (!rawVal) return new Date().toISOString().slice(0, 10);
+      if (typeof rawVal === 'number') {
+        const utcDays = Math.floor(rawVal - 25569);
+        const d = new Date(utcDays * 86400 * 1000);
+        if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+      }
+      const str = String(rawVal).trim();
+      if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function parseNumericAmount(val) {
+      if (typeof val === 'number') return val;
+      if (!val) return 0;
+      const cleaned = String(val).replace(/[₹,\s]/g, '');
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function parseWorkbookData(workbook) {
+      const importedTransactions = [];
+      const importedNetWorth = [];
+
+      workbook.SheetNames.forEach(sheetName => {
+        const sheet = workbook.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        if (!rows || rows.length === 0) return;
+
+        // Locate header row automatically
+        let headerRowIdx = -1;
+        for (let i = 0; i < Math.min(rows.length, 6); i++) {
+          const rowStr = rows[i].map(c => String(c).toLowerCase()).join('|');
+          if (rowStr.includes('description') || rowStr.includes('fund') || rowStr.includes('asset') || rowStr.includes('amount') || rowStr.includes('current value')) {
+            headerRowIdx = i;
+            break;
+          }
+        }
+        if (headerRowIdx === -1) return;
+
+        const headers = rows[headerRowIdx].map(h => String(h).toLowerCase().trim());
+        const isNetWorthSheet = headers.some(h => h.includes('fund') || h.includes('current value') || h.includes('kind'));
+
+        for (let r = headerRowIdx + 1; r < rows.length; r++) {
+          const row = rows[r];
+          if (!row || row.every(cell => String(cell).trim() === '')) continue;
+
+          if (isNetWorthSheet) {
+            const idxKind = headers.findIndex(h => h.includes('kind') || h.includes('type'));
+            const idxName = headers.findIndex(h => h.includes('fund') || h.includes('name') || h.includes('asset'));
+            const idxCat = headers.findIndex(h => h.includes('category'));
+            const idxInv = headers.findIndex(h => h.includes('invested'));
+            const idxVal = headers.findIndex(h => h.includes('current') || h.includes('value'));
+
+            const name = idxName >= 0 ? String(row[idxName]).trim() : '';
+            if (!name || name.toLowerCase().startsWith('total')) continue;
+
+            const rawKind = idxKind >= 0 ? String(row[idxKind]).toLowerCase() : 'asset';
+            const kind = rawKind.includes('liab') || rawKind.includes('loan') || rawKind.includes('debt') ? 'liability' : 'asset';
+            const category = (idxCat >= 0 && String(row[idxCat]).trim()) ? String(row[idxCat]).trim() : (kind === 'asset' ? 'Equity & Mutual Funds' : 'Home / Auto Loan');
+            const invested = idxInv >= 0 ? parseNumericAmount(row[idxInv]) : 0;
+            const value = idxVal >= 0 ? parseNumericAmount(row[idxVal]) : 0;
+
+            if (value > 0 || invested > 0) {
+              importedNetWorth.push({
+                id: 'nw_imp_' + Date.now() + '_' + r,
+                kind,
+                name,
+                category,
+                invested,
+                value: value > 0 ? value : invested
+              });
+            }
+          } else {
+            const idxDate = headers.findIndex(h => h.includes('date'));
+            const idxDesc = headers.findIndex(h => h.includes('desc') || h.includes('title') || h.includes('narration') || h.includes('particular'));
+            const idxType = headers.findIndex(h => h.includes('type'));
+            const idxCat = headers.findIndex(h => h.includes('category'));
+            const idxAmt = headers.findIndex(h => h.includes('amount') || h.includes('inr') || h.includes('debit'));
+
+            const title = idxDesc >= 0 ? String(row[idxDesc]).trim() : '';
+            const amount = idxAmt >= 0 ? Math.abs(parseNumericAmount(row[idxAmt])) : 0;
+            if (!title || amount <= 0) continue;
+
+            const rawType = idxType >= 0 ? String(row[idxType]).toLowerCase() : 'expense';
+            const type = rawType.includes('inc') || rawType.includes('credit') ? 'income' : 'expense';
+            const category = (idxCat >= 0 && String(row[idxCat]).trim()) ? String(row[idxCat]).trim() : (type === 'income' ? 'Salary & Bonus' : 'Food & Dining');
+            const date = idxDate >= 0 ? normalizeExcelDate(row[idxDate]) : new Date().toISOString().slice(0, 10);
+
+            importedTransactions.push({
+              id: 'tx_imp_' + Date.now() + '_' + r,
+              type,
+              title,
+              amount,
+              category,
+              date
+            });
+          }
+        }
+      });
+
+      return { transactions: importedTransactions, netWorthItems: importedNetWorth };
+    }
+
+    document.querySelectorAll('.open-import-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        stagedImportData = null;
+        document.getElementById('import-file-input').value = '';
+        document.getElementById('import-preview-box').classList.add('hidden');
+        document.getElementById('import-modal').classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('close-import-modal').addEventListener('click', () => {
+      document.getElementById('import-modal').classList.add('hidden');
+    });
+
+    document.getElementById('import-file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          stagedImportData = parseWorkbookData(wb);
+
+          const txCount = stagedImportData.transactions.length;
+          const nwCount = stagedImportData.netWorthItems.length;
+          const previewBox = document.getElementById('import-preview-box');
+          const summaryEl = document.getElementById('import-preview-summary');
+
+          if (txCount === 0 && nwCount === 0) {
+            summaryEl.innerHTML = `<span class="text-rose-600 font-semibold">No valid rows found. Make sure your file has columns like Date, Description, Amount or Fund Name, Current Value.</span>`;
+            document.getElementById('confirm-import-btn').classList.add('hidden');
+          } else {
+            summaryEl.innerHTML = `
+              <div>• <strong>${txCount}</strong> Cash / Bank Entries detected</div>
+              <div>• <strong>${nwCount}</strong> Mutual Fund / Asset / Liability items detected</div>
+            `;
+            document.getElementById('confirm-import-btn').classList.remove('hidden');
+          }
+          previewBox.classList.remove('hidden');
+        } catch (err) {
+          alert('Could not read file: ' + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('confirm-import-btn').addEventListener('click', async () => {
+      if (!stagedImportData) return;
+      const mode = document.querySelector('input[name="import-mode"]:checked').value;
+      if (mode === 'replace') {
+        vaultData.transactions = stagedImportData.transactions;
+        vaultData.netWorthItems = stagedImportData.netWorthItems;
+      } else {
+        vaultData.transactions = [...vaultData.transactions, ...stagedImportData.transactions];
+        vaultData.netWorthItems = [...vaultData.netWorthItems, ...stagedImportData.netWorthItems];
+      }
+
+      const totalImported = stagedImportData.transactions.length + stagedImportData.netWorthItems.length;
+      document.getElementById('import-modal').classList.add('hidden');
+      refreshAllUI();
+      await saveVaultToCloud();
+      showToast(`Imported & encrypted ${totalImported} entries into your vault!`);
+    });
+
+    // Built-in .xlsx template generator right in browser
+    document.getElementById('download-template-btn').addEventListener('click', () => {
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.aoa_to_sheet([
+        ['Date (YYYY-MM-DD)', 'Description', 'Type', 'Category', 'Amount (INR)'],
+        ['2026-11-01', 'Monthly Salary Credit', 'Income', 'Salary & Bonus', 162000],
+        ['2026-11-05', 'House Rent', 'Expense', 'Housing/Rent', 28000]
+      ]);
+      const ws2 = XLSX.utils.aoa_to_sheet([
+        ['Kind', 'Fund / Asset Name', 'Category', 'Invested Amount (INR)', 'Current Value (INR)'],
+        ['Asset', 'Parag Parikh Flexi Cap Fund', 'Equity & Mutual Funds', 500000, 640000],
+        ['Asset', 'HDFC Savings & FD', 'Bank & Fixed Deposits', 300000, 315000]
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws1, 'Cash & Bank Entries');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Mutual Funds & Assets');
+      XLSX.writeFile(wb, 'WealthPulse_Data_Template.xlsx');
     });
 
     /*************************************************************************
-     * 5. FORMATTING & UI RENDERING
+     * 6. FORMATTING & UI RENDERING
      *************************************************************************/
     function formatINR(num) {
       return '₹' + Math.round(Number(num) || 0).toLocaleString('en-IN');
@@ -796,6 +1171,9 @@
     }
 
     function refreshAllUI() {
+      const isEmpty = vaultData.transactions.length === 0 && vaultData.netWorthItems.length === 0;
+      document.getElementById('empty-vault-banner').classList.toggle('hidden', !isEmpty);
+
       const income = vaultData.transactions
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + Number(t.amount), 0);
@@ -821,7 +1199,6 @@
 
       const netWorth = totalAssets - totalLiabilities;
 
-      // Dashboard KPIs
       document.getElementById('kpi-net-worth').textContent = formatINR(netWorth);
       document.getElementById('kpi-net-worth-sub').textContent = `${formatCompactINR(totalAssets)} Assets – ${formatCompactINR(totalLiabilities)} Debt`;
       document.getElementById('kpi-income').textContent = formatINR(income);
@@ -829,12 +1206,11 @@
       document.getElementById('kpi-savings').textContent = formatINR(effectiveSavings);
       document.getElementById('kpi-savings-rate').textContent = `${savingsRate}%`;
 
-      // Net Worth Tab Totals
       document.getElementById('nw-total-assets').textContent = formatINR(totalAssets);
       document.getElementById('nw-total-liabilities').textContent = formatINR(totalLiabilities);
       document.getElementById('nw-net-total').textContent = formatINR(netWorth);
+      document.getElementById('tx-count-badge').textContent = vaultData.transactions.length;
 
-      // Update simulator default corpus if untouched
       const simCorpusEl = document.getElementById('sim-corpus');
       if (!simCorpusEl.dataset.edited) {
         simCorpusEl.value = Math.max(0, netWorth);
@@ -848,11 +1224,15 @@
       runSimulator();
     }
 
+    function getSortedTransactions() {
+      return [...vaultData.transactions].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    }
+
     function renderRecentTransactions() {
       const container = document.getElementById('recent-transactions-list');
-      const items = [...vaultData.transactions].slice(-6).reverse();
+      const items = getSortedTransactions().slice(0, 6);
       if (!items.length) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">No transactions yet. Click <strong>+ Quick Add</strong> to log one.</div>`;
+        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">No entries yet. Upload your Excel/CSV file or click <strong>+ Quick Add</strong>.</div>`;
         return;
       }
       container.innerHTML = items.map(t => {
@@ -879,9 +1259,7 @@
     function renderTransactionsTable() {
       const filter = document.getElementById('tx-filter').value;
       const tbody = document.getElementById('tx-table-body');
-      const filtered = [...vaultData.transactions]
-        .filter(t => filter === 'all' || t.type === filter)
-        .reverse();
+      const filtered = getSortedTransactions().filter(t => filter === 'all' || t.type === filter);
 
       if (!filtered.length) {
         tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-xs text-slate-400">No entries match this filter.</td></tr>`;
@@ -918,22 +1296,46 @@
 
       const renderList = (arr, colorClass) => {
         if (!arr.length) return `<div class="text-xs text-slate-400 py-6 text-center">No items added yet.</div>`;
-        return arr.map(item => `
-          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-            <div>
-              <div class="text-xs font-semibold text-slate-800">${escapeHtml(item.name)}</div>
-              <div class="text-[11px] text-slate-400">${escapeHtml(item.category)}</div>
+        return arr.map(item => {
+          const inv = Number(item.invested) || 0;
+          const cur = Number(item.value) || 0;
+          const gain = inv > 0 ? cur - inv : 0;
+          const gainBadge = inv > 0
+            ? `<span class="text-[10px] font-semibold ${gain >= 0 ? 'text-emerald-600' : 'text-rose-600'}">(${gain >= 0 ? '+' : ''}${formatCompactINR(gain)})</span>`
+            : '';
+
+          return `
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 gap-2">
+              <div class="min-w-0">
+                <div class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(item.name)}</div>
+                <div class="text-[11px] text-slate-400">${escapeHtml(item.category)} ${gainBadge}</div>
+              </div>
+              <div class="flex items-center gap-2.5 shrink-0">
+                <button type="button" data-edit-nw="${item.id}" class="edit-nw-btn text-xs font-bold ${colorClass} hover:underline" title="Click to update value">${formatINR(item.value)}</button>
+                <button type="button" data-del-nw="${item.id}" class="del-nw-btn text-xs text-slate-400 hover:text-rose-600">✕</button>
+              </div>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-bold ${colorClass}">${formatINR(item.value)}</span>
-              <button type="button" data-del-nw="${item.id}" class="del-nw-btn text-xs text-slate-400 hover:text-rose-600">✕</button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       };
 
       document.getElementById('assets-list').innerHTML = renderList(assets, 'text-emerald-600');
       document.getElementById('liabilities-list').innerHTML = renderList(liabilities, 'text-rose-600');
+
+      document.querySelectorAll('.edit-nw-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const item = vaultData.netWorthItems.find(i => i.id === btn.dataset.editNw);
+          if (!item) return;
+          const nextVal = prompt(`Update current value (₹) for ${item.name}:`, item.value);
+          if (nextVal === null) return;
+          const parsed = parseNumericAmount(nextVal);
+          if (parsed >= 0) {
+            item.value = parsed;
+            refreshAllUI();
+            await saveVaultToCloud();
+          }
+        });
+      });
 
       document.querySelectorAll('.del-nw-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -945,7 +1347,6 @@
     }
 
     function renderDashboardCharts() {
-      // 1. Expense Donut Chart
       const expMap = {};
       vaultData.transactions.filter(t => t.type === 'expense').forEach(t => {
         expMap[t.category] = (expMap[t.category] || 0) + Number(t.amount);
@@ -976,7 +1377,6 @@
         }
       });
 
-      // 2. Balance Sheet Bar Chart
       const totalAssets = vaultData.netWorthItems.filter(i => i.kind === 'asset').reduce((s, i) => s + Number(i.value), 0);
       const totalLiabilities = vaultData.netWorthItems.filter(i => i.kind === 'liability').reduce((s, i) => s + Number(i.value), 0);
       const netWorth = totalAssets - totalLiabilities;
@@ -1007,7 +1407,6 @@
         }
       });
 
-      // 3. 10-Year Net Worth Preview Line Chart
       const monthlySip = vaultData.transactions
         .filter(t => t.type === 'expense' && t.category === 'Investments/SIP')
         .reduce((s, t) => s + Number(t.amount), 0) || 25000;
@@ -1136,12 +1535,56 @@
     }
 
     /*************************************************************************
-     * 6. FORM & INTERACTION EVENT LISTENERS
+     * 7. QUICK ENTRY MODAL & FORM LISTENERS
      *************************************************************************/
-    document.getElementById('tx-date').value = new Date().toISOString().slice(0, 10);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    document.getElementById('tx-date').value = todayStr;
+    document.getElementById('q-date').value = todayStr;
 
-    document.getElementById('top-quick-add-btn').addEventListener('click', () => switchTab('transactions'));
-    document.getElementById('card-quick-add-btn').addEventListener('click', () => switchTab('transactions'));
+    document.querySelectorAll('.open-quick-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('q-amount').value = '';
+        document.getElementById('q-title').value = '';
+        document.getElementById('quick-modal').classList.remove('hidden');
+        document.getElementById('q-amount').focus();
+      });
+    });
+
+    document.getElementById('close-quick-modal').addEventListener('click', () => {
+      document.getElementById('quick-modal').classList.add('hidden');
+    });
+
+    document.querySelectorAll('.q-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cur = Number(document.getElementById('q-amount').value) || 0;
+        document.getElementById('q-amount').value = cur + Number(chip.dataset.amt);
+      });
+    });
+
+    document.getElementById('quick-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const type = document.querySelector('input[name="q-type"]:checked').value;
+      const amount = Number(document.getElementById('q-amount').value);
+      const title = document.getElementById('q-title').value.trim();
+      const category = document.getElementById('q-category').value;
+      const date = document.getElementById('q-date').value;
+      if (!title || amount <= 0) return;
+
+      vaultData.transactions.push({
+        id: 'tx_' + Date.now(),
+        type,
+        title,
+        amount,
+        date,
+        category
+      });
+
+      document.getElementById('quick-modal').classList.add('hidden');
+      refreshAllUI();
+      await saveVaultToCloud();
+      showToast(`Saved ${title} (${formatINR(amount)})`);
+    });
+
     document.getElementById('tx-filter').addEventListener('change', renderTransactionsTable);
 
     document.getElementById('tx-form').addEventListener('submit', async (e) => {
@@ -1173,6 +1616,7 @@
       const kind = document.querySelector('input[name="nw-kind"]:checked').value;
       const name = document.getElementById('nw-name').value.trim();
       const category = document.getElementById('nw-category').value;
+      const invested = Number(document.getElementById('nw-invested').value) || 0;
       const value = Number(document.getElementById('nw-value').value);
       if (!name || value < 0) return;
 
@@ -1181,10 +1625,12 @@
         kind,
         name,
         category,
+        invested,
         value
       });
 
       document.getElementById('nw-name').value = '';
+      document.getElementById('nw-invested').value = '';
       document.getElementById('nw-value').value = '';
       refreshAllUI();
       await saveVaultToCloud();
@@ -1225,6 +1671,10 @@
     document.getElementById('close-data-modal').addEventListener('click', () => {
       document.getElementById('data-modal').classList.add('hidden');
     });
+    document.getElementById('modal-open-import').addEventListener('click', () => {
+      document.getElementById('data-modal').classList.add('hidden');
+      document.getElementById('import-modal').classList.remove('hidden');
+    });
     document.getElementById('modal-load-demo').addEventListener('click', async () => {
       vaultData = getDemoDataset();
       document.getElementById('data-modal').classList.add('hidden');
@@ -1238,18 +1688,21 @@
       await saveVaultToCloud();
     });
 
-    // Sign Out
-    document.getElementById('btn-sign-out').addEventListener('click', async () => {
+    async function handleSignOut() {
       vaultKey = null;
       vaultSaltB64 = null;
       vaultData = { transactions: [], netWorthItems: [] };
+      localStorage.removeItem('wp_cached_passphrase');
       await signOut(auth);
       document.getElementById('app-shell').classList.add('hidden');
       document.getElementById('auth-screen').classList.remove('hidden');
-    });
+    }
+
+    document.getElementById('btn-sign-out').addEventListener('click', handleSignOut);
+    document.getElementById('mobile-signout-btn').addEventListener('click', handleSignOut);
 
     /*************************************************************************
-     * 7. AUTHENTICATION & VAULT UNLOCK FLOW
+     * 8. AUTHENTICATION, VAULT UNLOCK & DEVICE REMEMBER FLOW
      *************************************************************************/
     const modeSigninBtn = document.getElementById('mode-signin-btn');
     const modeSignupBtn = document.getElementById('mode-signup-btn');
@@ -1272,7 +1725,7 @@
         modeSignupBtn.className = 'py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
         confirmGroup.classList.add('hidden');
         starterGroup.classList.add('hidden');
-        submitText.textContent = 'Sign In & Decrypt Vault';
+        submitText.textContent = 'Sign In & Open Vault';
       }
     }
 
@@ -1284,6 +1737,29 @@
       errorBox.classList.remove('hidden');
     }
 
+    async function unlockUserVault(user, passphrase, initModeIfNew = 'empty') {
+      currentUser = user;
+      const snap = await getDoc(getUserDocRef(user.uid));
+      if (snap.exists() && snap.data().salt && snap.data().ciphertext) {
+        const docData = snap.data();
+        vaultSaltB64 = docData.salt;
+        vaultKey = await deriveKey(passphrase, b64ToBuf(vaultSaltB64));
+        vaultData = await decryptVault(docData, vaultKey);
+      } else {
+        const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+        vaultSaltB64 = bufToB64(saltBytes);
+        vaultKey = await deriveKey(passphrase, saltBytes);
+        vaultData = initModeIfNew === 'demo' ? getDemoDataset() : { transactions: [], netWorthItems: [] };
+        await saveVaultToCloud();
+      }
+
+      document.getElementById('sidebar-user-email').textContent = currentUser.email;
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      switchTab('dashboard');
+      refreshAllUI();
+    }
+
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       errorBox.classList.add('hidden');
@@ -1291,6 +1767,7 @@
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
       const passphrase = document.getElementById('vault-passphrase').value;
+      const rememberDevice = document.getElementById('remember-vault-cb').checked;
       const submitBtn = document.getElementById('auth-submit-btn');
 
       if (authMode === 'signup') {
@@ -1305,52 +1782,29 @@
       submitBtn.classList.add('opacity-70');
 
       try {
+        let userObj = null;
+        let initMode = 'empty';
         if (authMode === 'signup') {
           const cred = await createUserWithEmailAndPassword(auth, email, password);
-          currentUser = cred.user;
-
-          const saltBytes = crypto.getRandomValues(new Uint8Array(16));
-          vaultSaltB64 = bufToB64(saltBytes);
-          vaultKey = await deriveKey(passphrase, saltBytes);
-
-          const initMode = document.querySelector('input[name="init-mode"]:checked').value;
-          vaultData = initMode === 'demo' ? getDemoDataset() : { transactions: [], netWorthItems: [] };
-
-          await saveVaultToCloud();
+          userObj = cred.user;
+          initMode = document.querySelector('input[name="init-mode"]:checked').value;
         } else {
           const cred = await signInWithEmailAndPassword(auth, email, password);
-          currentUser = cred.user;
-
-          const snap = await getDoc(getUserDocRef(currentUser.uid));
-          if (snap.exists() && snap.data().salt && snap.data().ciphertext) {
-            const docData = snap.data();
-            vaultSaltB64 = docData.salt;
-            vaultKey = await deriveKey(passphrase, b64ToBuf(vaultSaltB64));
-            try {
-              vaultData = await decryptVault(docData, vaultKey);
-            } catch {
-              await signOut(auth);
-              showAuthError('Incorrect Vault Encryption Passphrase. Unable to decrypt your vault.');
-              submitBtn.disabled = false;
-              submitBtn.classList.remove('opacity-70');
-              return;
-            }
-          } else {
-            // First-time vault initialization for an existing Auth user
-            const saltBytes = crypto.getRandomValues(new Uint8Array(16));
-            vaultSaltB64 = bufToB64(saltBytes);
-            vaultKey = await deriveKey(passphrase, saltBytes);
-            vaultData = getDemoDataset();
-            await saveVaultToCloud();
-          }
+          userObj = cred.user;
         }
 
-        // Enter unlocked app shell
-        document.getElementById('sidebar-user-email').textContent = currentUser.email;
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('app-shell').classList.remove('hidden');
-        switchTab('dashboard');
-        refreshAllUI();
+        try {
+          await unlockUserVault(userObj, passphrase, initMode);
+          if (rememberDevice) {
+            localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(passphrase))));
+          } else {
+            localStorage.removeItem('wp_cached_passphrase');
+          }
+        } catch {
+          await signOut(auth);
+          localStorage.removeItem('wp_cached_passphrase');
+          showAuthError('Incorrect Vault Encryption Passphrase. Unable to decrypt your vault.');
+        }
       } catch (err) {
         showAuthError(err.message || 'Authentication failed.');
       } finally {
@@ -1359,10 +1813,20 @@
       }
     });
 
-    // If user reloads page while already signed into Firebase, keep Auth screen in Sign In mode so they can re-enter their client-side decryption passphrase
-    onAuthStateChanged(auth, (user) => {
+    // Auto-unlock on reload if user checked "Remember Vault on This Device"
+    onAuthStateChanged(auth, async (user) => {
       if (user && !vaultKey) {
         document.getElementById('auth-email').value = user.email || '';
+        const cachedB64 = localStorage.getItem('wp_cached_passphrase');
+        if (cachedB64) {
+          try {
+            const savedPass = decodeURIComponent(escape(atob(cachedB64)));
+            await unlockUserVault(user, savedPass);
+            return;
+          } catch {
+            localStorage.removeItem('wp_cached_passphrase');
+          }
+        }
         setAuthMode('signin');
       }
     });
