@@ -583,6 +583,24 @@
           </div>
         </div>
 
+        <!-- 2.5 What More Can You Do With Your Wealth? (Real Estate, Business, Side Ventures & Lifestyle Upgrades) -->
+        <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">What More Can You Do With Your Wealth?</h3>
+              <p id="opportunities-subtitle" class="text-xs text-slate-500">Real-world possibilities unlocked by your current Net Worth &amp; monthly surplus</p>
+            </div>
+            <div class="inline-flex bg-slate-100 p-1 rounded-xl text-xs font-semibold" id="opp-filter-bar">
+              <button type="button" data-opp="all" class="opp-pill active px-2.5 py-1 rounded-lg bg-white text-indigo-600 shadow-2xs transition">All Ideas</button>
+              <button type="button" data-opp="property" class="opp-pill px-2.5 py-1 rounded-lg text-slate-600 transition">Property</button>
+              <button type="button" data-opp="business" class="opp-pill px-2.5 py-1 rounded-lg text-slate-600 transition">Business</button>
+              <button type="button" data-opp="freedom" class="opp-pill px-2.5 py-1 rounded-lg text-slate-600 transition">Freedom &amp; Tax</button>
+            </div>
+          </div>
+
+          <div id="opportunities-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
         <!-- 3. Mutual Funds vs. Direct Stocks Comparison Guide -->
         <div class="rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xs space-y-4">
           <div>
@@ -1491,6 +1509,8 @@
         desc: 'Use diversified Flexi Cap, Nifty 50 Index, and Mid Cap SIPs as your wealth engine; cap direct stock bets at 15% so single-stock drops never hurt your goals.'
       });
 
+      renderWealthOpportunities(netWorth, totalAssets, totalDebt, income, expenses, totalInvestable);
+
       document.getElementById('advisor-action-cards').innerHTML = cards.map(c => `
         <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/60 space-y-1.5">
           <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold ${c.tagCls}">${c.tag}</span>
@@ -1499,6 +1519,143 @@
         </div>
       `).join('');
     }
+
+    let activeOppCategory = 'all';
+
+    function renderWealthOpportunities(netWorth, totalAssets, totalDebt, income, expenses, totalInvestable) {
+      const grid = document.getElementById('opportunities-grid');
+      if (!grid) return;
+
+      const nw = Math.max(0, netWorth);
+      const monthlyCap = Math.max(0, totalInvestable);
+      const annualExpenses = Math.max(120000, (expenses > 0 ? expenses : 50000) * 12);
+      const runwayMonths = expenses > 0 ? Math.floor(nw / expenses) : (nw > 0 ? 24 : 0);
+
+      // Affordability calculations tailored to Indian real estate & business benchmarks
+      // Property: 25% down payment from up to 60% of liquid net worth + safe EMI <= 35% of monthly income
+      const maxDownPayment = Math.round(nw * 0.55);
+      const safeMonthlyEmi = Math.round((income > 0 ? income : monthlyCap * 1.5) * 0.35);
+      // Approx loan eligibility at ~8.75% for 20 yrs (~₹884 EMI per ₹1L loan)
+      const estLoanEligible = safeMonthlyEmi > 0 ? Math.round((safeMonthlyEmi / 884) * 100000) : 0;
+      const affordablePropertyBudget = maxDownPayment + estLoanEligible;
+      const estRentalYieldMonthly = Math.round((affordablePropertyBudget * 0.045) / 12); // ~4.5% commercial/fractional yield
+
+      // Business capital: safe bootstrap budget = 15-20% of Net Worth or 6 months of surplus
+      const safeStartupCap = Math.max(100000, Math.round(nw * 0.18 + monthlyCap * 3));
+
+      const allIdeas = [
+        {
+          cat: 'property',
+          badge: '🏠 REAL ESTATE • BUYING POWER',
+          badgeCls: 'bg-sky-50 text-sky-700',
+          title: affordablePropertyBudget >= 2500000
+            ? `Property Budget: Up to ${formatCompactINR(affordablePropertyBudget)}`
+            : 'Build Down-Payment Corpus for First Property',
+          metric: `Down Payment Ready: ${formatCompactINR(maxDownPayment)} • Safe EMI: ${formatINR(safeMonthlyEmi)}/mo`,
+          desc: affordablePropertyBudget >= 2500000
+            ? `You can comfortably fund a 2BHK/3BHK residential flat or a pre-leased commercial shop without draining your core mutual fund compounding.`
+            : `Keep directing ${formatINR(monthlyCap)}/mo into liquid & equity funds; in ${Math.max(1, Math.ceil((1500000 - maxDownPayment) / Math.max(10000, monthlyCap * 12)))} yrs you'll hit a ₹15L down payment cleanly.`,
+          fit: nw >= 2000000 ? 'Unlocked Now' : 'In Progress',
+          fitCls: nw >= 2000000 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'
+        },
+        {
+          cat: 'property',
+          badge: '🏢 COMMERCIAL / REIT PASSIVE RENT',
+          badgeCls: 'bg-sky-50 text-sky-700',
+          title: nw >= 1500000
+            ? `Commercial Office / REITs (~${formatINR(Math.max(12000, estRentalYieldMonthly))}/mo Rent)`
+            : 'Fractional Commercial Real Estate & REITs (Start from ₹50K)',
+          metric: `Target Yield: 6%–8.5% p.a. + Capital Appreciation`,
+          desc: nw >= 1500000
+            ? `Commercial retail shops or Grade-A REITs generate 2x higher rental yield than residential flats, creating a steady second paycheck alongside your salary.`
+            : `Instead of locking crores into physical property early, invest in listed Indian REITs (Embassy, Mindspace, Brookfield) for quarterly rental dividends.`,
+          fit: nw >= 1500000 ? 'Unlocked Now' : 'Starter Ready',
+          fitCls: 'bg-emerald-50 text-emerald-700'
+        },
+        {
+          cat: 'business',
+          badge: '🚀 ASSET-LIGHT BUSINESS IDEA',
+          badgeCls: 'bg-violet-50 text-violet-700',
+          title: `Launch a Micro-SaaS, AI Tool, or Niche Agency (${formatCompactINR(safeStartupCap)} Cap)`,
+          metric: `Safe Risk Budget: ${formatCompactINR(safeStartupCap)} (Zero Debt Needed)`,
+          desc: `With your tech background and ${formatINR(monthlyCap)}/mo cash cushion, you can fund cloud infra, marketing, and contractors for a B2B SaaS or automation agency while keeping your day job.`,
+          fit: 'High Margin • Low Risk',
+          fitCls: 'bg-indigo-50 text-indigo-700'
+        },
+        {
+          cat: 'business',
+          badge: '🏪 FRANCHISE / LOCAL CASHFLOW BUSINESS',
+          badgeCls: 'bg-violet-50 text-violet-700',
+          title: nw >= 1200000
+            ? `Cloud Kitchen, Specialty Cafe, or EV Charging Hub`
+            : `D2C E-Commerce Brand or Specialty Distribution`,
+          metric: `Est. Setup Capital: ${nw >= 1200000 ? '₹8L – ₹18L' : '₹2L – ₹5L'} • Target ROI: 22%–30%`,
+          desc: nw >= 1200000
+            ? `Your net worth supports a semi-managed local franchise (specialty coffee/ice-cream kiosk, cloud kitchen, or EV fast-charger tie-up) run by a store manager.`
+            : `Start a high-margin niche D2C brand or curated local distribution business using your monthly surplus without touching emergency reserves.`,
+          fit: nw >= 1200000 ? 'Unlocked Now' : 'Bootstrap Fit',
+          fitCls: nw >= 1200000 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'
+        },
+        {
+          cat: 'freedom',
+          badge: '🛡️ FINANCIAL RUNWAY & MINI-RETIREMENT',
+          badgeCls: 'bg-emerald-50 text-emerald-700',
+          title: `${runwayMonths} Months of Expense Freedom Built`,
+          metric: `Current Monthly Burn: ${formatINR(expenses)}/mo • FIRE Target (25x): ${formatCompactINR(annualExpenses * 25)}`,
+          desc: runwayMonths >= 12
+            ? `Your current net worth can cover ${runwayMonths} months of living expenses on its own—giving you the leverage to take career bets, negotiate higher pay, or fund a startup.`
+            : `Aim for 12 months of expenses (${formatCompactINR(annualExpenses)}) in liquid + arbitrage funds first so you have total career independence.`,
+          fit: runwayMonths >= 12 ? 'Strong Cushion' : 'Building Base',
+          fitCls: runwayMonths >= 12 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700'
+        },
+        {
+          cat: 'freedom',
+          badge: '⚖️ TAX & PASSIVE INCOME OPTIMIZATION',
+          badgeCls: 'bg-amber-50 text-amber-800',
+          title: `Generate ~${formatINR(Math.round((nw * 0.085) / 12))}/mo Passive Yield via SWP / Arbitrage`,
+          metric: `8.5% Blended Yield on ${formatCompactINR(nw)} Net Worth`,
+          desc: `Shifting idle savings-account cash into Arbitrage Funds (equity taxation) and maxing Section 80C/NPS/Health insurance saves ₹45,000+ in annual taxes while boosting real returns.`,
+          fit: 'Smart Optimization',
+          fitCls: 'bg-indigo-50 text-indigo-700'
+        }
+      ];
+
+      const filtered = activeOppCategory === 'all'
+        ? allIdeas
+        : allIdeas.filter(item => item.cat === activeOppCategory);
+
+      document.getElementById('opportunities-subtitle').textContent =
+        `Tailored to ${formatCompactINR(nw)} Net Worth, ${formatINR(expenses)}/mo expenses & ${formatINR(monthlyCap)}/mo investable surplus`;
+
+      grid.innerHTML = filtered.map(item => `
+        <div class="p-4 rounded-xl border border-slate-200/90 bg-white hover:border-indigo-300 transition flex flex-col justify-between gap-2.5 shadow-2xs">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.badgeCls}">${item.badge}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${item.fitCls}">${item.fit}</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-sm leading-snug">${item.title}</h4>
+            <div class="text-[11px] font-semibold text-indigo-600">${item.metric}</div>
+            <p class="text-xs text-slate-600 leading-relaxed">${item.desc}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.querySelectorAll('.opp-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        activeOppCategory = pill.dataset.opp;
+        document.querySelectorAll('.opp-pill').forEach(p => {
+          const isAct = p === pill;
+          p.classList.toggle('active', isAct);
+          p.classList.toggle('bg-white', isAct);
+          p.classList.toggle('text-indigo-600', isAct);
+          p.classList.toggle('shadow-2xs', isAct);
+          p.classList.toggle('text-slate-600', !isAct);
+        });
+        renderAdvisorAndProjections();
+      });
+    });
 
     ['sim-pv', 'sim-sip', 'sim-stepup', 'sim-years'].forEach(id => {
       document.getElementById(id).addEventListener('input', () => {
