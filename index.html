@@ -1164,31 +1164,44 @@
      *************************************************************************/
     const TROY_OZ_TO_GRAMS = 31.1034768;
 
-    function fetchWithTimeout(url, ms = 2500) {
+    function fetchWithTimeout(url, ms = 2200) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), ms);
       return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+    }
+
+    function extractQuotePrice(jsonObj) {
+      if (!jsonObj) return 0;
+      const meta = jsonObj?.chart?.result?.[0]?.meta;
+      const p1 = Number(meta?.regularMarketPrice || meta?.previousClose || 0);
+      if (p1 > 0) return p1;
+      const p2 = Number(jsonObj?.price?.regularMarketPrice?.raw || jsonObj?.price?.regularMarketPrice || 0);
+      if (p2 > 0) return p2;
+      const p3 = Number(jsonObj?.c || jsonObj?.price || 0);
+      return p3 > 0 ? p3 : 0;
     }
 
     async function fetchStockQuoteINR(symbol) {
       const clean = symbol.trim().toUpperCase().replace(/\.NS$|\.BO$/i, '');
       if (!clean) return null;
 
-      // Race fast endpoints with strict 2.5s timeout so it never hangs
-      const candidates = [
-        { exchange: 'NSE', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
-        { exchange: 'NSE', url: `https://corsproxy.io/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
-        { exchange: 'BSE', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.BO?interval=1d&range=1d`)}` }
+      // Try multiple public CORS/quote endpoints in parallel with strict timeout
+      const endpoints = [
+        { exchange: 'NSE', url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
+        { exchange: 'NSE', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d`)}` },
+        { exchange: 'NSE', url: `https://thingproxy.freeboard.io/fetch/https://query1.finance.yahoo.com/v8/finance/chart/${clean}.NS?interval=1d&range=1d` },
+        { exchange: 'BSE', url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.BO?interval=1d&range=1d`)}` },
+        { exchange: 'BSE', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${clean}.BO?interval=1d&range=1d`)}` }
       ];
 
-      const attempts = candidates.map(async (c) => {
-        const res = await fetchWithTimeout(c.url, 2500);
-        if (!res.ok) throw new Error('bad status');
-        const data = JSON.parse(await res.text());
-        const meta = data?.chart?.result?.[0]?.meta;
-        const price = Number(meta?.regularMarketPrice || meta?.previousClose);
-        if (!price || price <= 0) throw new Error('no price');
-        return { symbol: clean, exchange: c.exchange, price };
+      const attempts = endpoints.map(async (ep) => {
+        const res = await fetchWithTimeout(ep.url, 2200);
+        if (!res.ok) throw new Error('status');
+        const txt = await res.text();
+        const parsed = JSON.parse(txt);
+        const price = extractQuotePrice(parsed);
+        if (!price || price <= 0) throw new Error('price');
+        return { symbol: clean, exchange: ep.exchange, price };
       });
 
       try {
@@ -1532,13 +1545,17 @@
       const sym = document.getElementById('stock-symbol-input').value.trim();
       if (!sym) return;
       const prev = document.getElementById('stock-quote-preview');
-      prev.textContent = 'Checking live NSE/BSE price...';
+      const chkBtn = document.getElementById('check-stock-btn');
+      prev.textContent = 'Checking NSE/BSE...';
+      chkBtn.disabled = true;
       const q = await fetchStockQuoteINR(sym);
+      chkBtn.disabled = false;
       if (q) {
         prev.textContent = `✓ ${q.symbol} (${q.exchange}): ₹${q.price.toLocaleString('en-IN')}`;
         document.getElementById('stock-live-price-input').value = q.price;
       } else {
-        prev.textContent = 'Live feed busy — enter Live ₹ manually below to save';
+        prev.textContent = 'Type current share price in "Live ₹" below and tap Add Live Stock';
+        document.getElementById('stock-live-price-input').focus();
       }
     });
 
