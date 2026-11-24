@@ -1929,15 +1929,31 @@
       const assets = vaultData.netWorthItems.filter(i => i.kind === 'asset');
       const total = assets.reduce((s, i) => s + Number(i.value), 0);
 
+      // Smart auto-detection for imported items whose sheet had category = "Equity & Mutual Funds"
+      // e.g. "AADHAR HOUSING FINANCE LI...", "APL APOLLO TUBES LTD." are stocks (LTD / LIMITED / CORP / INC),
+      // while "Tata Gold ETF FoF - Gr" / "Tata Silver ETF FoF - Gr" are Gold/Silver ETFs!
+      const isStockName = (name) => /(LTD|LIMITED|CORP|CORPORATION|INC|INDUSTRIES|FINANCE|BANK|MOTORS|STEEL|POWER|CEMENT|PHARMA|LABS|TECH|INFOTECH|SYSTEMS|ENERGY|GAS|OIL|CHEMICALS|TEXTILES|PIPES|TUBES|HOUSING)/i.test(String(name || '')) && !/(FUND|ETF|FOF|INDEX|PLAN|GROWTH|IDCW|MUTUAL|AMC)/i.test(String(name || ''));
+      const isMetalName = (name) => /(GOLD|SILVER|BULLION|SGB|ETF\s*FOF)/i.test(String(name || '')) && /GOLD|SILVER/i.test(String(name || ''));
+
       let mfVal = 0, stockVal = 0, metalVal = 0, pfDebtVal = 0, lentCashVal = 0;
       for (const item of assets) {
         const v = Number(item.value) || 0;
         const cat = String(item.category || '');
-        if (item.liveType === 'mf' || /mutual/i.test(cat)) mfVal += v;
-        else if (item.liveType === 'stock' || /stock/i.test(cat)) stockVal += v;
-        else if (['gold24', 'gold22', 'silver'].includes(item.liveType) || /gold|silver/i.test(cat)) metalVal += v;
-        else if (item.isLent || /given|receivable/i.test(cat)) lentCashVal += v;
-        else pfDebtVal += v; // EPF, PPF, FD, Bank, Property
+        const nm = String(item.name || '');
+
+        if (item.liveType === 'stock' || /stock|share/i.test(cat) || (item.liveType !== 'mf' && isStockName(nm))) {
+          item.category = 'Direct Stocks';
+          stockVal += v;
+        } else if (['gold24', 'gold22', 'silver'].includes(item.liveType) || /gold|silver/i.test(cat) || (item.liveType !== 'mf' && isMetalName(nm))) {
+          if (!/gold|silver/i.test(cat)) item.category = /silver/i.test(nm) ? 'Silver (Live)' : 'Gold 24K (Live)';
+          metalVal += v;
+        } else if (item.liveType === 'mf' || /mutual|equity|fof/i.test(cat)) {
+          mfVal += v;
+        } else if (item.isLent || /given|receivable/i.test(cat)) {
+          lentCashVal += v;
+        } else {
+          pfDebtVal += v;
+        }
       }
 
       // Safe vs Growth bar
@@ -1985,8 +2001,15 @@
         });
       }
 
-      // Sector List
-      document.getElementById('sector-breakdown-list').innerHTML = sectors.map(s => {
+      // Sector List + Combined Equity line
+      const totalEquityVal = mfVal + stockVal;
+      const totalEquityPct = total > 0 ? ((totalEquityVal / total) * 100).toFixed(1) : '0.0';
+      document.getElementById('sector-breakdown-list').innerHTML = `
+        <div class="pb-1.5 mb-1 border-b border-slate-100 flex items-center justify-between text-[11px] font-bold text-indigo-700">
+          <span>Total Equity (MF + Stocks)</span>
+          <span>${formatCompactINR(totalEquityVal)} (${totalEquityPct}%)</span>
+        </div>
+      ` + sectors.map(s => {
         const pct = total > 0 ? ((s.val / total) * 100).toFixed(1) : '0.0';
         return `
           <div class="flex items-center justify-between gap-2">
