@@ -1602,11 +1602,17 @@
 
       let price = manualLive > 0 ? manualLive : 0;
       let exchange = 'NSE';
+      let resolvedSym = rawSym;
+      const previewTxt = document.getElementById('stock-quote-preview').textContent || '';
+      const exMatch = previewTxt.match(/\((NSE|BSE)\)/);
+      if (exMatch) exchange = exMatch[1];
+
       if (!price) {
         const q = await fetchStockQuoteINR(rawSym);
         if (q && q.price > 0) {
           price = q.price;
           exchange = q.exchange;
+          resolvedSym = q.symbol || rawSym;
         } else if (avg > 0) {
           price = avg;
         }
@@ -1624,8 +1630,8 @@
         id: 'nw_st_' + Date.now(),
         kind: 'asset',
         liveType: 'stock',
-        symbol: q ? q.symbol : rawSym,
-        name: `${q ? q.symbol : rawSym} (${q ? q.exchange : 'NSE'})`,
+        symbol: resolvedSym,
+        name: `${resolvedSym} (${exchange})`,
         category: 'Direct Stocks',
         qty,
         unitPrice: price,
@@ -1641,7 +1647,7 @@
       recordMonthlyNetWorthSnapshot();
       refreshAllUI();
       await saveVaultToCloud();
-      showToast(`Added ${qty} shares of ${q ? q.symbol : rawSym}!`);
+      showToast(`Added ${qty} shares of ${resolvedSym}!`);
     });
 
     // Gold / Silver Add
