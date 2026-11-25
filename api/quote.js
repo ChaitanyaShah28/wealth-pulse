@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   const raw = String(req.query.symbol || '').trim().toUpperCase().replace(/\.NS$|\.BO$/i, '');
   if (!raw || raw === 'NSE' || raw === 'BSE') {
-    return res.status(400).json({ error: 'Enter a stock ticker symbol such as RELIANCE, TCS, or HDFCBANK' });
+    return res.status(400).json({ error: 'Enter a stock ticker symbol such as RELIANCE, TCS, or 544937' });
   }
 
   const headers = {
@@ -26,7 +26,8 @@ export default async function handler(req, res) {
   }
 
   async function tryGoogleFinance(sym, exch) {
-    const url = `https://www.google.com/finance/quote/${encodeURIComponent(sym)}:${exch}`;
+    const gfExch = exch === 'BSE' ? 'BOM' : 'NSE';
+    const url = `https://www.google.com/finance/quote/${encodeURIComponent(sym)}:${gfExch}`;
     const r = await fetch(url, { headers });
     if (!r.ok) throw new Error('gf status');
     const html = await r.text();
@@ -36,12 +37,31 @@ export default async function handler(req, res) {
     return { symbol: sym, exchange: exch, price, name: sym };
   }
 
+  async function tryBseApi(scripCode) {
+    if (!/^\d{5,7}$/.test(scripCode)) throw new Error('not scrip');
+    const url = `https://api.bseindia.com/BseIndiaAPI/api/StockReachGraph/w?scripcode=${encodeURIComponent(scripCode)}&flag=0&fromdate=&todate=&seriesid=`;
+    const r = await fetch(url, {
+      headers: {
+        ...headers,
+        'Referer': 'https://www.bseindia.com/',
+        'Origin': 'https://www.bseindia.com'
+      }
+    });
+    if (!r.ok) throw new Error('bse status');
+    const txt = await r.text();
+    const m = txt.match(/"currVal"\s*:\s*"?([0-9.]+)"?/i) || txt.match(/"ltp"\s*:\s*"?([0-9.]+)"?/i);
+    const price = m ? parseFloat(m[1]) : 0;
+    if (!price || price <= 0) throw new Error('bse price');
+    return { symbol: scripCode, exchange: 'BSE', price, name: scripCode };
+  }
+
   try {
     const quote = await Promise.any([
       tryYahoo(raw, 'NSE'),
       tryGoogleFinance(raw, 'NSE'),
       tryYahoo(raw, 'BSE'),
-      tryGoogleFinance(raw, 'BSE')
+      tryGoogleFinance(raw, 'BSE'),
+      tryBseApi(raw)
     ]);
     res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
     return res.status(200).json(quote);
