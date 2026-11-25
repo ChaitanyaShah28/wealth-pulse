@@ -1171,7 +1171,8 @@
     }
 
     async function fetchGoogleFinanceINR(clean, exchange = 'NSE') {
-      const gfUrl = `https://www.google.com/finance/quote/${encodeURIComponent(clean)}:${exchange}`;
+      const gfExch = exchange === 'BSE' ? 'BOM' : 'NSE';
+      const gfUrl = `https://www.google.com/finance/quote/${encodeURIComponent(clean)}:${gfExch}`;
       const proxyUrls = [
         `https://api.allorigins.win/raw?url=${encodeURIComponent(gfUrl)}`,
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(gfUrl)}`
