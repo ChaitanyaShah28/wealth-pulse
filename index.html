@@ -2866,14 +2866,9 @@ try {
           else localStorage.removeItem('wp_cached_passphrase');
         } catch {
           await signOut(auth);
-          errorBox.textContent = 'Vault locked: this password or custom Vault PIN could not decrypt your existing vault. Your cloud data was not reset or overwritten—try your original password or custom Vault PIN.';
+          errorBox.textContent = 'This password could not unlock your existing vault (your cloud data was not wiped). If you reset your password without a recovery key, old encrypted data cannot be auto-unlocked by the browser.';
           errorBox.classList.remove('hidden');
-        }
-      } catch (err) {
-        errorBox.textContent = err.message;
-        errorBox.classList.remove('hidden');
-      }
-    });
+        });
 
     onAuthStateChanged(auth, async (user) => {
       if (user && !vaultKey) {
