@@ -111,6 +111,7 @@
         <button type="button" class="export-readable-trigger w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold flex items-center justify-center" title="Export Excel">↓</button>
         <button type="button" id="mob-help-btn" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold">?</button>
         <button type="button" class="open-quick-btn px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">+ Add</button>
+        <button type="button" id="mob-sign-out" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-semibold">Logout</button>
       </div>
     </header>
 
@@ -2032,8 +2033,8 @@
       // Smart auto-detection for imported items whose sheet had category = "Equity & Mutual Funds"
       // e.g. "AADHAR HOUSING FINANCE LI...", "APL APOLLO TUBES LTD." are stocks (LTD / LIMITED / CORP / INC),
       // while "Tata Gold ETF FoF - Gr" / "Tata Silver ETF FoF - Gr" are Gold/Silver ETFs!
-      const isStockName = (name) => /\b(LTD|LIMITED|CORP|CORPORATION|INC|INDUSTRIES|FINANCE|BANK|MOTORS|STEEL|POWER|CEMENT|PHARMA|LABS|TECH|INFOTECH|SYSTEMS|ENERGY|GAS|OIL|CHEMICALS|TEXTILES|PIPES|TUBES|HOUSING)\b/i.test(String(name || '')) && !/\b(FUND|ETF|FOF|INDEX|PLAN|GROWTH|IDCW|MUTUAL|AMC)\b/i.test(String(name || ''));
-      const isMetalName = (name) => /\b(GOLD|SILVER|BULLION|SGB|ETF\s*FOF)\b/i.test(String(name || '')) && /GOLD|SILVER/i.test(String(name || ''));
+      const isStockName = (name) => /(LTD|LIMITED|CORP|CORPORATION|INC|INDUSTRIES|FINANCE|BANK|MOTORS|STEEL|POWER|CEMENT|PHARMA|LABS|TECH|INFOTECH|SYSTEMS|ENERGY|GAS|OIL|CHEMICALS|TEXTILES|PIPES|TUBES|HOUSING)/i.test(String(name || '')) && !/(FUND|ETF|FOF|INDEX|PLAN|GROWTH|IDCW|MUTUAL|AMC)/i.test(String(name || ''));
+      const isMetalName = (name) => /(GOLD|SILVER|BULLION|SGB|ETF\s*FOF)/i.test(String(name || '')) && /GOLD|SILVER/i.test(String(name || ''));
 
       let mfVal = 0, stockVal = 0, metalVal = 0, pfDebtVal = 0, lentCashVal = 0;
       for (const item of assets) {
@@ -2743,6 +2744,10 @@
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Date (YYYY-MM-DD)', 'Description', 'Type', 'Category', 'Amount (INR)'], ['2026-11-01', 'Salary', 'Income', 'Salary & Bonus', 150000]]), 'Cash & Bank Entries');
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Kind', 'Fund / Asset Name', 'Category', 'Invested Amount (INR)', 'Current Value (INR)'], ['Asset', 'Parag Parikh Flexi Cap', 'Equity & Mutual Funds', 500000, 620000]]), 'Mutual Funds & Assets');
       XLSX.writeFile(wb, 'CS_Wealth_Lab_Template.xlsx');
+    });
+
+    document.getElementById('mob-sign-out')?.addEventListener('click', () => {
+      document.getElementById('btn-sign-out').click();
     });
 
     document.getElementById('btn-sign-out').addEventListener('click', async () => {
