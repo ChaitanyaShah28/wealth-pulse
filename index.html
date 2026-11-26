@@ -2860,26 +2860,14 @@
           ? await createUserWithEmailAndPassword(auth, email, password)
           : await signInWithEmailAndPassword(auth, email, password);
 
-        try {
+try {
           await unlockVaultForUser(cred.user, secretToUse);
           if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(secretToUse))));
           else localStorage.removeItem('wp_cached_passphrase');
         } catch {
-          const resetFresh = confirm('Could not decrypt your existing vault with this password/PIN.\n\n• Tap Cancel to re-enter your original password or custom Vault PIN.\n• Tap OK to erase the unreadable vault and start fresh with your new password.');
-          if (resetFresh) {
-            const saltBytes = crypto.getRandomValues(new Uint8Array(16));
-            vaultSaltB64 = bufToB64(saltBytes);
-            vaultKey = await deriveKey(secretToUse, saltBytes);
-            vaultData = { transactions: [], netWorthItems: [], recurringRules: [], goals: [], budgets: { food: 12000, shop: 10000, fuel: 6000 }, nwHistory: [] };
-            currentUser = cred.user;
-            await saveVaultToCloud();
-            await unlockVaultForUser(cred.user, secretToUse);
-            if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(secretToUse))));
-          } else {
-            await signOut(auth);
-            errorBox.textContent = 'Incorrect Password or Vault PIN. Tap "tap to set separate Vault PIN" if you used a custom PIN.';
-            errorBox.classList.remove('hidden');
-          }
+          await signOut(auth);
+          errorBox.textContent = 'Vault locked: this password or custom Vault PIN could not decrypt your existing vault. Your cloud data was not reset or overwritten—try your original password or custom Vault PIN.';
+          errorBox.classList.remove('hidden');
         }
       } catch (err) {
         errorBox.textContent = err.message;
