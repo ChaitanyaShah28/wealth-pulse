@@ -67,6 +67,16 @@
             <input type="password" id="auth-password" required minlength="6" placeholder="Minimum 6 characters" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           </div>
 
+          <!-- Optional custom PIN (collapsed so first-time users aren't confused!) -->
+          <div class="pt-1">
+            <button type="button" id="toggle-custom-pin-btn" class="text-[11px] font-semibold text-indigo-600 hover:underline flex items-center gap-1">
+              <span>🔒 Auto-encrypted with your password (tap to set separate Vault PIN)</span>
+            </button>
+            <div id="custom-pin-box" class="hidden mt-2">
+              <input type="password" id="vault-passphrase" placeholder="Optional custom Vault PIN (leave blank to use password)" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+
           <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
             <input type="checkbox" id="remember-vault-cb" checked class="w-4 h-4 rounded text-indigo-600" />
             <span class="text-xs font-medium text-slate-700">Keep me signed in on this phone/PC</span>
@@ -100,7 +110,6 @@
         <button type="button" class="privacy-toggle-btn w-7 h-7 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center" title="Hide/Show ₹ amounts">👁️</button>
         <button type="button" class="export-readable-trigger w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold flex items-center justify-center" title="Export Excel">↓</button>
         <button type="button" id="mob-help-btn" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold">?</button>
-        <button type="button" id="mob-change-pw-btn" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center" title="Change Password & Re-Key Vault">🔑</button>
         <button type="button" class="open-quick-btn px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold">+ Add</button>
         <button type="button" id="mob-sign-out" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-semibold">Logout</button>
       </div>
@@ -145,9 +154,6 @@
         </button>
         <button type="button" class="open-import-btn w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">
           ↑ Upload Excel / CSV
-        </button>
-        <button type="button" id="open-change-pw-btn" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition">
-          🔑 Change Password &amp; Re-Key
         </button>
         <div class="pt-1 px-2 flex items-center justify-between text-[11px] text-slate-400">
           <span id="sync-status" class="truncate">Saved</span>
@@ -1053,58 +1059,6 @@
     </div>
   </div>
 
-  <!-- ==================== ONE-TIME RECOVERY KEY MODAL ==================== -->
-  <div id="recovery-key-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-      <div>
-        <h3 class="font-bold text-slate-900 text-base">🔑 Save Your One-Time Recovery Key</h3>
-        <p class="text-xs text-slate-500 mt-1">
-          Your vault is strictly zero-knowledge encrypted—neither the developer nor Firebase can read your data. Save this recovery key safely alongside regular Excel exports as an offline backup.
-        </p>
-      </div>
-      <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 font-mono text-xs font-bold text-amber-950 break-all select-all" id="recovery-key-display"></div>
-      <div class="flex items-center gap-2">
-        <button type="button" id="copy-recovery-key-btn" class="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition">
-          Copy Key
-        </button>
-        <button type="button" id="confirm-recovery-key-btn" class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition">
-          I Saved It Safely
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== CHANGE PASSWORD & RE-KEY VAULT MODAL ==================== -->
-  <div id="change-pw-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="font-bold text-slate-900 text-base">Change Password &amp; Re-Encrypt Vault</h3>
-          <p class="text-xs text-slate-400">Updates your login password and re-encrypts your existing vault data</p>
-        </div>
-        <button type="button" id="close-change-pw-modal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
-      </div>
-      <div id="change-pw-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs"></div>
-      <form id="change-pw-form" class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Current Password</label>
-          <input type="password" id="cpw-current" required minlength="6" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
-          <input type="password" id="cpw-new" required minlength="6" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Confirm New Password</label>
-          <input type="password" id="cpw-confirm" required minlength="6" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300" />
-        </div>
-        <button type="submit" id="cpw-submit-btn" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition">
-          Update Password &amp; Re-Encrypt Vault
-        </button>
-      </form>
-    </div>
-  </div>
-
   <!-- ==================== APPLICATION LOGIC ==================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -1113,9 +1067,6 @@
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
       sendPasswordResetEmail,
-      EmailAuthProvider,
-      reauthenticateWithCredential,
-      updatePassword,
       signOut,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -2850,128 +2801,15 @@
       }
       try {
         await sendPasswordResetEmail(auth, email);
-        alert(`Password reset email sent to ${email}.\n\nBecause your vault is zero-knowledge encrypted, Forgot Password resets your login password only—your cloud vault is never wiped automatically. If you already know your current password, use "Change Password & Re-Key" inside the app to update your password and re-encrypt your existing data seamlessly.`);
+        alert(`Password reset email sent to ${email}!\n\nNote: Because your vault is zero-knowledge encrypted, if you didn't use a separate Vault PIN, you can wipe your old encrypted vault after resetting your password to start fresh.`);
       } catch (err) {
         errorBox.textContent = err.message;
         errorBox.classList.remove('hidden');
       }
     });
 
-    function generateRecoveryKeyCode() {
-      const bytes = crypto.getRandomValues(new Uint8Array(18));
-      const raw = bufToB64(bytes).replace(/[^A-Za-z0-9]/g, '').slice(0, 24).toUpperCase();
-      return raw.match(/.{1,4}/g).join('-');
-    }
-
-    function showOneTimeRecoveryKeyModal(keyCode) {
-      return new Promise((resolve) => {
-        const modal = document.getElementById('recovery-key-modal');
-        const display = document.getElementById('recovery-key-display');
-        const copyBtn = document.getElementById('copy-recovery-key-btn');
-        const confirmBtn = document.getElementById('confirm-recovery-key-btn');
-
-        display.textContent = keyCode;
-        modal.classList.remove('hidden');
-
-        const onCopy = async () => {
-          try {
-            await navigator.clipboard.writeText(keyCode);
-            copyBtn.textContent = 'Copied!';
-            setTimeout(() => { copyBtn.textContent = 'Copy Key'; }, 1800);
-          } catch {}
-        };
-
-        const onConfirm = () => {
-          copyBtn.removeEventListener('click', onCopy);
-          confirmBtn.removeEventListener('click', onConfirm);
-          modal.classList.add('hidden');
-          resolve();
-        };
-
-        copyBtn.addEventListener('click', onCopy);
-        confirmBtn.addEventListener('click', onConfirm);
-      });
-    }
-
-    async function reencryptVaultWithNewSecret(newSecret) {
-      if (!currentUser || !vaultData) throw new Error('Vault is not unlocked.');
-      const nextSaltBytes = crypto.getRandomValues(new Uint8Array(16));
-      const nextSaltB64 = bufToB64(nextSaltBytes);
-      const nextKey = await deriveKey(newSecret, nextSaltBytes);
-      const encrypted = await encryptVault(vaultData, nextKey);
-
-      await setDoc(getUserDocRef(currentUser.uid), {
-        appId,
-        salt: nextSaltB64,
-        iv: encrypted.iv,
-        ciphertext: encrypted.ciphertext,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
-
-      vaultSaltB64 = nextSaltB64;
-      vaultKey = nextKey;
-    }
-
-    const changePwModal = document.getElementById('change-pw-modal');
-    const changePwError = document.getElementById('change-pw-error');
-
-    function openChangePwModal() {
-      changePwError.classList.add('hidden');
-      document.getElementById('change-pw-form').reset();
-      changePwModal.classList.remove('hidden');
-      document.getElementById('cpw-current').focus();
-    }
-
-    document.getElementById('open-change-pw-btn')?.addEventListener('click', openChangePwModal);
-    document.getElementById('mob-change-pw-btn')?.addEventListener('click', openChangePwModal);
-
-    document.getElementById('close-change-pw-modal')?.addEventListener('click', () => {
-      changePwModal.classList.add('hidden');
-    });
-
-    document.getElementById('change-pw-form')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      changePwError.classList.add('hidden');
-
-      const curPw = document.getElementById('cpw-current').value;
-      const newPw = document.getElementById('cpw-new').value;
-      const confirmPw = document.getElementById('cpw-confirm').value;
-
-      if (newPw !== confirmPw) {
-        changePwError.textContent = 'New password and confirmation do not match.';
-        changePwError.classList.remove('hidden');
-        return;
-      }
-      if (!auth.currentUser || !auth.currentUser.email) {
-        changePwError.textContent = 'Please sign in again before changing your password.';
-        changePwError.classList.remove('hidden');
-        return;
-      }
-
-      const btn = document.getElementById('cpw-submit-btn');
-      btn.disabled = true;
-      btn.textContent = 'Re-encrypting...';
-
-      try {
-        const cred = EmailAuthProvider.credential(auth.currentUser.email, curPw);
-        await reauthenticateWithCredential(auth.currentUser, cred);
-        await unlockVaultForUser(auth.currentUser, curPw);
-        await updatePassword(auth.currentUser, newPw);
-        await reencryptVaultWithNewSecret(newPw);
-
-        if (localStorage.getItem('wp_cached_passphrase')) {
-          localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(newPw))));
-        }
-
-        changePwModal.classList.add('hidden');
-        showToast('Password updated and vault re-encrypted safely!');
-      } catch (err) {
-        changePwError.textContent = err.message || 'Could not update password. Your vault was left untouched.';
-        changePwError.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Update Password & Re-Encrypt Vault';
-      }
+    document.getElementById('toggle-custom-pin-btn').addEventListener('click', () => {
+      document.getElementById('custom-pin-box').classList.toggle('hidden');
     });
 
     async function unlockVaultForUser(user, secret) {
@@ -2988,26 +2826,14 @@
           recurringRules: decData.recurringRules || [],
           goals: decData.goals || [],
           budgets: decData.budgets || { food: 12000, shop: 10000, fuel: 6000 },
-          targetAlloc: decData.targetAlloc || { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
           nwHistory: decData.nwHistory || []
         };
       } else {
         const saltBytes = crypto.getRandomValues(new Uint8Array(16));
         vaultSaltB64 = bufToB64(saltBytes);
         vaultKey = await deriveKey(secret, saltBytes);
-        vaultData = {
-          transactions: [],
-          netWorthItems: [],
-          recurringRules: [],
-          goals: [],
-          budgets: { food: 12000, shop: 10000, fuel: 6000 },
-          targetAlloc: { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
-          nwHistory: []
-        };
+        vaultData = { transactions: [], netWorthItems: [], recurringRules: [], goals: [], budgets: { food: 12000, shop: 10000, fuel: 6000 }, nwHistory: [] };
         await saveVaultToCloud();
-        if (authMode === 'signup') {
-          await showOneTimeRecoveryKeyModal(generateRecoveryKeyCode());
-        }
       }
 
       document.getElementById('auth-screen').classList.add('hidden');
@@ -3025,6 +2851,8 @@
       errorBox.classList.add('hidden');
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
+      const customPin = document.getElementById('vault-passphrase').value;
+      const secretToUse = customPin.trim() ? customPin : password;
       const remember = document.getElementById('remember-vault-cb').checked;
 
       try {
@@ -3033,13 +2861,25 @@
           : await signInWithEmailAndPassword(auth, email, password);
 
         try {
-          await unlockVaultForUser(cred.user, password);
-          if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(password))));
+          await unlockVaultForUser(cred.user, secretToUse);
+          if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(secretToUse))));
           else localStorage.removeItem('wp_cached_passphrase');
         } catch {
-          await signOut(auth);
-          errorBox.textContent = 'Vault locked: this password could not decrypt your existing vault. Your cloud data was not reset or overwritten—sign in with your original password and use "Change Password & Re-Key" inside the app to update it safely.';
-          errorBox.classList.remove('hidden');
+          const resetFresh = confirm('Could not decrypt your existing vault with this password/PIN.\n\n• Tap Cancel to re-enter your original password or custom Vault PIN.\n• Tap OK to erase the unreadable vault and start fresh with your new password.');
+          if (resetFresh) {
+            const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+            vaultSaltB64 = bufToB64(saltBytes);
+            vaultKey = await deriveKey(secretToUse, saltBytes);
+            vaultData = { transactions: [], netWorthItems: [], recurringRules: [], goals: [], budgets: { food: 12000, shop: 10000, fuel: 6000 }, nwHistory: [] };
+            currentUser = cred.user;
+            await saveVaultToCloud();
+            await unlockVaultForUser(cred.user, secretToUse);
+            if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(secretToUse))));
+          } else {
+            await signOut(auth);
+            errorBox.textContent = 'Incorrect Password or Vault PIN. Tap "tap to set separate Vault PIN" if you used a custom PIN.';
+            errorBox.classList.remove('hidden');
+          }
         }
       } catch (err) {
         errorBox.textContent = err.message;
@@ -3054,10 +2894,12 @@
         if (cached) {
           try {
             await unlockVaultForUser(user, decodeURIComponent(escape(atob(cached))));
+            return;
           } catch {
             localStorage.removeItem('wp_cached_passphrase');
           }
         }
+        
       }
     });
   </script>
