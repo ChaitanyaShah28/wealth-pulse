@@ -2846,7 +2846,7 @@
       refreshAllUI();
     }
 
-    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+document.getElementById('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       errorBox.classList.add('hidden');
       const email = document.getElementById('auth-email').value.trim();
@@ -2860,7 +2860,7 @@
           ? await createUserWithEmailAndPassword(auth, email, password)
           : await signInWithEmailAndPassword(auth, email, password);
 
-try {
+        try {
           await unlockVaultForUser(cred.user, secretToUse);
           if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(secretToUse))));
           else localStorage.removeItem('wp_cached_passphrase');
@@ -2868,7 +2868,12 @@ try {
           await signOut(auth);
           errorBox.textContent = 'This password could not unlock your existing vault (your cloud data was not wiped). If you reset your password without a recovery key, old encrypted data cannot be auto-unlocked by the browser.';
           errorBox.classList.remove('hidden');
-        });
+        }
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.remove('hidden');
+      }
+    });
 
     onAuthStateChanged(auth, async (user) => {
       if (user && !vaultKey) {
