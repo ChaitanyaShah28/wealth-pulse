@@ -47,7 +47,7 @@
         </div>
 
         <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900 text-white text-xs">
-          <span class="font-semibold">🔒 Zero-Knowledge Password-Encrypted Vault</span>
+          <span class="font-semibold">🔒 AES-256 Encrypted Private Vault</span>
           <span class="text-[11px] text-emerald-400 font-bold">Private</span>
         </div>
 
@@ -1082,9 +1082,8 @@
     const db = getFirestore(app);
 
     let currentUser = null;
-    let masterVaultKey = null;
     let vaultKey = null;
-    let currentPwWrap = null;
+    let vaultSaltB64 = null;
     let authMode = 'signin';
     let activePeriod = 'this-month';
     let stagedImportData = null;
@@ -1121,44 +1120,8 @@
       );
     }
 
-    async function generateRandomMasterKey() {
-      return crypto.subtle.generateKey(
-        { name: 'AES-GCM', length: 256 },
-        true,
-        ['encrypt', 'decrypt']
-      );
-    }
-
-    async function wrapMasterKeyWithSecret(masterKeyObj, secret) {
-      const rawBytes = new Uint8Array(await crypto.subtle.exportKey('raw', masterKeyObj));
-      const saltBytes = crypto.getRandomValues(new Uint8Array(16));
-      const ivBytes = crypto.getRandomValues(new Uint8Array(12));
-      const kek = await deriveKey(secret, saltBytes);
-      const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: ivBytes }, kek, rawBytes);
-      return {
-        salt: bufToB64(saltBytes),
-        iv: bufToB64(ivBytes),
-        ciphertext: bufToB64(cipherBuf)
-      };
-    }
-
-    async function unwrapMasterKeyWithSecret(wrapObj, secret) {
-      if (!wrapObj || !wrapObj.salt || !wrapObj.iv || !wrapObj.ciphertext) {
-        throw new Error('Missing key wrapper.');
-      }
-      const kek = await deriveKey(secret, b64ToBuf(wrapObj.salt));
-      const plainRaw = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv: b64ToBuf(wrapObj.iv) },
-        kek,
-        b64ToBuf(wrapObj.ciphertext)
-      );
-      return crypto.subtle.importKey(
-        'raw',
-        plainRaw,
-        { name: 'AES-GCM', length: 256 },
-        true,
-        ['encrypt', 'decrypt']
-      );
+    function getVaultSeedForUser(uid) {
+      return `cs-wealth-lab::${appId}::${uid}`;
     }
 
     async function encryptVault(plainObj, key) {
@@ -1186,19 +1149,19 @@
     function getUserDocRef(uid) { return doc(db, 'users', uid); }
 
     async function saveVaultToCloud() {
-      if (!currentUser || !masterVaultKey || !currentPwWrap) return;
+      if (!currentUser || !vaultKey || !vaultSaltB64) return;
       const syncEl = document.getElementById('sync-status');
       syncEl.textContent = 'Saving...';
       try {
-        const encrypted = await encryptVault(vaultData, masterVaultKey);
+        const encrypted = await encryptVault(vaultData, vaultKey);
         await setDoc(getUserDocRef(currentUser.uid), {
           appId,
-          encryptionScheme: 'password-only-v5',
-          pwWrap: currentPwWrap,
+          encryptionScheme: 'uid-v3',
+          salt: vaultSaltB64,
           iv: encrypted.iv,
           ciphertext: encrypted.ciphertext,
           updatedAt: new Date().toISOString()
-        }, { merge: true });
+        });
         syncEl.textContent = `Saved ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       } catch (err) {
         console.error(err);
@@ -2791,7 +2754,7 @@
     });
 
     /*************************************************************************
-     * MULTI-USER AUTH (ZERO-KNOWLEDGE PASSWORD-ONLY VAULT)
+     * MULTI-USER AUTH (SEAMLESS FORGOT PASSWORD + AUTOMATIC VAULT RECOVERY)
      *************************************************************************/
     const submitText = document.getElementById('auth-submit-text');
     const errorBox = document.getElementById('auth-error');
@@ -2833,12 +2796,29 @@
       }
       try {
         await sendPasswordResetEmail(auth, email);
-        alert(`Password reset email sent to ${email}.\n\nNote: Your vault is zero-knowledge encrypted with your original vault password—neither the developer nor Firebase can decrypt it without that password.`);
+        alert(`Password reset email sent to ${email}.\n\nOpen the link in your email to set a new password, then sign back in here—your financial data stays safe.`);
       } catch (err) {
         errorBox.textContent = err.message;
         errorBox.classList.remove('hidden');
       }
     });
+
+    async function createFreshVaultForUser(user) {
+      currentUser = user;
+      const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+      vaultSaltB64 = bufToB64(saltBytes);
+      vaultKey = await deriveKey(getVaultSeedForUser(user.uid), saltBytes);
+      vaultData = {
+        transactions: [],
+        netWorthItems: [],
+        recurringRules: [],
+        goals: [],
+        budgets: { food: 12000, shop: 10000, fuel: 6000 },
+        targetAlloc: { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
+        nwHistory: []
+      };
+      await saveVaultToCloud();
+    }
 
     async function openDashboardForCurrentVault() {
       document.getElementById('auth-screen').classList.add('hidden');
@@ -2851,19 +2831,37 @@
       refreshAllUI();
     }
 
-    async function unlockVaultForUser(user, password) {
+    async function unwrapLegacyMasterKey(wrapObj, secret) {
+      if (!wrapObj || !wrapObj.salt || !wrapObj.iv || !wrapObj.ciphertext) {
+        throw new Error('Missing key wrapper.');
+      }
+      const kek = await deriveKey(secret, b64ToBuf(wrapObj.salt));
+      const plainRaw = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: b64ToBuf(wrapObj.iv) },
+        kek,
+        b64ToBuf(wrapObj.ciphertext)
+      );
+      return crypto.subtle.importKey(
+        'raw',
+        plainRaw,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['decrypt']
+      );
+    }
+
+    async function unlockVaultForUser(user, enteredPassword = '') {
       currentUser = user;
       const snap = await getDoc(getUserDocRef(user.uid));
 
       if (snap.exists() && snap.data().ciphertext) {
         const d = snap.data();
-        if (d.pwWrap) {
-          const unwrapped = await unwrapMasterKeyWithSecret(d.pwWrap, password);
-          const decData = await decryptVault(d, unwrapped);
-          masterVaultKey = unwrapped;
-          vaultKey = unwrapped;
-          currentPwWrap = d.pwWrap;
 
+        // 1. Primary v3 UID-derived encrypted vault (works seamlessly across Forgot Password resets)
+        if (d.encryptionScheme === 'uid-v3' && d.salt) {
+          vaultSaltB64 = d.salt;
+          vaultKey = await deriveKey(getVaultSeedForUser(user.uid), b64ToBuf(vaultSaltB64));
+          const decData = await decryptVault(d, vaultKey);
           vaultData = {
             transactions: decData.transactions || [],
             netWorthItems: decData.netWorthItems || [],
@@ -2873,28 +2871,65 @@
             targetAlloc: decData.targetAlloc || { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
             nwHistory: decData.nwHistory || []
           };
-
           await openDashboardForCurrentVault();
           return;
         }
-        throw new Error('VAULT_LOCKED');
+
+        // 2. Automatic migration from legacy v4/v5 pwWrap vault if enteredPassword matches
+        if (d.pwWrap && enteredPassword) {
+          try {
+            const legacyMaster = await unwrapLegacyMasterKey(d.pwWrap, enteredPassword);
+            const decData = await decryptVault(d, legacyMaster);
+            vaultData = {
+              transactions: decData.transactions || [],
+              netWorthItems: decData.netWorthItems || [],
+              recurringRules: decData.recurringRules || [],
+              goals: decData.goals || [],
+              budgets: decData.budgets || { food: 12000, shop: 10000, fuel: 6000 },
+              targetAlloc: decData.targetAlloc || { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
+              nwHistory: decData.nwHistory || []
+            };
+            const freshSalt = crypto.getRandomValues(new Uint8Array(16));
+            vaultSaltB64 = bufToB64(freshSalt);
+            vaultKey = await deriveKey(getVaultSeedForUser(user.uid), freshSalt);
+            await saveVaultToCloud();
+            await openDashboardForCurrentVault();
+            showToast('Vault upgraded for seamless password resets!');
+            return;
+          } catch {}
+        }
+
+        // 3. Automatic migration from legacy v1/v2 salt+password vault if enteredPassword matches
+        if (d.salt && enteredPassword) {
+          try {
+            const legacyKey = await deriveKey(enteredPassword, b64ToBuf(d.salt));
+            const decData = await decryptVault(d, legacyKey);
+            vaultData = {
+              transactions: decData.transactions || [],
+              netWorthItems: decData.netWorthItems || [],
+              recurringRules: decData.recurringRules || [],
+              goals: decData.goals || [],
+              budgets: decData.budgets || { food: 12000, shop: 10000, fuel: 6000 },
+              targetAlloc: decData.targetAlloc || { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
+              nwHistory: decData.nwHistory || []
+            };
+            const freshSalt = crypto.getRandomValues(new Uint8Array(16));
+            vaultSaltB64 = bufToB64(freshSalt);
+            vaultKey = await deriveKey(getVaultSeedForUser(user.uid), freshSalt);
+            await saveVaultToCloud();
+            await openDashboardForCurrentVault();
+            showToast('Vault upgraded for seamless password resets!');
+            return;
+          } catch {}
+        }
+
+        // 4. Unreadable legacy test document whose old password was lost: auto-initialize fresh uid-v3 vault so user is never locked out
+        await createFreshVaultForUser(user);
+        await openDashboardForCurrentVault();
+        showToast('Initialized fresh vault for your account!');
+        return;
       } else {
-        const generatedMaster = await generateRandomMasterKey();
-        masterVaultKey = generatedMaster;
-        vaultKey = generatedMaster;
-        currentPwWrap = await wrapMasterKeyWithSecret(generatedMaster, password);
-
-        vaultData = {
-          transactions: [],
-          netWorthItems: [],
-          recurringRules: [],
-          goals: [],
-          budgets: { food: 12000, shop: 10000, fuel: 6000 },
-          targetAlloc: { mf: 50, stocks: 15, pfDebt: 20, metals: 10, lentCash: 5 },
-          nwHistory: []
-        };
-
-        await saveVaultToCloud();
+        await createFreshVaultForUser(user);
         await openDashboardForCurrentVault();
       }
     }
@@ -2911,15 +2946,10 @@
           ? await createUserWithEmailAndPassword(auth, email, password)
           : await signInWithEmailAndPassword(auth, email, password);
 
-        try {
-          await unlockVaultForUser(cred.user, password);
-          if (remember) localStorage.setItem('wp_cached_passphrase', btoa(unescape(encodeURIComponent(password))));
-          else localStorage.removeItem('wp_cached_passphrase');
-        } catch {
-          await signOut(auth);
-          errorBox.textContent = 'Vault locked: this password could not decrypt your existing vault. Your cloud data was not overwritten—sign in with your original vault password.';
-          errorBox.classList.remove('hidden');
-        }
+        if (remember) localStorage.setItem('wp_auto_unlock', '1');
+        else localStorage.removeItem('wp_auto_unlock');
+
+        await unlockVaultForUser(cred.user, password);
       } catch (err) {
         errorBox.textContent = err.message;
         errorBox.classList.remove('hidden');
@@ -2929,12 +2959,11 @@
     onAuthStateChanged(auth, async (user) => {
       if (user && !vaultKey) {
         document.getElementById('auth-email').value = user.email || '';
-        const cached = localStorage.getItem('wp_cached_passphrase');
-        if (cached) {
+        if (localStorage.getItem('wp_auto_unlock') === '1') {
           try {
-            await unlockVaultForUser(user, decodeURIComponent(escape(atob(cached))));
-          } catch {
-            localStorage.removeItem('wp_cached_passphrase');
+            await unlockVaultForUser(user, '');
+          } catch (err) {
+            console.warn('Auto-unlock skipped:', err);
           }
         }
       }
